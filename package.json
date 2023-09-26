@@ -1,0 +1,77 @@
+{
+  "name": "@sec-ant/vanilla-ts",
+  "description": "A Vite vanilla-ts template for browser es modules",
+  "private": false,
+  "version": "0.0.8",
+  "type": "module",
+  "files": [
+    "./dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sec-ant/vanilla-ts.git"
+  },
+  "homepage": "https://github.com/Sec-ant/vanilla-ts",
+  "bugs": {
+    "url": "https://github.com/Sec-ant/vanilla-ts/issues",
+    "email": "zzwu@zju.edu.cn"
+  },
+  "keywords": [
+    "vite",
+    "template",
+    "vite-template",
+    "vanilla",
+    "typescript",
+    "vanilla-ts",
+    "lib"
+  ],
+  "author": {
+    "name": "Ze-Zheng Wu"
+  },
+  "license": "MIT",
+  "config": {},
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vite",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit --emitDeclarationOnly false",
+    "format": "prettier . --write",
+    "prebuild": "npm run lint && npm run type-check && npm run format",
+    "build": "vite build",
+    "postbuild": "tsc",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build",
+    "ncu": "npx npm-check-updates -u",
+    "postncu": "npm i"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.7.1",
+    "@commitlint/config-conventional": "^17.7.0",
+    "@semantic-release/git": "^10.0.1",
+    "@types/estree": "^1.0.2",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "@vitest/browser": "^0.34.4",
+    "@vitest/coverage-istanbul": "^0.34.4",
+    "@vitest/ui": "^0.34.4",
+    "eslint": "^8.49.0",
+    "npm-check-updates": "^16.13.3",
+    "playwright": "^1.37.1",
+    "prettier": "^3.0.3",
+    "semantic-release": "^22.0.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.9",
+    "vitest": "^0.34.4"
+  }
+}
