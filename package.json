@@ -1,8 +1,8 @@
 {
-  "name": "@sec-ant/vanilla-ts",
-  "description": "A Vite vanilla-ts template for browser es modules",
+  "name": "prettier-plugin-embed",
+  "description": "A prettier plugin to format embedded languages in js/ts files.",
   "private": false,
-  "version": "0.0.8",
+  "version": "0.0.1",
   "type": "module",
   "files": [
     "./dist"
@@ -15,21 +15,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Sec-ant/vanilla-ts.git"
+    "url": "git+https://github.com/Sec-ant/prettier-plugin-embed.git"
   },
-  "homepage": "https://github.com/Sec-ant/vanilla-ts",
+  "homepage": "https://github.com/Sec-ant/prettier-plugin-embed",
   "bugs": {
-    "url": "https://github.com/Sec-ant/vanilla-ts/issues",
+    "url": "https://github.com/Sec-ant/prettier-plugin-embed/issues",
     "email": "zzwu@zju.edu.cn"
   },
   "keywords": [
-    "vite",
-    "template",
-    "vite-template",
-    "vanilla",
-    "typescript",
-    "vanilla-ts",
-    "lib"
+    "prettier",
+    "plugin",
+    "prettier-plugin",
+    "embed",
+    "embedded",
+    "embedded-language",
+    "format"
   ],
   "author": {
     "name": "Ze-Zheng Wu"
