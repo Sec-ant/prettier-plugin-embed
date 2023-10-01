@@ -56,22 +56,23 @@
     "postncu": "npm i"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.7.1",
+    "@commitlint/cli": "^17.7.2",
     "@commitlint/config-conventional": "^17.7.0",
     "@semantic-release/git": "^10.0.1",
     "@types/estree": "^1.0.2",
-    "@typescript-eslint/eslint-plugin": "^6.7.0",
-    "@typescript-eslint/parser": "^6.7.0",
-    "@vitest/browser": "^0.34.4",
-    "@vitest/coverage-istanbul": "^0.34.4",
-    "@vitest/ui": "^0.34.4",
-    "eslint": "^8.49.0",
-    "npm-check-updates": "^16.13.3",
-    "playwright": "^1.37.1",
+    "@typescript-eslint/eslint-plugin": "^6.7.3",
+    "@typescript-eslint/parser": "^6.7.3",
+    "@vitest/browser": "^0.34.6",
+    "@vitest/coverage-istanbul": "^0.34.6",
+    "@vitest/ui": "^0.34.6",
+    "code-tag": "^1.1.0",
+    "eslint": "^8.50.0",
+    "npm-check-updates": "^16.14.4",
+    "playwright": "^1.38.1",
     "prettier": "^3.0.3",
-    "semantic-release": "^22.0.0",
+    "semantic-release": "^22.0.5",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
-    "vitest": "^0.34.4"
+    "vitest": "^0.34.6"
   }
 }

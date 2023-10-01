@@ -3,18 +3,23 @@ import { builders } from "prettier/doc.js";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
 import type { Node, TemplateLiteral } from "estree";
 
+import { PluginOptions } from "./options.js";
 import printXml from "./embed/xml.js";
 
-const estreePrinter = estreePrinters["estree"];
+const { estree: estreePrinter } = estreePrinters;
+
+interface PrettierOptions extends Options, PluginOptions {}
 
 const embed: Printer["embed"] = function (
   path: AstPath<Node>,
-  options: Options,
+  options: PrettierOptions,
 ) {
-  // first check built-ins
-  const builtInEmbedder = estreePrinter.embed?.(path, options) ?? undefined;
-  if (builtInEmbedder !== undefined) {
-    return builtInEmbedder;
+  if (!(options.disableBuiltinBehavior ?? false)) {
+    // first check built-ins
+    const builtInEmbedder = estreePrinter.embed?.(path, options) ?? undefined;
+    if (builtInEmbedder !== undefined) {
+      return builtInEmbedder;
+    }
   }
 
   // the rest is handled by this plugin
@@ -22,6 +27,14 @@ const embed: Printer["embed"] = function (
   if (node.type !== "TemplateLiteral" || hasInvalidCookedValue(node)) {
     return null;
   }
+
+  options.embeddedLanguages?.map((embeddedLanaguage) => {
+    let tagName = 
+    if (typeof embeddedLanaguage === "string") {
+      
+    }
+    else if (typeof embeddedLanaguage === )
+  });
 
   // todo: the print array should be configurable
   for (const getEmbedder of [printXml]) {
