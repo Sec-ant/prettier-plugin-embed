@@ -1,5 +1,5 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
-import type { Embedder } from "./embed/index.js";
+import type { Embedder } from "./embedders/index.js";
 
 export const options: SupportOptions = {
   embeddedLanguages: {

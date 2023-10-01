@@ -3,7 +3,7 @@ import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
 import type { Node, TemplateLiteral } from "estree";
 
 import type { PluginOptions } from "./options.js";
-import { Embedder, embedders } from "./embed/index.js";
+import { Embedder, embedders } from "./embedders/index.js";
 
 const { estree: estreePrinter } = estreePrinters;
 
