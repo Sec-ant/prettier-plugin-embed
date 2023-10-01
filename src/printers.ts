@@ -33,7 +33,7 @@ const embed: Printer["embed"] = function (
     ) {
       continue;
     }
-    let embedderFun: Embedder;
+    let embedderFun: Embedder | null;
     if (typeof embedder === "string") {
       embedderFun = embedders[embedder];
     } else {

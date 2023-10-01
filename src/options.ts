@@ -6,7 +6,7 @@ export const options: SupportOptions = {
     type: "path",
     category: "Global" satisfies CoreCategoryType,
     array: true,
-    default: [],
+    default: [{ value: [] }],
     description:
       "Config embedded languages formatting supported by this plugin.",
   },
@@ -15,7 +15,7 @@ export const options: SupportOptions = {
 interface EmbeddedLanguage {
   tag: string | string[];
   comment: string | string[];
-  embedder: string | Embedder;
+  embedder: string | Embedder | null;
 }
 
 export interface PluginOptions {
