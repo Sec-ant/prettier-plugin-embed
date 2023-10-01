@@ -1,5 +1,5 @@
 import type { AstPath, Options, Doc } from "prettier";
-import { builders, utils } from "prettier/doc.js";
+import { builders, utils } from "prettier/doc";
 import type { Comment, Expression, TemplateLiteral } from "estree";
 import { v4 } from "uuid";
 import type { InternalPrintFun } from "./types.js";
