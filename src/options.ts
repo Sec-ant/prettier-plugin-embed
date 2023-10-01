@@ -1,13 +1,7 @@
-import { CoreCategoryType, SupportOptions } from "prettier";
+import type { CoreCategoryType, SupportOptions } from "prettier";
+import type { Embedder } from "./embed/index.js";
 
 export const options: SupportOptions = {
-  disableBuiltinBehavior: {
-    type: "boolean",
-    category: "Global" satisfies CoreCategoryType,
-    default: true,
-    description:
-      "Disable the built-in behavior of --embedded-language-formatting.",
-  },
   embeddedLanguages: {
     type: "path",
     category: "Global" satisfies CoreCategoryType,
@@ -18,23 +12,12 @@ export const options: SupportOptions = {
   },
 };
 
-interface EmbeddedLanguageTag {}
-
 interface EmbeddedLanguage {
-  triggerRules: [];
+  tag: string | string[];
+  comment: string | string[];
+  embedder: string | Embedder;
 }
 
-type EmbeddedLanguage =
-  | {
-      tag: string;
-      parser: string;
-    }
-  | {
-      tag: string;
-    }
-  | string;
-
 export interface PluginOptions {
-  disableBuiltinBehavior?: boolean;
   embeddedLanguages?: EmbeddedLanguage[];
 }

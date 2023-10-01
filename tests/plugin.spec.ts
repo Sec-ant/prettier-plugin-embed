@@ -1,1 +1,6 @@
-import prettier from "prettier";
+import { test } from "vitest";
+
+// todo: add tests
+test.skip(() => {
+  /* void */
+});

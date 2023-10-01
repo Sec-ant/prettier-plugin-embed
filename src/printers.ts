@@ -1,10 +1,9 @@
 import type { Plugin, Printer, AstPath, Options } from "prettier";
-import { builders } from "prettier/doc.js";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
 import type { Node, TemplateLiteral } from "estree";
 
-import { PluginOptions } from "./options.js";
-import printXml from "./embed/xml.js";
+import type { PluginOptions } from "./options.js";
+import { Embedder, embedders } from "./embed/index.js";
 
 const { estree: estreePrinter } = estreePrinters;
 
@@ -14,51 +13,69 @@ const embed: Printer["embed"] = function (
   path: AstPath<Node>,
   options: PrettierOptions,
 ) {
-  if (!(options.disableBuiltinBehavior ?? false)) {
-    // first check built-ins
-    const builtInEmbedder = estreePrinter.embed?.(path, options) ?? undefined;
-    if (builtInEmbedder !== undefined) {
-      return builtInEmbedder;
-    }
-  }
-
-  // the rest is handled by this plugin
   const { node } = path;
-  if (node.type !== "TemplateLiteral" || hasInvalidCookedValue(node)) {
+
+  // a quick check
+  if (
+    node.type !== "TemplateLiteral" ||
+    node.quasis.some(({ value: { cooked } }) => cooked === null)
+  ) {
     return null;
   }
 
-  options.embeddedLanguages?.map((embeddedLanaguage) => {
-    let tagName = 
-    if (typeof embeddedLanaguage === "string") {
-      
-    }
-    else if (typeof embeddedLanaguage === )
-  });
-
-  // todo: the print array should be configurable
-  for (const getEmbedder of [printXml]) {
-    const embedder = getEmbedder(path as AstPath<TemplateLiteral>);
-
-    if (!embedder) {
+  // test against registered options
+  for (const { comment, tag, embedder } of options.embeddedLanguages ?? []) {
+    const comments = typeof comment === "string" ? [comment] : comment;
+    const tags = typeof tag === "string" ? [tag] : tag;
+    if (
+      !checkAgainstComments(path, comments) &&
+      !checkAgainstTags(path, tags)
+    ) {
       continue;
     }
-
+    let embedderFun: Embedder;
+    if (typeof embedder === "string") {
+      embedderFun = embedders[embedder];
+    } else {
+      embedderFun = embedder;
+    }
+    const node = path.node as TemplateLiteral;
     if (node.quasis.length === 1 && node.quasis[0].value.raw.trim() === "") {
       return "``";
     }
-
-    return async (...args) => {
-      const doc = await (embedder satisfies Function)(...args);
-      return doc;
-    };
+    // todo: should we label the doc as in https://github.com/prettier/prettier/blob/f4491b1274d0697f38f9110116a7dd8d7c295e84/src/language-js/embed/index.js#L39
+    return embedderFun;
   }
 
-  return null;
+  // fall back
+  return estreePrinter.embed?.(path, options) ?? null;
 };
 
-function hasInvalidCookedValue({ quasis }: TemplateLiteral): boolean {
-  return quasis.some(({ value: { cooked } }) => cooked === null);
+// todo: add check against comments
+function checkAgainstComments(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _path: AstPath<Node>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _comments: string[],
+): boolean {
+  return false;
+}
+
+function checkAgainstTags(
+  { node, parent }: AstPath<Node>,
+  tags: string[],
+): boolean {
+  for (const tag of tags) {
+    if (
+      node.type === "TemplateLiteral" &&
+      parent?.type === "TaggedTemplateExpression" &&
+      parent.tag.type === "Identifier" &&
+      parent.tag.name === tag
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export const printers: Plugin["printers"] = {

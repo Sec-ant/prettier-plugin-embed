@@ -55,11 +55,15 @@
     "ncu": "npx npm-check-updates -u",
     "postncu": "npm i"
   },
+  "peerDependencies": {
+    "prettier": "^3.0.3"
+  },
   "devDependencies": {
     "@commitlint/cli": "^17.7.2",
     "@commitlint/config-conventional": "^17.7.0",
     "@semantic-release/git": "^10.0.1",
     "@types/estree": "^1.0.2",
+    "@types/uuid": "^9.0.4",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
     "@vitest/browser": "^0.34.6",
@@ -69,10 +73,12 @@
     "eslint": "^8.50.0",
     "npm-check-updates": "^16.14.4",
     "playwright": "^1.38.1",
-    "prettier": "^3.0.3",
     "semantic-release": "^22.0.5",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
     "vitest": "^0.34.6"
+  },
+  "dependencies": {
+    "uuid": "^9.0.1"
   }
 }
