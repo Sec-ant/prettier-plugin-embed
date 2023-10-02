@@ -1,6 +1,6 @@
 {
   "env": {
-    "browser": true,
+    "shared-node-browser": true,
     "es2021": true
   },
   "extends": [

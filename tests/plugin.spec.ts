@@ -8,7 +8,7 @@ const PLUGIN_EMBED = fileURLToPath(
   new URL("../dist/index.js", import.meta.url),
 );
 
-// todo: add tests
+// TODO: reorganize and add more tests
 test("0", async () => {
   const code = (await import("./code/0.ts?raw")).default;
   const formattedCode = await format(code, {

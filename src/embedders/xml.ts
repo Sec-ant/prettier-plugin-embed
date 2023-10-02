@@ -36,8 +36,10 @@ async function printEmbedXml(
 
     const expressionDocs = printTemplateExpressions(path, print);
 
-    // todo: do we need topLevelCount?
+    // TODO: do we need topLevelCount?
     const topLevelCount = 0;
+    // TODO: deal with whitespaces before prolog
+    // https://github.com/SAP/xml-tools/issues/248
     const doc = await textToDoc(text, {
       parser: "xml",
     });
@@ -53,7 +55,7 @@ async function printEmbedXml(
         if (i % 2 == 0) {
           if (component) {
             component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
-            // todo: what about __embeddedInHtml in xml?
+            // TODO: do we need to support this option?
             if (options.__embeddedInHtml) {
               component = component.replaceAll(/<\/(?=script\b)/gi, "<\\/");
             }

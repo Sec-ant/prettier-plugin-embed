@@ -48,7 +48,8 @@ const embed: Printer["embed"] = function (
     } else {
       embedderFun = embedder ?? null;
     }
-    // todo: should we label the doc as in https://github.com/prettier/prettier/blob/f4491b1274d0697f38f9110116a7dd8d7c295e84/src/language-js/embed/index.js#L39
+    // TODO: should we label the doc?
+    // https://github.com/prettier/prettier/blob/f4491b1274d0697f38f9110116a7dd8d7c295e84/src/language-js/embed/index.js#L39
     return embedderFun;
   }
 
@@ -56,7 +57,7 @@ const embed: Printer["embed"] = function (
   return estreePrinter.embed?.(path, options) ?? null;
 };
 
-// todo: implement check against comments
+// TODO: implement checkAgainstComments
 function checkAgainstComments(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _path: AstPath<Node>,
