@@ -17,12 +17,6 @@ export default defineConfig({
   },
   test: {
     passWithNoTests: true,
-    browser: {
-      enabled: true,
-      headless: true,
-      name: "chromium",
-      provider: "playwright",
-    },
     coverage: {
       provider: "istanbul",
     },
