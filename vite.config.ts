@@ -12,7 +12,13 @@ export default defineConfig({
         format === "es" ? `${entryName}.js` : `${entryName}.${format}.js`,
     },
     rollupOptions: {
-      external: ["prettier", /^prettier\//],
+      external: [
+        "prettier",
+        /^prettier\//,
+        "@prettier/plugin-xml",
+        "@xml-tools/parser",
+        "prettier-plugin-sql",
+      ],
     },
   },
   test: {

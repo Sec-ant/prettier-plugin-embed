@@ -55,17 +55,19 @@
     "postncu": "npm i"
   },
   "peerDependencies": {
-    "prettier": "^3.0.3"
+    "@xml-tools/parser": "^1.0.11",
+    "prettier": "^3.0.3",
+    "@prettier/plugin-xml": "^3.2.1",
+    "prettier-plugin-sql": "^0.15.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.7.2",
     "@commitlint/config-conventional": "^17.7.0",
-    "@prettier/plugin-xml": "^3.2.1",
     "@semantic-release/git": "^10.0.1",
     "@types/estree": "^1.0.2",
     "@types/uuid": "^9.0.4",
-    "@typescript-eslint/eslint-plugin": "^6.7.3",
-    "@typescript-eslint/parser": "^6.7.3",
+    "@typescript-eslint/eslint-plugin": "^6.7.4",
+    "@typescript-eslint/parser": "^6.7.4",
     "@vitest/browser": "^0.34.6",
     "@vitest/coverage-istanbul": "^0.34.6",
     "@vitest/ui": "^0.34.6",
@@ -75,7 +77,7 @@
     "playwright": "^1.38.1",
     "semantic-release": "^22.0.5",
     "typescript": "^5.2.2",
-    "vite": "^4.4.9",
+    "vite": "^4.4.10",
     "vitest": "^0.34.6"
   },
   "dependencies": {

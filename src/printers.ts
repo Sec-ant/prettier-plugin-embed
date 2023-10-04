@@ -1,23 +1,21 @@
-import type { Plugin, Printer, AstPath, Options } from "prettier";
+import type { TemplateLiteral } from "estree";
+import { type Plugin, type Printer, type AstPath, Options } from "prettier";
+import { builders } from "prettier/doc";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
-import type { Node, TemplateLiteral } from "estree";
-
-import type {
-  EmbeddedLanguage,
-  PrettierPluginEmbedOptions,
-} from "./options.js";
-import { Embedder, embedders } from "./embedders/index.js";
+import type { PrettierNode } from "./types.js";
+import { embeddedLanguageNames, embeddedPrinters } from "./embedded/index.js";
 
 const { estree: estreePrinter } = estreePrinters;
 
-interface PrettierOptions extends Options, PrettierPluginEmbedOptions {}
-
+// the embed method in plugin printers
+// https://prettier.io/docs/en/plugins.html#optional-embed
+// we override the built-in one with this
+// so that we can add hooks to support other languages
 const embed: Printer["embed"] = function (
-  path: AstPath<Node>,
-  options: PrettierOptions,
+  path: AstPath<PrettierNode>,
+  options: Options,
 ) {
   const { node } = path;
-
   // a quick check
   if (
     node.type !== "TemplateLiteral" ||
@@ -25,65 +23,84 @@ const embed: Printer["embed"] = function (
   ) {
     return null;
   }
-
-  // test against registered options
-  for (const { comment, tag, embedder } of JSON.parse(
-    options.embeddedLanguages ?? "[]",
-  ) as EmbeddedLanguage[]) {
-    const comments = typeof comment === "string" ? [comment] : comment;
-    const tags = typeof tag === "string" ? [tag] : tag;
-    if (
-      !checkAgainstComments(path, comments) &&
-      !checkAgainstTags(path, tags)
-    ) {
+  for (const name of embeddedLanguageNames) {
+    const labels = options[name];
+    if (!labels) {
       continue;
     }
-    let embedderFun: Embedder | null;
-    if (typeof embedder === "string") {
-      embedderFun = embedders[embedder];
-      const node = path.node as TemplateLiteral;
-      if (node.quasis.length === 1 && node.quasis[0].value.raw.trim() === "") {
-        return "``";
-      }
-    } else {
-      embedderFun = embedder ?? null;
+    const lang =
+      getLangFromComment(path, labels) ?? getLangFromTag(path, labels);
+    if (lang === undefined) {
+      continue;
     }
-    // TODO: should we label the doc?
-    // https://github.com/prettier/prettier/blob/f4491b1274d0697f38f9110116a7dd8d7c295e84/src/language-js/embed/index.js#L39
-    return embedderFun;
+    const embeddedPrinter = embeddedPrinters[name];
+    const node = path.node as TemplateLiteral;
+    if (node.quasis.length === 1 && node.quasis[0].value.raw.trim() === "") {
+      return "``";
+    }
+    return async (...args) => {
+      const doc = await embeddedPrinter!(...args, lang);
+      return builders.label(
+        { embed: true, ...(doc as builders.Label).label },
+        doc,
+      );
+    };
   }
-
   // fall back
   return estreePrinter.embed?.(path, options) ?? null;
 };
 
-// TODO: implement checkAgainstComments
-function checkAgainstComments(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _path: AstPath<Node>,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _comments: string[],
-): boolean {
-  return false;
-}
-
-function checkAgainstTags(
-  { node, parent }: AstPath<Node>,
-  tags: string[],
-): boolean {
-  for (const tag of tags) {
-    if (
-      node.type === "TemplateLiteral" &&
-      parent?.type === "TaggedTemplateExpression" &&
-      parent.tag.type === "Identifier" &&
-      parent.tag.name === tag
-    ) {
-      return true;
+// function to get lang from template literal comments
+function getLangFromComment(
+  { node, parent }: AstPath<PrettierNode>,
+  comments: string[],
+): string | undefined {
+  if (comments.length === 0) {
+    return;
+  }
+  if (node.type !== "TemplateLiteral") {
+    return;
+  }
+  const nodeComments = node.comments ?? parent?.comments;
+  if (!nodeComments) {
+    return;
+  }
+  const lastNodeComment = nodeComments[nodeComments.length - 1];
+  if (lastNodeComment.type !== "Block" || !lastNodeComment.leading) {
+    return;
+  }
+  for (const comment of comments) {
+    if (` ${comment} ` === lastNodeComment.value) {
+      return comment;
     }
   }
-  return false;
+  return;
 }
 
+// function to get lang from template literal tags
+function getLangFromTag(
+  { node, parent }: AstPath<PrettierNode>,
+  tags: string[],
+): string | undefined {
+  if (tags.length === 0) {
+    return;
+  }
+  if (
+    node.type !== "TemplateLiteral" ||
+    parent?.type !== "TaggedTemplateExpression" ||
+    parent.tag.type !== "Identifier"
+  ) {
+    return;
+  }
+  for (const tag of tags) {
+    if (parent.tag.name === tag) {
+      return tag;
+    }
+  }
+  return;
+}
+
+// extends estree printer to parse embedded lanaguges in js/ts files
 export const printers: Plugin["printers"] = {
   estree: {
     ...estreePrinter,
