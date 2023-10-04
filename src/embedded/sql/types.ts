@@ -36,7 +36,7 @@ export type SqlFormatterLanguage = (typeof SQL_FORMATTER_LANGUAGES)[number];
 export type NodeSqlParserDataBase = (typeof NODE_SQL_PARSER_DATABASES)[number];
 
 export interface PrettierPluginEmbedSqlOptions {
-  [name]?: SqlFormatterLanguage[] | NodeSqlParserDataBase[];
+  [name]?: SqlFormatterLanguage[] | NodeSqlParserDataBase[] | string[];
 }
 
 declare module "prettier" {

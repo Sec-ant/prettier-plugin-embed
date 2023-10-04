@@ -24,12 +24,11 @@ const embed: Printer["embed"] = function (
     return null;
   }
   for (const name of embeddedLanguageNames) {
-    const labels = options[name];
-    if (!labels) {
+    const langs = options[name];
+    if (!langs) {
       continue;
     }
-    const lang =
-      getLangFromComment(path, labels) ?? getLangFromTag(path, labels);
+    const lang = getLangFromComment(path, langs) ?? getLangFromTag(path, langs);
     if (lang === undefined) {
       continue;
     }
@@ -39,7 +38,7 @@ const embed: Printer["embed"] = function (
       return "``";
     }
     return async (...args) => {
-      const doc = await embeddedPrinter!(...args, lang);
+      const doc = await embeddedPrinter!(...args, lang, langs);
       return builders.label(
         { embed: true, ...(doc as builders.Label).label },
         doc,

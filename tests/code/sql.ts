@@ -5,4 +5,4 @@
           ALTER TABLE t ALTER COLUMN foo DROP SCOPE CASCADE;
           ALTER TABLE t ALTER COLUMN foo RESTART WITH 10;`;
 
-/* mariadb */ `SHOW TABLES WHERE Tables_in_test LIKE 'a%';`;
+/* mdb */ `SHOW TABLES WHERE Tables_in_test LIKE 'a%';`;

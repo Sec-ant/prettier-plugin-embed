@@ -20,6 +20,7 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
   path,
   options,
   lang,
+  langs,
 ) => {
   try {
     const uuid = "p" + v4().replaceAll("-", "");
@@ -38,43 +39,9 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
 
     const expressionDocs = printTemplateExpressions(path, print);
 
-    lang = lang.toLowerCase();
-
-    let optionsOverride: SqlBaseOptions = {};
-
-    // TODO: lang auto fallback
-    if (options.formatter === "sql-formatter") {
-      if (SQL_FORMATTER_LANGUAGES.includes(lang as SqlFormatterLanguage)) {
-        optionsOverride = {
-          formatter: "sql-formatter",
-          language: lang,
-        };
-      } else if (
-        NODE_SQL_PARSER_DATABASES.includes(lang as NodeSqlParserDataBase)
-      ) {
-        optionsOverride = {
-          formatter: "node-sql-parser",
-          database: lang,
-        };
-      } else {
-        throw new SyntaxError(`Unrecognized language: ${lang}`);
-      }
-    } else {
-      if (NODE_SQL_PARSER_DATABASES.includes(lang as NodeSqlParserDataBase)) {
-        optionsOverride = {
-          formatter: "node-sql-parser",
-          database: lang,
-        };
-      } else if (
-        SQL_FORMATTER_LANGUAGES.includes(lang as SqlFormatterLanguage)
-      ) {
-        optionsOverride = {
-          formatter: "sql-formatter",
-          language: lang,
-        };
-      } else {
-        throw new SyntaxError(`Unrecognized language: ${lang}`);
-      }
+    const optionsOverride = getOptionsOverride(options, lang, langs);
+    if (typeof optionsOverride === "undefined") {
+      throw new SyntaxError(`Unrecognized language: ${lang}`);
     }
 
     const doc = await textToDoc(text, {
@@ -126,3 +93,62 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
     throw e;
   }
 };
+
+type Formatter = Exclude<Options["formatter"], undefined>;
+
+const testFormatterLangs: Record<Formatter, (lang: string) => boolean> = {
+  "sql-formatter": (lang: string) =>
+    SQL_FORMATTER_LANGUAGES.includes(lang as SqlFormatterLanguage),
+  "node-sql-parser": (lang: string) =>
+    NODE_SQL_PARSER_DATABASES.includes(lang as NodeSqlParserDataBase),
+};
+
+function getOptionsOverrideByFormatters(
+  lang: string,
+  formatters: Formatter[],
+): SqlBaseOptions | undefined {
+  for (const formatter of formatters) {
+    if (testFormatterLangs[formatter](lang)) {
+      return {
+        formatter,
+        language: lang,
+      };
+    }
+  }
+}
+
+function getOptionsOverrideByFormattersWithFallback(
+  lang: string,
+  langs: string[],
+  formatters: Formatter[],
+): SqlBaseOptions | undefined {
+  let optionsOverride = getOptionsOverrideByFormatters(lang, formatters);
+  if (optionsOverride) {
+    return optionsOverride;
+  }
+  const index = langs.indexOf(lang);
+  for (let i = index - 1; i >= 0; --i) {
+    optionsOverride = getOptionsOverrideByFormatters(langs[i], formatters);
+    if (optionsOverride) {
+      return optionsOverride;
+    }
+  }
+}
+
+function getOptionsOverride(
+  options: Options,
+  lang: string,
+  langs: string[],
+): SqlBaseOptions | undefined {
+  if (options.formatter === "sql-formatter") {
+    return getOptionsOverrideByFormattersWithFallback(lang, langs, [
+      "sql-formatter",
+      "node-sql-parser",
+    ]);
+  } else {
+    return getOptionsOverrideByFormattersWithFallback(lang, langs, [
+      "node-sql-parser",
+      "sql-formatter",
+    ]);
+  }
+}

@@ -21,4 +21,5 @@ export type EmbeddedPrinter<T extends Options = Options> = (
   path: AstPath<TemplateLiteral>,
   options: T,
   lang: string,
+  langs: string[],
 ) => Promise<Doc>;

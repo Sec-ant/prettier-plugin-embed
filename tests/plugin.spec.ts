@@ -23,7 +23,7 @@ test("sql", async () => {
   const formattedCode = await format(code, {
     plugins: ["prettier-plugin-sql", PRETTIER_PLUGIN_EMBED],
     filepath: "sql.ts",
-    embeddedSql: ["sql", "mariadb"],
+    embeddedSql: ["sql", "mdb"],
   } as Options);
   console.log(formattedCode);
 });
