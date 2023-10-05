@@ -1,5 +1,5 @@
 import { name } from "./name.js";
-import { SqlBaseOptions as PrettierPluginSqlOptions } from "prettier-plugin-sql";
+import type { SqlBaseOptions as PrettierPluginSqlOptions } from "prettier-plugin-sql";
 
 export const SQL_FORMATTER_LANGUAGES = [
   "sql",

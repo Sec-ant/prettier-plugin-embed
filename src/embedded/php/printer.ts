@@ -3,7 +3,7 @@ import { builders, utils } from "prettier/doc";
 import { v4 } from "uuid";
 import type { EmbeddedPrinter } from "../../types.js";
 import { printTemplateExpressions, throwIfPluginIsNotFound } from "../utils.js";
-import { name } from "./name.js";
+// import { name } from "./name.js";
 
 const { label, hardline, line, group, indent } = builders;
 const { mapDoc } = utils;
@@ -16,16 +16,16 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
   lang,
 ) => {
   try {
-    throwIfPluginIsNotFound("@prettier/plugin-xml", options, lang);
+    throwIfPluginIsNotFound("@prettier/plugin-php", options, lang);
 
-    const uuid = v4();
+    const uuid = "$p" + v4().replaceAll("-", "");
     const { node } = path;
 
     const text = node.quasis
       .map((quasi, index, { length }) =>
         index === length - 1
           ? quasi.value.cooked
-          : quasi.value.cooked + `${uuid}-${index}`,
+          : quasi.value.cooked + `${uuid}${index}`,
       )
       .join("");
 
@@ -36,28 +36,28 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
       startIndex = match.index + match[0].length;
       leadingWhitespace = " ";
     }
-
     const trailingWhitespace = /\s$/.test(text) ? " " : "";
 
     const expressionDocs = printTemplateExpressions(path, print);
 
-    // TODO: do we need topLevelCount?
-    // https://github.com/prettier/prettier/blob/d4d4b185e0ddc3e0dd839b873e2ee7fe8131b684/src/language-js/embed/html.js#L36-L42
-    // const topLevelCount = 2;
-
-    // TODO: work around
-    // trim whitespaces as a workaround of
-    // https://github.com/SAP/xml-tools/issues/248
     const doc = await textToDoc(text.slice(startIndex), {
-      parser: name,
+      parser: "php",
     });
 
+    let multiline = false;
     const contentDoc = mapDoc(doc, (doc) => {
       if (typeof doc !== "string") {
+        if (!Array.isArray(doc)) {
+          if (doc.type === "group" && doc.break) {
+            multiline = true;
+          } else if (doc.type === "line" && (doc.hard || doc.literal)) {
+            multiline = true;
+          }
+        }
         return doc;
       }
       const parts = [];
-      const components = doc.split(new RegExp(uuid + "-(\\d+)", "g"));
+      const components = doc.split(new RegExp("\\" + uuid + "(\\d+)", "g"));
       for (let i = 0; i < components.length; i++) {
         let component = components[i];
         if (i % 2 == 0) {
@@ -65,11 +65,6 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
             continue;
           }
           component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
-          // TODO: do we need to support this option?
-          // https://github.com/prettier/prettier/blob/d4d4b185e0ddc3e0dd839b873e2ee7fe8131b684/src/language-js/embed/html.js#L58-L60
-          // if (options.__embeddedInHtml) {
-          //   component = component.replaceAll(/<\/(?=script\b)/gi, "<\\/");
-          // }
           parts.push(component);
         } else {
           const placeholderIndex = Number(component);
@@ -79,12 +74,11 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
       return parts;
     });
 
-    const linebreak =
-      options.xmlWhitespaceSensitivity === "ignore"
-        ? hardline
-        : leadingWhitespace && trailingWhitespace
-        ? line
-        : null;
+    const linebreak = multiline
+      ? hardline
+      : leadingWhitespace && trailingWhitespace
+      ? line
+      : null;
 
     if (linebreak) {
       return group([
@@ -100,7 +94,7 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
       group([
         "`",
         leadingWhitespace,
-        group(contentDoc),
+        group([contentDoc]),
         trailingWhitespace,
         "`",
       ]),

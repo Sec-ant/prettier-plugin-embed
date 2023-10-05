@@ -13,9 +13,7 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        "prettier",
-        /^prettier\//,
-        "@prettier/plugin-xml",
+        /^@?prettier(?:\/|$)/,
         "@xml-tools/parser",
         "prettier-plugin-sql",
       ],

@@ -23,3 +23,11 @@ export type EmbeddedPrinter<T extends Options = Options> = (
   lang: string,
   langs: string[],
 ) => Promise<Doc>;
+
+// see "./options.ts"
+declare module "prettier" {
+  export interface Options {
+    disableEmbeddedDetectionByComment?: string[];
+    disableEmbeddedDetectionByTag?: string[];
+  }
+}

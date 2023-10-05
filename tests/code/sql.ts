@@ -1,8 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-/* sql */ `ALTER TABLE t ALTER ${"COLUMN"} ${456} SET DEFAULT ${123};
-          ALTER TABLE t ALTER COLUMN foo DROP DEFAULT;
-          ALTER TABLE t ALTER COLUMN foo DROP SCOPE CASCADE;
-          ALTER TABLE t ALTER COLUMN foo RESTART WITH 10;`;
+/* sql */ `SELECT *
+FROM
+tbl
+WHERE
+  foo = 'bar';
+
+
+  UPDATE a SET id = 1 WHERE name IN (SELECT name FROM b)`;
+
+/* sql */ `
+ALTER TABLE ${"table"}
+`;
 
 /* mdb */ `SHOW TABLES WHERE Tables_in_test LIKE 'a%';`;

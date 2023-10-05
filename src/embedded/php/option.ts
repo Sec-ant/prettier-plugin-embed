@@ -3,7 +3,7 @@ export const embeddedOption: SupportOption = {
   category: "Global" satisfies CoreCategoryType,
   type: "string",
   array: true,
-  default: [{ value: ["xml", "svg"] }],
+  default: [{ value: ["php"] }],
   description:
-    "Specify embedded XML languages. This requires @prettier/plugin-xml",
+    "Specify embedded PHP languages. This requires @prettier/plugin-php",
 };

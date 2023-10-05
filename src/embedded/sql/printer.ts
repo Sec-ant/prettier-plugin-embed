@@ -3,7 +3,7 @@ import { builders, utils } from "prettier/doc";
 import { SqlBaseOptions } from "prettier-plugin-sql";
 import { v4 } from "uuid";
 import type { EmbeddedPrinter } from "../../types.js";
-import { printTemplateExpressions } from "../utils.js";
+import { printTemplateExpressions, throwIfPluginIsNotFound } from "../utils.js";
 import {
   NODE_SQL_PARSER_DATABASES,
   type NodeSqlParserDataBase,
@@ -11,7 +11,7 @@ import {
   type SqlFormatterLanguage,
 } from "./types.js";
 
-const { label, hardline, group } = builders;
+const { label, hardline, group, line, indent } = builders;
 const { mapDoc } = utils;
 
 export const embeddedPrinter: EmbeddedPrinter<Options> = async (
@@ -23,6 +23,8 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
   langs,
 ) => {
   try {
+    throwIfPluginIsNotFound("prettier-plugin-sql", options, lang);
+
     const uuid = "p" + v4().replaceAll("-", "");
     const { node } = path;
 
@@ -49,6 +51,7 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
       ...optionsOverride,
     });
 
+    let multiline = false;
     const contentDoc = mapDoc(doc, (doc) => {
       if (typeof doc !== "string") {
         return doc;
@@ -62,7 +65,13 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
             continue;
           }
           component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
-          parts.push(component);
+          component
+            .split(/(\n)/)
+            .forEach((c) =>
+              c === "\n"
+                ? ((multiline = true), parts.push(hardline))
+                : parts.push(c),
+            );
         } else {
           const placeholderIndex = Number(component);
           parts.push(expressionDocs[placeholderIndex]);
@@ -71,11 +80,19 @@ export const embeddedPrinter: EmbeddedPrinter<Options> = async (
       return parts;
     });
 
-    // TODO: multiline indentation
-    const linebreak = hardline;
+    const linebreak = multiline
+      ? hardline
+      : leadingWhitespace && trailingWhitespace
+      ? line
+      : null;
 
     if (linebreak) {
-      return group(["`", linebreak, group(contentDoc), linebreak, "`"]);
+      return group([
+        "`",
+        indent([linebreak, group(contentDoc)]),
+        linebreak,
+        "`",
+      ]);
     }
 
     return label(

@@ -5,5 +5,5 @@ export const embeddedOption: SupportOption = {
   array: true,
   default: [{ value: ["sql"] }],
   description:
-    "Config embedded SQL formatting. This requires prettier-plugin-sql",
+    "Specify embedded SQL languages. This requires prettier-plugin-sql",
 };
