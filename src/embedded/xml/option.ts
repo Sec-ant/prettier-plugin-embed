@@ -1,4 +1,4 @@
-import { CoreCategoryType, SupportOption } from "prettier";
+import type { CoreCategoryType, SupportOption } from "prettier";
 import { name } from "./name.js";
 
 export const option: SupportOption = {

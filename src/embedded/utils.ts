@@ -1,7 +1,7 @@
-import { Expression, Comment, TemplateLiteral } from "estree";
-import { AstPath, Options } from "prettier";
+import type { Expression, Comment, TemplateLiteral } from "estree";
+import type { AstPath, Options } from "prettier";
 import { builders } from "prettier/doc";
-import { InternalPrintFun } from "../types.js";
+import type { InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, lineSuffixBoundary } = builders;
 

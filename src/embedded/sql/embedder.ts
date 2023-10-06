@@ -1,6 +1,6 @@
 import type { Options } from "prettier";
 import { builders, utils } from "prettier/doc";
-import { SqlBaseOptions } from "prettier-plugin-sql";
+import type { SqlBaseOptions } from "prettier-plugin-sql";
 import { v4 } from "uuid";
 import type { Embedder } from "../../types.js";
 import { printTemplateExpressions, throwIfPluginIsNotFound } from "../utils.js";

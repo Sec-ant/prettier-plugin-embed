@@ -1,4 +1,4 @@
-import { Options, Doc, AstPath } from "prettier";
+import type { Options, Doc, AstPath } from "prettier";
 import type { Node as EsTreeNode, TemplateLiteral, Comment } from "estree";
 
 export type PrettierNode = EsTreeNode & {

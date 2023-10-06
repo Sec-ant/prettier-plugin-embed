@@ -1,4 +1,4 @@
-import { CoreCategoryType, SupportOption } from "prettier";
+import type { CoreCategoryType, SupportOption } from "prettier";
 import type { SqlBaseOptions as PrettierPluginDepsOptions } from "prettier-plugin-sql";
 import { name } from "./name.js";
 

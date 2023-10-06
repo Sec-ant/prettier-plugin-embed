@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/consistent-indexed-object-style */
-import { Parser, SupportOption, Options } from "prettier";
-import { Embedder } from "../types.js";
+import type { Parser, SupportOption, Options } from "prettier";
+import type { Embedder } from "../types.js";
 
 export interface EmbeddedParsers {
   [name: string]: Parser | undefined;
