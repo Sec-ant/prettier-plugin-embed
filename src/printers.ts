@@ -5,8 +5,6 @@ import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
 import type { PrettierNode } from "./types.js";
 import { embeddedNames, embeddedEmbedders } from "./embedded/index.js";
 
-console.log(embeddedNames);
-
 const { estree: estreePrinter } = estreePrinters;
 
 // the embed method in plugin printers
