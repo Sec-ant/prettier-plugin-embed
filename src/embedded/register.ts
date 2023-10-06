@@ -4,18 +4,18 @@ import { insertEmbeddedLanguageName } from "./utils.js";
 import { name as embeddedNoopName } from "./noop/index.js";
 import type {
   EmbeddedEmbedders,
-  EmbeddedNames,
+  EmbeddedName,
   EmbeddedParsers,
   EmbeddedOptions,
 } from "./types.js";
 
-export const embeddedNames: EmbeddedNames[] = [];
+export const embeddedNames: EmbeddedName[] = [];
 export const embeddedParsers: EmbeddedParsers = {} as EmbeddedParsers;
 export const embeddedEmbedders: EmbeddedEmbedders = {} as EmbeddedEmbedders;
 export const embeddedOptions: EmbeddedOptions = {} as EmbeddedOptions;
 
 interface EmbeddedExports {
-  name: EmbeddedNames;
+  name: EmbeddedName;
   parser?: Parser;
   embedder?: Embedder<Options>;
   option: SupportOption;

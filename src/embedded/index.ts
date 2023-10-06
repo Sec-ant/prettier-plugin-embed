@@ -1,6 +1,6 @@
 export * from "./register.js";
 export type {
-  EmbeddedNames,
+  EmbeddedName,
   EmbeddedParsers,
   EmbeddedEmbedders,
   EmbeddedOptions,
