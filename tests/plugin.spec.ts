@@ -36,3 +36,12 @@ test("php", async () => {
   } as Options);
   console.log(formattedCode);
 });
+
+test("html", async () => {
+  const code = (await import("./code/html.ts?raw")).default;
+  const formattedCode = await format(code, {
+    plugins: [],
+    filepath: "html.ts",
+  } as Options);
+  console.log(formattedCode);
+});

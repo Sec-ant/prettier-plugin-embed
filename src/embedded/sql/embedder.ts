@@ -2,19 +2,20 @@ import type { Options } from "prettier";
 import { builders, utils } from "prettier/doc";
 import { SqlBaseOptions } from "prettier-plugin-sql";
 import { v4 } from "uuid";
-import type { EmbeddedPrinter } from "../../types.js";
+import type { Embedder } from "../../types.js";
 import { printTemplateExpressions, throwIfPluginIsNotFound } from "../utils.js";
 import {
   NODE_SQL_PARSER_DATABASES,
   type NodeSqlParserDataBase,
   SQL_FORMATTER_LANGUAGES,
   type SqlFormatterLanguage,
-} from "./types.js";
+} from "./option.js";
+import { name } from "./name.js";
 
 const { label, hardline, group, line, indent } = builders;
 const { mapDoc } = utils;
 
-export const embeddedPrinter: EmbeddedPrinter<Options> = async (
+export const embedder: Embedder<Options> = async (
   textToDoc,
   print,
   path,
@@ -167,5 +168,11 @@ function getOptionsOverride(
       "node-sql-parser",
       "sql-formatter",
     ]);
+  }
+}
+
+declare module "../types.js" {
+  interface EmbeddedEmbedders {
+    [name]: typeof embedder;
   }
 }

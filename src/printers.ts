@@ -1,9 +1,11 @@
 import type { TemplateLiteral } from "estree";
-import { type Plugin, type Printer, type AstPath, Options } from "prettier";
+import type { Plugin, Printer, AstPath, Options } from "prettier";
 import { builders } from "prettier/doc";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
 import type { PrettierNode } from "./types.js";
-import { embeddedLanguageNames, embedded } from "./embedded/index.js";
+import { embeddedNames, embeddedEmbedders } from "./embedded/index.js";
+
+console.log(embeddedNames);
 
 const { estree: estreePrinter } = estreePrinters;
 
@@ -23,8 +25,8 @@ const embed: Printer["embed"] = function (
   ) {
     return null;
   }
-  for (const name of embeddedLanguageNames) {
-    const langs = options[name];
+  for (const embeddedName of embeddedNames) {
+    const langs = options[embeddedName];
     if (!langs) {
       continue;
     }
@@ -38,7 +40,7 @@ const embed: Printer["embed"] = function (
     if (lang === undefined) {
       continue;
     }
-    const embeddedPrinter = embedded[name].printer;
+    const embeddedPrinter = embeddedEmbedders[embeddedName];
     if (!embeddedPrinter) {
       return null;
     }

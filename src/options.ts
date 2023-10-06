@@ -1,12 +1,8 @@
 import type { SupportOptions, CoreCategoryType } from "prettier";
-import { embedded } from "./embedded/index.js";
+import { embeddedOptions } from "./embedded/index.js";
 
 export const options: SupportOptions = {
-  ...Object.fromEntries(
-    Object.entries(embedded).map(
-      ([name, { option }]) => [name, option] as const,
-    ),
-  ),
+  ...embeddedOptions,
   disableEmbeddedDetectionByComment: {
     category: "Global" satisfies CoreCategoryType,
     type: "string",
@@ -24,5 +20,12 @@ export const options: SupportOptions = {
       'This option turns off "lang`...`" tag-based language detection for the specified languages.',
   },
 };
+
+declare module "prettier" {
+  interface Options {
+    disableEmbeddedDetectionByComment?: string[];
+    disableEmbeddedDetectionByTag?: string[];
+  }
+}
 
 // TODO: add options to control multi-line indentation, tabWidth, leading & trailing whitespaces, etc.

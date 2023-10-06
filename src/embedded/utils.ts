@@ -1,9 +1,7 @@
 import { Expression, Comment, TemplateLiteral } from "estree";
 import { AstPath, Options } from "prettier";
 import { builders } from "prettier/doc";
-
 import { InternalPrintFun } from "../types.js";
-import { name as embeddedNopName } from "./nop/index.js";
 
 const { group, indent, softline, lineSuffixBoundary } = builders;
 
@@ -45,14 +43,28 @@ export function throwIfPluginIsNotFound(
   }
 }
 
-export function compareNames(name1: string, name2: string) {
-  return name1 === embeddedNopName
-    ? -1
-    : name2 === embeddedNopName
-    ? 1
-    : name1 < name2
-    ? -1
-    : name1 > name2
-    ? 1
-    : 0;
+export function insertEmbeddedLanguageName(
+  names: string[],
+  name: string,
+  headName: string,
+) {
+  if (name === headName) {
+    names.unshift(name);
+    return;
+  }
+  let low = 0;
+  let high = names.length;
+  while (low < high) {
+    const mid = (low + high) >>> 1;
+    if (names[mid] === headName) {
+      names.push(name);
+      return;
+    }
+    if (names[mid] < name) {
+      low = mid + 1;
+    } else {
+      high = mid;
+    }
+  }
+  names.splice(low, 0, name);
 }

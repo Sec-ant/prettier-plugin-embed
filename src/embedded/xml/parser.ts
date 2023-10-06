@@ -1,5 +1,6 @@
 import type { Parser } from "prettier";
 import { parse as xmlToolsParse } from "@xml-tools/parser";
+import { name } from "./name.js";
 
 type CstNode = ReturnType<typeof xmlToolsParse>["cst"];
 
@@ -33,7 +34,7 @@ function createError(message: string, options: ErrorOptions) {
   return Object.assign(error, options);
 }
 
-export const embeddedParser: Parser<CstNode> = {
+export const parser: Parser<CstNode> = {
   parse(text: string) {
     const { lexErrors, parseErrors, cst } = xmlToolsParse(text);
 
@@ -81,3 +82,9 @@ export const embeddedParser: Parser<CstNode> = {
     return node.location!.endOffset ?? NaN;
   },
 };
+
+declare module "../types.js" {
+  interface EmbeddedParsers {
+    [name]: Parser;
+  }
+}
