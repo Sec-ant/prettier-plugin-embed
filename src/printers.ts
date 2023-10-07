@@ -74,7 +74,14 @@ function getLangFromComment(
     return;
   }
   const lastNodeComment = nodeComments[nodeComments.length - 1];
-  if (lastNodeComment.type !== "Block" || !lastNodeComment.leading) {
+  if (
+    ![
+      "MultiLine", // meriyah
+      "Block", // typescript, acorn, espree, flow
+      "CommentBlock", // babel, babel-flow, babel-ts
+    ].includes(lastNodeComment.type) ||
+    !lastNodeComment.leading
+  ) {
     return;
   }
   for (const comment of comments) {
