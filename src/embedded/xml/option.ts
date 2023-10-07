@@ -10,12 +10,6 @@ export const option: SupportOption = {
     "Specify embedded XML languages. This requires @prettier/plugin-xml",
 };
 
-declare module "../types.js" {
-  interface EmbeddedOptions {
-    [name]: typeof option;
-  }
-}
-
 export interface PrettierPluginDepsOptions {
   xmlSelfClosingSpace?: boolean;
   xmlWhitespaceSensitivity?: "strict" | "preserve" | "ignore";
@@ -23,12 +17,15 @@ export interface PrettierPluginDepsOptions {
   xmlQuoteAttributes?: "preserve" | "single" | "double";
 }
 
-export interface PrettierPluginEmbedOptions {
-  [name]?: string[];
+declare module "../types.js" {
+  interface EmbeddedOptions {
+    [name]: typeof option;
+  }
+  interface PrettierPluginEmbedOptions {
+    [name]?: string[];
+  }
 }
 
 declare module "prettier" {
-  export interface Options
-    extends PrettierPluginDepsOptions,
-      PrettierPluginEmbedOptions {}
+  export interface Options extends PrettierPluginDepsOptions {}
 }

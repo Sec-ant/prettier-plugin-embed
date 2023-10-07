@@ -1,5 +1,8 @@
 import type { SupportOptions, CoreCategoryType } from "prettier";
-import { embeddedOptions } from "./embedded/index.js";
+import {
+  embeddedOptions,
+  PrettierPluginEmbedOptions,
+} from "./embedded/index.js";
 
 export const options: SupportOptions = {
   ...embeddedOptions,
@@ -21,11 +24,15 @@ export const options: SupportOptions = {
   },
 };
 
-declare module "prettier" {
-  interface Options {
+declare module "./embedded/types.js" {
+  interface PrettierPluginEmbedOptions {
     noEmbeddedDetectionByComment?: string[];
     noEmbeddedDetectionByTag?: string[];
   }
+}
+
+declare module "prettier" {
+  interface Options extends PrettierPluginEmbedOptions {}
 }
 
 // TODO: add options to control multi-line indentation, tabWidth, leading & trailing whitespaces, etc.

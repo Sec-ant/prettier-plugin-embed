@@ -10,12 +10,6 @@ export const option: SupportOption = {
     "Specify embedded PHP languages. This requires @prettier/plugin-php",
 };
 
-declare module "../types.js" {
-  interface EmbeddedOptions {
-    [name]: typeof option;
-  }
-}
-
 export interface PrettierPluginDepsOptions {
   phpVersion?:
     | "5.0"
@@ -37,12 +31,15 @@ export interface PrettierPluginDepsOptions {
   braceStyle?: "psr-2" | "per-cs" | "1tbs";
 }
 
-export interface PrettierPluginEmbedOptions {
-  [name]?: string[];
+declare module "../types.js" {
+  interface EmbeddedOptions {
+    [name]: typeof option;
+  }
+  interface PrettierPluginEmbedOptions {
+    [name]?: string[];
+  }
 }
 
 declare module "prettier" {
-  export interface Options
-    extends PrettierPluginDepsOptions,
-      PrettierPluginEmbedOptions {}
+  export interface Options extends PrettierPluginDepsOptions {}
 }

@@ -11,12 +11,6 @@ export const option: SupportOption = {
     "Specify embedded SQL languages. This requires prettier-plugin-sql",
 };
 
-declare module "../types.js" {
-  interface EmbeddedOptions {
-    [name]: typeof option;
-  }
-}
-
 export const SQL_FORMATTER_LANGUAGES = [
   "sql",
   "bigquery",
@@ -53,12 +47,15 @@ export type NodeSqlParserDataBase = (typeof NODE_SQL_PARSER_DATABASES)[number];
 
 export { PrettierPluginDepsOptions };
 
-export interface PrettierPluginEmbedOptions {
-  [name]?: SqlFormatterLanguage[] | NodeSqlParserDataBase[] | string[];
+declare module "../types.js" {
+  interface EmbeddedOptions {
+    [name]: typeof option;
+  }
+  interface PrettierPluginEmbedOptions {
+    [name]?: SqlFormatterLanguage[] | NodeSqlParserDataBase[] | string[];
+  }
 }
 
 declare module "prettier" {
-  export interface Options
-    extends PrettierPluginDepsOptions,
-      PrettierPluginEmbedOptions {}
+  export interface Options extends PrettierPluginDepsOptions {}
 }

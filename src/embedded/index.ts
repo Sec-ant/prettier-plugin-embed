@@ -4,4 +4,5 @@ export type {
   EmbeddedParsers,
   EmbeddedEmbedders,
   EmbeddedOptions,
+  PrettierPluginEmbedOptions,
 } from "./types.js";

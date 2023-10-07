@@ -13,12 +13,7 @@ declare module "../types.js" {
   interface EmbeddedOptions {
     [name]: typeof option;
   }
-}
-
-export interface PrettierPluginEmbedOptions {
-  [name]?: string[];
-}
-
-declare module "prettier" {
-  export interface Options extends PrettierPluginEmbedOptions {}
+  interface PrettierPluginEmbedOptions {
+    [name]?: string[];
+  }
 }
