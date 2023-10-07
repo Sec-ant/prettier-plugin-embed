@@ -1,9 +1,12 @@
 import type { Options } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { SqlBaseOptions } from "prettier-plugin-sql";
-import { v4 } from "uuid";
 import type { Embedder } from "../../types.js";
-import { printTemplateExpressions, throwIfPluginIsNotFound } from "../utils.js";
+import {
+  printTemplateExpressions,
+  throwIfPluginIsNotFound,
+  uuidV4,
+} from "../utils.js";
 import {
   NODE_SQL_PARSER_DATABASES,
   type NodeSqlParserDataBase,
@@ -26,7 +29,7 @@ export const embedder: Embedder<Options> = async (
   try {
     throwIfPluginIsNotFound("prettier-plugin-sql", options, lang);
 
-    const uuid = "p" + v4().replaceAll("-", "");
+    const uuid = "p" + uuidV4().replaceAll("-", "");
     const { node } = path;
 
     const text = node.quasis

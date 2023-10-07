@@ -1,8 +1,11 @@
 import type { Options } from "prettier";
 import { builders, utils } from "prettier/doc";
-import { v4 } from "uuid";
 import type { Embedder } from "../../types.js";
-import { printTemplateExpressions, throwIfPluginIsNotFound } from "../utils.js";
+import {
+  printTemplateExpressions,
+  throwIfPluginIsNotFound,
+  uuidV4,
+} from "../utils.js";
 import { name } from "./name.js";
 
 const { label, hardline, line, group, indent } = builders;
@@ -18,7 +21,7 @@ export const embedder: Embedder<Options> = async (
   try {
     throwIfPluginIsNotFound("@prettier/plugin-xml", options, lang);
 
-    const uuid = v4();
+    const uuid = uuidV4();
     const { node } = path;
 
     const text = node.quasis

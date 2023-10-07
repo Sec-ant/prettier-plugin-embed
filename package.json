@@ -55,9 +55,6 @@
     "ncu": "npx npm-check-updates -u",
     "postncu": "npm i"
   },
-  "dependencies": {
-    "uuid": "^9.0.1"
-  },
   "devDependencies": {
     "@commitlint/cli": "^17.7.2",
     "@commitlint/config-conventional": "^17.7.0",
@@ -65,7 +62,6 @@
     "@prettier/plugin-xml": "^3.2.1",
     "@semantic-release/git": "^10.0.1",
     "@types/estree": "^1.0.2",
-    "@types/uuid": "^9.0.4",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "@vitest/browser": "^0.34.6",
