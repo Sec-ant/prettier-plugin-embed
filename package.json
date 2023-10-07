@@ -47,7 +47,7 @@
     "prebuild": "npm run lint && npm run type-check && npm run format",
     "build": "vite build",
     "add-glob-import-types": "tsx ./scripts/add-glob-import-types.ts",
-    "postbuild": "tsc && npm run add-glob-import-types",
+    "postbuild": "tsc --project ./tsconfig.production.json && npm run add-glob-import-types",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "preview": "vite preview",
