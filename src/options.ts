@@ -3,7 +3,7 @@ import { embeddedOptions } from "./embedded/index.js";
 
 export const options: SupportOptions = {
   ...embeddedOptions,
-  disableEmbeddedDetectionByComment: {
+  noEmbeddedDetectionByComment: {
     category: "Global" satisfies CoreCategoryType,
     type: "string",
     array: true,
@@ -11,7 +11,7 @@ export const options: SupportOptions = {
     description:
       'This option turns off "/* lang */`...`" comment-based language detection for the specified languages.',
   },
-  disableEmbeddedDetectionByTag: {
+  noEmbeddedDetectionByTag: {
     category: "Global" satisfies CoreCategoryType,
     type: "string",
     array: true,
@@ -23,8 +23,8 @@ export const options: SupportOptions = {
 
 declare module "prettier" {
   interface Options {
-    disableEmbeddedDetectionByComment?: string[];
-    disableEmbeddedDetectionByTag?: string[];
+    noEmbeddedDetectionByComment?: string[];
+    noEmbeddedDetectionByTag?: string[];
   }
 }
 

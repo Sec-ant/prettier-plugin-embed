@@ -32,9 +32,8 @@ const embed: Printer["embed"] = function (
       getLangFromComment(
         path,
         langs,
-        options.disableEmbeddedDetectionByComment ?? [],
-      ) ??
-      getLangFromTag(path, langs, options.disableEmbeddedDetectionByTag ?? []);
+        options.noEmbeddedDetectionByComment ?? [],
+      ) ?? getLangFromTag(path, langs, options.noEmbeddedDetectionByTag ?? []);
     if (lang === undefined) {
       continue;
     }
@@ -62,7 +61,7 @@ const embed: Printer["embed"] = function (
 function getLangFromComment(
   { node, parent }: AstPath<PrettierNode>,
   comments: string[],
-  disableList: string[],
+  noDetectionList: string[],
 ): string | undefined {
   if (comments.length === 0) {
     return;
@@ -81,7 +80,7 @@ function getLangFromComment(
   for (const comment of comments) {
     if (
       ` ${comment} ` === lastNodeComment.value &&
-      !disableList.includes(comment)
+      !noDetectionList.includes(comment)
     ) {
       return comment;
     }
@@ -93,7 +92,7 @@ function getLangFromComment(
 function getLangFromTag(
   { node, parent }: AstPath<PrettierNode>,
   tags: string[],
-  disableList: string[],
+  noDetectionList: string[],
 ): string | undefined {
   if (tags.length === 0) {
     return;
@@ -106,7 +105,7 @@ function getLangFromTag(
     return;
   }
   for (const tag of tags) {
-    if (parent.tag.name === tag && !disableList.includes(tag)) {
+    if (parent.tag.name === tag && !noDetectionList.includes(tag)) {
       return tag;
     }
   }
