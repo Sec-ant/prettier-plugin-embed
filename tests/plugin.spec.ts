@@ -3,16 +3,15 @@
 
 import { test } from "vitest";
 import { Options, format } from "prettier";
-import { fileURLToPath } from "node:url";
+import { name as pluginName } from "../package.json";
+import * as plugin from "../src/index.js";
 
-const PRETTIER_PLUGIN_EMBED = fileURLToPath(
-  new URL("../dist/index.js", import.meta.url),
-);
+const prettierPluginEmbed = { name: pluginName, ...plugin };
 
 test("xml", async () => {
   const code = (await import("./code/xml.ts?raw")).default;
   const formattedCode = await format(code, {
-    plugins: ["@prettier/plugin-xml", PRETTIER_PLUGIN_EMBED],
+    plugins: ["@prettier/plugin-xml", prettierPluginEmbed],
     filepath: "xml.ts",
   } as Options);
   console.log(formattedCode);
@@ -21,7 +20,7 @@ test("xml", async () => {
 test("sql", async () => {
   const code = (await import("./code/sql.ts?raw")).default;
   const formattedCode = await format(code, {
-    plugins: ["prettier-plugin-sql", PRETTIER_PLUGIN_EMBED],
+    plugins: ["prettier-plugin-sql", prettierPluginEmbed],
     filepath: "sql.ts",
     embeddedSql: ["sql", "mariadb", "mdb"],
   } as Options);
@@ -31,7 +30,7 @@ test("sql", async () => {
 test("php", async () => {
   const code = (await import("./code/php.ts?raw")).default;
   const formattedCode = await format(code, {
-    plugins: ["@prettier/plugin-php", PRETTIER_PLUGIN_EMBED],
+    plugins: ["@prettier/plugin-php", prettierPluginEmbed],
     filepath: "php.ts",
   } as Options);
   console.log(formattedCode);
