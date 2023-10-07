@@ -21,14 +21,15 @@ export const embedder: Embedder<Options> = async (
   try {
     throwIfPluginIsNotFound("@prettier/plugin-php", options, lang);
 
-    const uuid = "$p" + uuidV4().replaceAll("-", "");
     const { node } = path;
+
+    const { createPlaceholder, placeholderRegex } = preparePlaceholder();
 
     const text = node.quasis
       .map((quasi, index, { length }) =>
         index === length - 1
           ? quasi.value.cooked
-          : quasi.value.cooked + `${uuid}${index}`,
+          : quasi.value.cooked + createPlaceholder(index),
       )
       .join("");
 
@@ -60,7 +61,7 @@ export const embedder: Embedder<Options> = async (
         return doc;
       }
       const parts = [];
-      const components = doc.split(new RegExp("\\" + uuid + "(\\d+)", "g"));
+      const components = doc.split(placeholderRegex);
       for (let i = 0; i < components.length; i++) {
         let component = components[i];
         if (i % 2 == 0) {
@@ -107,6 +108,19 @@ export const embedder: Embedder<Options> = async (
     throw e;
   }
 };
+
+function preparePlaceholder() {
+  const uuid = uuidV4();
+  const stub = `$p${uuid.replaceAll("-", "")}`;
+  const createPlaceholder = (index: number) => {
+    return `${stub}${index}`;
+  };
+  const placeholderRegex = new RegExp(`\\${stub}(\\d+)`, "g");
+  return {
+    createPlaceholder,
+    placeholderRegex,
+  };
+}
 
 declare module "../types.js" {
   interface EmbeddedEmbedders {
