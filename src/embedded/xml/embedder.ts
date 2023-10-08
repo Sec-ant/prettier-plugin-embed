@@ -1,4 +1,4 @@
-import type { Options } from "prettier";
+import type { Options, Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
@@ -8,7 +8,7 @@ import {
 } from "../utils.js";
 import { name } from "./name.js";
 
-const { label, hardline, line, group, indent } = builders;
+const { label, hardline, line, group, indent, softline } = builders;
 const { mapDoc } = utils;
 
 export const embedder: Embedder<Options> = async (
@@ -33,32 +33,47 @@ export const embedder: Embedder<Options> = async (
       )
       .join("");
 
-    let leadingWhitespace = "";
-    let startIndex = 0;
-    const match = /^\s+/.exec(text);
-    if (match) {
-      startIndex = match.index + match[0].length;
-      leadingWhitespace = " ";
-    }
-
-    const trailingWhitespace = /\s$/.test(text) ? " " : "";
-
-    const expressionDocs = printTemplateExpressions(path, print);
-
-    // TODO: do we need topLevelCount?
-    // https://github.com/prettier/prettier/blob/d4d4b185e0ddc3e0dd839b873e2ee7fe8131b684/src/language-js/embed/html.js#L36-L42
-    // const topLevelCount = 2;
+    // TODO: handle leading and trailing whitespaces
+    const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
+    const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
 
     // trim whitespaces as a workaround of
     // https://github.com/SAP/xml-tools/issues/248
-    let doc: builders.Doc;
-    try {
-      doc = await textToDoc(text.slice(startIndex), {
-        parser: name,
-      });
-    } catch (e) {
-      console.log(e);
-      throw undefined;
+    const trimmedText = text.slice(
+      leadingWhitespaces.length,
+      -trailingWhitespaces.length || undefined,
+    );
+
+    const expressionDocs = printTemplateExpressions(path, print);
+
+    const docs: Doc[] = [];
+    let sliceIndex = 0;
+    do {
+      sliceIndex += options.__embeddedXmlFragmentRecoverIndex?.[0] ?? 0;
+      if (sliceIndex > 0 && options.xmlWhitespaceSensitivity !== "strict") {
+        docs.push(softline);
+      }
+      // clear recover index holder
+      options.__embeddedXmlFragmentRecoverIndex?.splice(
+        0,
+        options.__embeddedXmlFragmentRecoverIndex.length,
+      );
+      const textFragment = trimmedText.slice(sliceIndex);
+      docs.push(
+        await textToDoc(textFragment, {
+          parser: name,
+        }),
+      );
+    } while (options.__embeddedXmlFragmentRecoverIndex?.length);
+
+    // TODO: do we need top level count?
+    // const topLevelCount = docs.length;
+
+    let doc: Doc;
+    if (docs.length === 1) {
+      doc = docs[0];
+    } else {
+      doc = group(docs);
     }
 
     const contentDoc = mapDoc(doc, (doc) => {
@@ -91,7 +106,7 @@ export const embedder: Embedder<Options> = async (
     const linebreak =
       options.xmlWhitespaceSensitivity === "ignore"
         ? hardline
-        : leadingWhitespace && trailingWhitespace
+        : leadingWhitespaces && trailingWhitespaces
         ? line
         : null;
 
@@ -108,9 +123,9 @@ export const embedder: Embedder<Options> = async (
       { hug: false },
       group([
         "`",
-        leadingWhitespace,
+        leadingWhitespaces,
         group(contentDoc),
-        trailingWhitespace,
+        trailingWhitespaces,
         "`",
       ]),
     );

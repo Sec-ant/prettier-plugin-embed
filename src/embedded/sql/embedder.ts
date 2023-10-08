@@ -12,7 +12,7 @@ import {
   type NodeSqlParserDataBase,
   SQL_FORMATTER_LANGUAGES,
   type SqlFormatterLanguage,
-} from "./option.js";
+} from "./options.js";
 import { name } from "./name.js";
 
 const { label, hardline, group, line, indent } = builders;

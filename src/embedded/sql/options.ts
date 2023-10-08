@@ -1,15 +1,19 @@
-import type { CoreCategoryType, SupportOption } from "prettier";
+import type { CoreCategoryType, SupportOptions } from "prettier";
 import type { SqlBaseOptions as PrettierPluginDepsOptions } from "prettier-plugin-sql";
 import { name } from "./name.js";
 
-export const option: SupportOption = {
-  category: "Global" satisfies CoreCategoryType,
-  type: "string",
-  array: true,
-  default: [{ value: ["sql"] }],
-  description:
-    "Specify embedded SQL languages. This requires prettier-plugin-sql",
-};
+export const options = {
+  [name]: {
+    category: "Global" satisfies CoreCategoryType,
+    type: "string",
+    array: true,
+    default: [{ value: ["sql"] }],
+    description:
+      "Specify embedded SQL languages. This requires prettier-plugin-sql",
+  },
+} satisfies SupportOptions;
+
+type Options = typeof options;
 
 export const SQL_FORMATTER_LANGUAGES = [
   "sql",
@@ -48,9 +52,7 @@ export type NodeSqlParserDataBase = (typeof NODE_SQL_PARSER_DATABASES)[number];
 export { PrettierPluginDepsOptions };
 
 declare module "../types.js" {
-  interface EmbeddedOptions {
-    [name]: typeof option;
-  }
+  interface EmbeddedOptions extends Options {}
   interface PrettierPluginEmbedOptions {
     [name]?: SqlFormatterLanguage[] | NodeSqlParserDataBase[] | string[];
   }

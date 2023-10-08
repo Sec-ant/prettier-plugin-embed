@@ -1,14 +1,18 @@
-import type { CoreCategoryType, SupportOption } from "prettier";
+import type { CoreCategoryType, SupportOptions } from "prettier";
 import { name } from "./name.js";
 
-export const option: SupportOption = {
-  category: "Global" satisfies CoreCategoryType,
-  type: "string",
-  array: true,
-  default: [{ value: ["php"] }],
-  description:
-    "Specify embedded PHP languages. This requires @prettier/plugin-php",
-};
+export const options = {
+  [name]: {
+    category: "Global" satisfies CoreCategoryType,
+    type: "string",
+    array: true,
+    default: [{ value: ["php"] }],
+    description:
+      "Specify embedded PHP languages. This requires @prettier/plugin-php",
+  },
+} satisfies SupportOptions;
+
+type Options = typeof options;
 
 export interface PrettierPluginDepsOptions {
   phpVersion?:
@@ -32,9 +36,7 @@ export interface PrettierPluginDepsOptions {
 }
 
 declare module "../types.js" {
-  interface EmbeddedOptions {
-    [name]: typeof option;
-  }
+  interface EmbeddedOptions extends Options {}
   interface PrettierPluginEmbedOptions {
     [name]?: string[];
   }

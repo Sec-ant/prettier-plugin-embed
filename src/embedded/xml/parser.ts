@@ -1,4 +1,4 @@
-import type { Parser } from "prettier";
+import type { Parser, Options } from "prettier";
 import { parse as xmlToolsParse } from "@xml-tools/parser";
 import type {
   CstElement,
@@ -69,7 +69,7 @@ function createSyntaxErrorFromParseError(parseError: IRecognitionException) {
 }
 
 export const parser: Parser<CstNode> = {
-  parse(text: string) {
+  parse(text: string, options: Options) {
     const { lexErrors, parseErrors, cst } = xmlToolsParse(text);
 
     // If there are any lexical errors, throw the first of them as an error.
@@ -102,9 +102,17 @@ export const parser: Parser<CstNode> = {
         ) {
           // multi-element fragments
           // we cannot recover from this error because of the information loss
-          // so we throw it with informations and reparse the rest in the next pass
-          throw createSyntaxErrorFromParseError(parseError);
+          // so we parse the available cst for now
+          // and attach the error information to the options
+          // and reparse the rest in the next pass
+          options.__embeddedXmlFragmentRecoverIndex?.splice(
+            0,
+            options.__embeddedXmlFragmentRecoverIndex.length,
+            parseError.token.startOffset,
+          );
+          break;
         }
+        throw createSyntaxErrorFromParseError(parseError);
       }
       if (shouldPruneCst) {
         pruneCst(cst);
