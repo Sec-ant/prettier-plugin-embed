@@ -49,12 +49,17 @@ export const embedder: Embedder<Options> = async (
     // https://github.com/prettier/prettier/blob/d4d4b185e0ddc3e0dd839b873e2ee7fe8131b684/src/language-js/embed/html.js#L36-L42
     // const topLevelCount = 2;
 
-    // TODO: work around
     // trim whitespaces as a workaround of
     // https://github.com/SAP/xml-tools/issues/248
-    const doc = await textToDoc(text.slice(startIndex), {
-      parser: name,
-    });
+    let doc: builders.Doc;
+    try {
+      doc = await textToDoc(text.slice(startIndex), {
+        parser: name,
+      });
+    } catch (e) {
+      console.log(e);
+      throw undefined;
+    }
 
     const contentDoc = mapDoc(doc, (doc) => {
       if (typeof doc !== "string") {

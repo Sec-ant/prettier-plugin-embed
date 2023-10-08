@@ -1,6 +1,11 @@
 import type { Parser } from "prettier";
 import { parse as xmlToolsParse } from "@xml-tools/parser";
-import type { CstElement, CstNode } from "chevrotain";
+import type {
+  CstElement,
+  CstNode,
+  ILexingError,
+  IRecognitionException,
+} from "chevrotain";
 import { name } from "./name.js";
 
 interface Position {
@@ -17,20 +22,50 @@ interface ErrorOptions {
   loc: Loc;
 }
 
-function createError(message: string, options: ErrorOptions) {
-  // TODO: Use `Error.prototype.cause` when we drop support for Node.js<18.7.0
-
-  // Construct an error similar to the ones thrown by Prettier.
+function createSyntaxErrorFromLexError(lexError: ILexingError) {
+  const options: ErrorOptions = {
+    loc: {
+      start: {
+        line: lexError.line,
+        column: lexError.column,
+      },
+      end: {
+        line: lexError.line,
+        column: lexError.column + lexError.length,
+      },
+    },
+  };
   const error = new SyntaxError(
-    message +
-      " (" +
-      options.loc.start.line +
-      ":" +
-      options.loc.start.column +
-      ")",
+    `${lexError.message} (${options.loc.start.line}:${options.loc.start.column})`,
+    {
+      cause: lexError,
+    },
   );
+  Object.assign(error, options);
+  return error;
+}
 
-  return Object.assign(error, options);
+function createSyntaxErrorFromParseError(parseError: IRecognitionException) {
+  const options: ErrorOptions = {
+    loc: {
+      start: {
+        line: parseError.token.startLine ?? NaN,
+        column: parseError.token.startColumn ?? NaN,
+      },
+      end: {
+        line: parseError.token.endLine ?? NaN,
+        column: parseError.token.endColumn ?? NaN,
+      },
+    },
+  };
+  const error = new SyntaxError(
+    `${parseError.message} (${options.loc.start.line}:${options.loc.start.column})`,
+    {
+      cause: parseError,
+    },
+  );
+  Object.assign(error, options);
+  return error;
 }
 
 export const parser: Parser<CstNode> = {
@@ -40,27 +75,40 @@ export const parser: Parser<CstNode> = {
     // If there are any lexical errors, throw the first of them as an error.
     if (lexErrors.length > 0) {
       const lexError = lexErrors[0];
-      throw createError(lexError.message, {
-        loc: {
-          start: { line: lexError.line, column: lexError.column },
-          end: {
-            line: lexError.line,
-            column: lexError.column + lexError.length,
-          },
-        },
-      });
+      throw createSyntaxErrorFromLexError(lexError);
     }
 
     // if there are any parse errors, log them and try to fix the cst
     // so the printer can properly handle it.
     if (parseErrors.length > 0) {
-      // TODO: check error type when recover
-      // code may be lost if we recover from any error
-      // only recover from errors to support xml fragments
-      // console.warn(parseErrors);
-      // try to deal with prolog only fragments
-      pruneAst(cst);
-      // TODO: deal with multi-element fragments
+      let shouldPruneCst = false;
+      for (const parseError of parseErrors) {
+        if (parseError.name !== "MismatchedTokenException") {
+          // we cannot recover from other types of error
+          // so we throw it
+          throw createSyntaxErrorFromParseError(parseError);
+        }
+        if (
+          parseError.message ===
+          "Expecting token of type --> OPEN <-- but found --> '' <--"
+        ) {
+          // recover from prolog only error
+          shouldPruneCst = true;
+          continue;
+        }
+        if (
+          parseError.message ===
+          "Expecting token of type --> EOF <-- but found --> '<' <--"
+        ) {
+          // multi-element fragments
+          // we cannot recover from this error because of the information loss
+          // so we throw it with informations and reparse the rest in the next pass
+          throw createSyntaxErrorFromParseError(parseError);
+        }
+      }
+      if (shouldPruneCst) {
+        pruneCst(cst);
+      }
     }
 
     // Otherwise return the CST.
@@ -75,7 +123,7 @@ export const parser: Parser<CstNode> = {
   },
 };
 
-function pruneAst(cstNode: CstNode) {
+function pruneCst(cstNode: CstNode) {
   const cstNodeChildren = cstNode.children;
   for (const name in cstNodeChildren) {
     const cstElements = cstNodeChildren[name] ?? [];
@@ -91,7 +139,7 @@ function pruneAst(cstNode: CstNode) {
         }
         continue;
       }
-      pruneAst(cstElement);
+      pruneCst(cstElement);
     }
   }
 }
