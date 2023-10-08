@@ -1,8 +1,7 @@
 import type { Parser } from "prettier";
 import { parse as xmlToolsParse } from "@xml-tools/parser";
+import type { CstElement, CstNode } from "chevrotain";
 import { name } from "./name.js";
-
-type CstNode = ReturnType<typeof xmlToolsParse>["cst"];
 
 interface Position {
   line: number;
@@ -52,23 +51,16 @@ export const parser: Parser<CstNode> = {
       });
     }
 
-    // TODO: recover from some errors to support xml fragments
-
-    // If there are any parse errors, throw the first of them as an error.
+    // if there are any parse errors, log them and try to fix the cst
+    // so the printer can properly handle it.
     if (parseErrors.length > 0) {
-      const parseError = parseErrors[0];
-      throw createError(parseError.message, {
-        loc: {
-          start: {
-            line: parseError.token.startLine ?? NaN,
-            column: parseError.token.startColumn ?? NaN,
-          },
-          end: {
-            line: parseError.token.endLine ?? NaN,
-            column: parseError.token.endColumn ?? NaN,
-          },
-        },
-      });
+      // TODO: check error type when recover
+      // code may be lost if we recover from any error
+      // only recover from errors to support xml fragments
+      // console.warn(parseErrors);
+      // try to deal with prolog only fragments
+      pruneAst(cst);
+      // TODO: deal with multi-element fragments
     }
 
     // Otherwise return the CST.
@@ -82,6 +74,38 @@ export const parser: Parser<CstNode> = {
     return node.location!.endOffset ?? NaN;
   },
 };
+
+function pruneAst(cstNode: CstNode) {
+  const cstNodeChildren = cstNode.children;
+  for (const name in cstNodeChildren) {
+    const cstElements = cstNodeChildren[name] ?? [];
+    for (let i = cstElements.length - 1; i >= 0; --i) {
+      const cstElement = cstElements[i];
+      if (!isCstNode(cstElement)) {
+        continue;
+      }
+      if (Object.keys(cstElement.children).length === 0) {
+        cstElements.splice(i, 1);
+        if (cstElements.length === 0) {
+          delete cstNodeChildren[name];
+        }
+        continue;
+      }
+      pruneAst(cstElement);
+    }
+  }
+}
+
+function isCstNode(cstElement: CstElement): cstElement is CstNode {
+  if (
+    "name" in cstElement &&
+    "children" in cstElement &&
+    "location" in cstElement
+  ) {
+    return true;
+  }
+  return false;
+}
 
 declare module "../types.js" {
   interface EmbeddedParsers {

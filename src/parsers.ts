@@ -7,7 +7,6 @@ import { embeddedParsers } from "./embedded/index.js";
 
 export const parsers = {
   // parsers from internal
-  // TODO: find out which parsers are required and which are optional
   ...parserBabel.parsers,
   ...parserEspree.parsers,
   ...parserFlow.parsers,

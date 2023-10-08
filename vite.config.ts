@@ -15,6 +15,7 @@ export default defineConfig({
       external: [
         /^@?prettier(?:\/|$)/,
         "@xml-tools/parser",
+        "chevrotain",
         "prettier-plugin-sql",
       ],
     },
