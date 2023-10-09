@@ -84,6 +84,6 @@
   },
   "dependencies": {
     "@xml-tools/parser": "^1.0.11",
-    "chevrotain": "7.1.1"
+    "chevrotain": "11.0.3"
   }
 }
