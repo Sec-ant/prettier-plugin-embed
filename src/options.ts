@@ -2,7 +2,10 @@ import type { SupportOptions, CoreCategoryType } from "prettier";
 import {
   embeddedOptions,
   PrettierPluginEmbedOptions,
+  EmbeddedDefaultLang,
 } from "./embedded/index.js";
+
+type EmbeddedLangs = (EmbeddedDefaultLang[] & string[]) | string[];
 
 const NO_EMBEDDED_DETECTION_BY_COMMENT = "noEmbeddedDetectionByComment";
 const NO_EMBEDDED_DETECTION_BY_TAG = "noEmbeddedDetectionByTag";
@@ -28,7 +31,7 @@ export const options = {
     description:
       'This option turns off "lang`...`" tag-based language detection for the specified languages.',
   },
-  // TODO: not implemented yet
+  // TODO: only supports xml as of now
   [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]: {
     category: "Config",
     type: "string",
@@ -37,7 +40,7 @@ export const options = {
     description:
       "This option preserves leading and trailing whitespaces for the specified languages.",
   },
-  // TODO: not implemented yet
+  // TODO: only supports xml as of now
   [NO_EMBEDDED_MULTILINE_INDENTATION]: {
     category: "Global",
     type: "string",
@@ -50,15 +53,13 @@ export const options = {
 
 declare module "./embedded/types.js" {
   interface PrettierPluginEmbedOptions {
-    [NO_EMBEDDED_DETECTION_BY_COMMENT]?: string[];
-    [NO_EMBEDDED_DETECTION_BY_TAG]?: string[];
-    [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]?: string[];
-    [NO_EMBEDDED_MULTILINE_INDENTATION]?: string[];
+    [NO_EMBEDDED_DETECTION_BY_COMMENT]?: EmbeddedLangs;
+    [NO_EMBEDDED_DETECTION_BY_TAG]?: EmbeddedLangs;
+    [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]?: EmbeddedLangs;
+    [NO_EMBEDDED_MULTILINE_INDENTATION]?: EmbeddedLangs;
   }
 }
 
 declare module "prettier" {
   interface Options extends PrettierPluginEmbedOptions {}
 }
-
-// TODO: add options to control multi-line indentation, tabWidth, leading & trailing whitespaces, etc.

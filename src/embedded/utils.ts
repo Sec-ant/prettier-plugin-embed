@@ -98,3 +98,13 @@ export function preparePlaceholder(leading = "p", trailing = "") {
 export function escapeRegExp(text: string) {
   return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
+
+// this weird generic can provide autocomplete prompts of type T[number] to users
+// while also accepts any string
+export type MakeOptionLangType<T extends readonly string[]> =
+  | (T[number][] & string[])
+  | string[];
+
+export type MakeLangsHolderType<T extends readonly string[]> = {
+  [key in T[number]]: void;
+};

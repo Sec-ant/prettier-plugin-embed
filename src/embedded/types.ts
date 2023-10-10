@@ -15,6 +15,8 @@ export interface EmbeddedOptions {
 }
 export interface EmbeddedNamesHolder {}
 export type EmbeddedName = keyof EmbeddedNamesHolder;
+export interface EmbeddedDefaultLangsHolder {}
+export type EmbeddedDefaultLang = keyof EmbeddedDefaultLangsHolder;
 export interface PrettierPluginEmbedOptions {}
 
 declare module "prettier" {

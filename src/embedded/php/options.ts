@@ -1,12 +1,18 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import { name } from "./name.js";
+import type { MakeOptionLangType, MakeLangsHolderType } from "../utils.js";
+
+// copied from https://raw.githubusercontent.com/microsoft/vscode/main/extensions/php/package.json
+const DEFAULT_LANGS = ["php", "php5", "phtml", "ctp"] as const;
+type OptionLang = MakeOptionLangType<typeof DEFAULT_LANGS>;
+type DefaultLangsHolder = MakeLangsHolderType<typeof DEFAULT_LANGS>;
 
 export const options = {
   [name]: {
     category: "Global",
     type: "string",
     array: true,
-    default: [{ value: ["php"] }],
+    default: [{ value: [...DEFAULT_LANGS] }],
     description:
       "Specify embedded PHP languages. This requires @prettier/plugin-php",
   },
@@ -37,8 +43,9 @@ export interface PrettierPluginDepsOptions {
 
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
+  interface EmbeddedDefaultLangsHolder extends DefaultLangsHolder {}
   interface PrettierPluginEmbedOptions {
-    [name]?: string[];
+    [name]?: OptionLang;
   }
 }
 
