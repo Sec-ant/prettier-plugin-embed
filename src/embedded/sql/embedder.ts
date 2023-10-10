@@ -41,8 +41,8 @@ export const embedder: Embedder<Options> = async (
       )
       .join("");
 
-    const leadingWhitespace = /^\s/.test(text) ? " " : "";
-    const trailingWhitespace = /\s$/.test(text) ? " " : "";
+    const leadingWhitespaces = /^\s/.test(text) ? " " : "";
+    const trailingWhitespaces = /\s$/.test(text) ? " " : "";
 
     const expressionDocs = printTemplateExpressions(path, print);
 
@@ -87,7 +87,7 @@ export const embedder: Embedder<Options> = async (
 
     const linebreak = multiline
       ? hardline
-      : leadingWhitespace && trailingWhitespace
+      : leadingWhitespaces && trailingWhitespaces
       ? line
       : null;
 
@@ -104,9 +104,9 @@ export const embedder: Embedder<Options> = async (
       { hug: false },
       group([
         "`",
-        leadingWhitespace,
+        leadingWhitespaces,
         group(contentDoc),
-        trailingWhitespace,
+        trailingWhitespaces,
         "`",
       ]),
     );

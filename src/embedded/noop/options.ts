@@ -3,13 +3,13 @@ import { name } from "./name.js";
 
 export const options = {
   [name]: {
-    category: "Global" satisfies CoreCategoryType,
+    category: "Global",
     type: "string",
     array: true,
     default: [{ value: [] }],
     description: "Specify embedded languages that will not be formatted.",
   },
-} satisfies SupportOptions;
+} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
 type Options = typeof options;
 

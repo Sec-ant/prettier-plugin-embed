@@ -4,14 +4,14 @@ import { name } from "./name.js";
 
 export const options = {
   [name]: {
-    category: "Global" satisfies CoreCategoryType,
+    category: "Global",
     type: "string",
     array: true,
     default: [{ value: ["sql"] }],
     description:
       "Specify embedded SQL languages. This requires prettier-plugin-sql",
   },
-} satisfies SupportOptions;
+} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
 type Options = typeof options;
 

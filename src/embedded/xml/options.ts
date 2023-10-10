@@ -3,7 +3,7 @@ import { name } from "./name.js";
 
 export const options = {
   [name]: {
-    category: "Global" satisfies CoreCategoryType,
+    category: "Global",
     type: "string",
     array: true,
     default: [{ value: ["xml", "svg"] }],
@@ -11,14 +11,14 @@ export const options = {
       "Specify embedded XML languages. This requires @prettier/plugin-xml",
   },
   __embeddedXmlFragmentRecoverIndex: {
-    category: "Global" satisfies CoreCategoryType,
+    category: "Global",
     type: "int",
     array: true,
     default: [{ value: [] }],
     description:
       "This option is read only and used as a workaround to support xml fragments",
   },
-} satisfies SupportOptions;
+} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
 type Options = typeof options;
 

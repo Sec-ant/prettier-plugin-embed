@@ -1,4 +1,4 @@
-import type { Options, Doc } from "prettier";
+import { type Options, type Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
@@ -8,7 +8,7 @@ import {
 } from "../utils.js";
 import { name } from "./name.js";
 
-const { label, hardline, line, group, indent, softline } = builders;
+const { line, group, indent, softline } = builders;
 const { mapDoc } = utils;
 
 export const embedder: Embedder<Options> = async (
@@ -50,85 +50,81 @@ export const embedder: Embedder<Options> = async (
     let sliceIndex = 0;
     do {
       sliceIndex += options.__embeddedXmlFragmentRecoverIndex?.[0] ?? 0;
+      const dGroup: Doc[] = [];
       if (sliceIndex > 0 && options.xmlWhitespaceSensitivity !== "strict") {
-        docs.push(softline);
+        dGroup.push(softline);
       }
       // clear recover index holder
       options.__embeddedXmlFragmentRecoverIndex?.splice(
         0,
         options.__embeddedXmlFragmentRecoverIndex.length,
       );
+      // print the text fragment from the slice index
       const textFragment = trimmedText.slice(sliceIndex);
-      docs.push(
+      dGroup.push(
         await textToDoc(textFragment, {
           parser: name,
         }),
       );
+      docs.push(dGroup);
+      // if __embeddedXmlFragmentRecoverIndex is not empty
+      // we have to run the next pass
     } while (options.__embeddedXmlFragmentRecoverIndex?.length);
 
-    // TODO: do we need top level count?
-    // const topLevelCount = docs.length;
-
-    let doc: Doc;
-    if (docs.length === 1) {
-      doc = docs[0];
-    } else {
-      doc = group(docs);
-    }
-
-    const contentDoc = mapDoc(doc, (doc) => {
-      if (typeof doc !== "string") {
-        return doc;
-      }
-      const parts = [];
-      const components = doc.split(placeholderRegex);
-      for (let i = 0; i < components.length; i++) {
-        let component = components[i];
-        if (i % 2 == 0) {
-          if (!component) {
-            continue;
-          }
-          component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
-          // TODO: do we need to support this option?
-          // https://github.com/prettier/prettier/blob/d4d4b185e0ddc3e0dd839b873e2ee7fe8131b684/src/language-js/embed/html.js#L58-L60
-          // if (options.__embeddedInHtml) {
-          //   component = component.replaceAll(/<\/(?=script\b)/gi, "<\\/");
-          // }
-          parts.push(component);
-        } else {
-          const placeholderIndex = Number(component);
-          parts.push(expressionDocs[placeholderIndex]);
+    const contentDocs = docs.map((doc) =>
+      mapDoc(doc, (doc) => {
+        if (typeof doc !== "string") {
+          return doc;
         }
-      }
-      return parts;
-    });
+        const parts = [];
+        const components = doc.split(placeholderRegex);
+        for (let i = 0; i < components.length; i++) {
+          let component = components[i];
+          if (i % 2 == 0) {
+            if (!component) {
+              continue;
+            }
+            component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
+            // TODO: do we need the counterpart of options.__embeddedInHtml in xml?
+            // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L58-L60
+            parts.push(component);
+          } else {
+            const placeholderIndex = Number(component);
+            parts.push(expressionDocs[placeholderIndex]);
+          }
+        }
+        return parts;
+      }),
+    );
 
-    const linebreak =
-      options.xmlWhitespaceSensitivity === "ignore"
-        ? hardline
-        : leadingWhitespaces && trailingWhitespaces
-        ? line
-        : null;
-
-    if (linebreak) {
+    if (
+      options.xmlWhitespaceSensitivity === "strict" ||
+      options.preserveEmbeddedExteriorWhitespaces?.includes(lang)
+    ) {
+      // TODO: should we label the doc with { hug: false } ?
+      // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
       return group([
         "`",
-        indent([linebreak, group(contentDoc)]),
-        linebreak,
+        leadingWhitespaces,
+        options.noEmbeddedMultiLineIndentation?.includes(lang)
+          ? [group(contentDocs)]
+          : indent([group(contentDocs)]),
+        trailingWhitespaces,
         "`",
       ]);
     }
 
-    return label(
-      { hug: false },
-      group([
-        "`",
-        leadingWhitespaces,
-        group(contentDoc),
-        trailingWhitespaces,
-        "`",
-      ]),
-    );
+    const leadingLineBreak = leadingWhitespaces.length ? line : softline;
+    const trailingLineBreak = trailingWhitespaces.length ? line : softline;
+
+    return group([
+      "`",
+      options.noEmbeddedMultiLineIndentation?.includes(lang)
+        ? [leadingLineBreak, group(contentDocs)]
+        : indent([leadingLineBreak, group(contentDocs)]),
+      trailingLineBreak,
+      "`",
+    ]);
   } catch (e) {
     console.error(e);
     throw e;

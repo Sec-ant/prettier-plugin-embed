@@ -3,14 +3,14 @@ import { name } from "./name.js";
 
 export const options = {
   [name]: {
-    category: "Global" satisfies CoreCategoryType,
+    category: "Global",
     type: "string",
     array: true,
     default: [{ value: ["php"] }],
     description:
       "Specify embedded PHP languages. This requires @prettier/plugin-php",
   },
-} satisfies SupportOptions;
+} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
 type Options = typeof options;
 
