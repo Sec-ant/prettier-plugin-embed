@@ -10,13 +10,14 @@ export const options = {
     description:
       "Specify embedded XML languages. This requires @prettier/plugin-xml",
   },
+  /** @internal */
   __embeddedXmlFragmentRecoverIndex: {
     category: "Global",
     type: "int",
     array: true,
     default: [{ value: [] }],
     description:
-      "This option is read only and used as a workaround to support xml fragments",
+      "This option is read only and used as a workaround to support xml element fragments",
   },
 } satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
@@ -33,7 +34,8 @@ declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface PrettierPluginEmbedOptions {
     [name]?: string[];
-    __embeddedXmlFragmentRecoverIndex?: [number];
+    /** @internal */
+    __embeddedXmlFragmentRecoverIndex?: [number] | [number, number];
   }
 }
 

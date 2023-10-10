@@ -10,7 +10,9 @@ test("xml", async () => {
   const formattedCode = await format(code, {
     plugins: ["@prettier/plugin-xml", prettierPluginEmbed],
     filepath: "xml.ts",
-    xmlWhitespaceSensitivity: "strict",
+    xmlWhitespaceSensitivity: "ignore",
+    // noEmbeddedMultiLineIndentation: ["xml"],
+    // preserveEmbeddedExteriorWhitespaces: ["xml"],
   });
   console.log(formattedCode);
 });

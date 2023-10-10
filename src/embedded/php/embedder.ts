@@ -4,7 +4,7 @@ import type { Embedder } from "../../types.js";
 import {
   printTemplateExpressions,
   throwIfPluginIsNotFound,
-  uuidV4,
+  preparePlaceholder,
 } from "../utils.js";
 import { name } from "./name.js";
 
@@ -23,7 +23,7 @@ export const embedder: Embedder<Options> = async (
 
     const { node } = path;
 
-    const { createPlaceholder, placeholderRegex } = preparePlaceholder();
+    const { createPlaceholder, placeholderRegex } = preparePlaceholder("$p");
 
     const text = node.quasis
       .map((quasi, index, { length }) =>
@@ -108,19 +108,6 @@ export const embedder: Embedder<Options> = async (
     throw e;
   }
 };
-
-function preparePlaceholder() {
-  const uuid = uuidV4();
-  const stub = `$p${uuid.replaceAll("-", "")}`;
-  const createPlaceholder = (index: number) => {
-    return `${stub}${index}`;
-  };
-  const placeholderRegex = new RegExp(`\\${stub}(\\d+)`, "g");
-  return {
-    createPlaceholder,
-    placeholderRegex,
-  };
-}
 
 declare module "../types.js" {
   interface EmbeddedEmbedders {

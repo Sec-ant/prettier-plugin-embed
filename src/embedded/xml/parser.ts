@@ -83,7 +83,11 @@ export const parser: Parser<CstNode> = {
     if (parseErrors.length > 0) {
       let shouldPruneCst = false;
       for (const parseError of parseErrors) {
-        if (parseError.name !== "MismatchedTokenException") {
+        if (
+          !["MismatchedTokenException", "NotAllInputParsedException"].includes(
+            parseError.name,
+          )
+        ) {
           // we cannot recover from other types of error
           // so we throw it
           throw createSyntaxErrorFromParseError(parseError);
@@ -97,10 +101,12 @@ export const parser: Parser<CstNode> = {
           continue;
         }
         if (
-          parseError.message ===
-          "Expecting token of type --> EOF <-- but found --> '<' <--"
+          /Expecting token of type --> EOF <-- but found --> '.+' <--/.test(
+            parseError.message,
+          ) ||
+          /Redundant input, expecting EOF but found: /.test(parseError.message)
         ) {
-          // multi-element fragments
+          // multi-element fragments (element + element, element + text)
           // we cannot recover from this error because of the information loss
           // so we parse the available cst for now
           // and attach the error information to the options
@@ -110,6 +116,32 @@ export const parser: Parser<CstNode> = {
             options.__embeddedXmlFragmentRecoverIndex.length,
             parseError.token.startOffset,
           );
+          break;
+        }
+        if (
+          /Expecting token of type --> OPEN <-- but found --> '.+' <--/.test(
+            parseError.message,
+          )
+        ) {
+          // multi-element fragments (text + element)
+          // we cannot recover from this error because of the information loss
+          // so we attach the error information to the options
+          // and reparse the rest in the next pass
+          if (
+            parseError.token.endOffset === undefined ||
+            Number.isNaN(parseError.token.endOffset)
+          ) {
+            // we cannot recover if endOffset is not present
+            break;
+          }
+          options.__embeddedXmlFragmentRecoverIndex?.splice(
+            0,
+            options.__embeddedXmlFragmentRecoverIndex.length,
+            parseError.token.startOffset,
+            parseError.token.endOffset,
+          );
+          // recover from prolog only error
+          shouldPruneCst = true;
           break;
         }
         throw createSyntaxErrorFromParseError(parseError);

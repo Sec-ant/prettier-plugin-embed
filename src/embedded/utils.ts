@@ -1,6 +1,7 @@
 import type { Expression, Comment, TemplateLiteral } from "estree";
 import type { AstPath, Options } from "prettier";
 import { builders } from "prettier/doc";
+import ShortUniqueId from "short-unique-id";
 import type { InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, lineSuffixBoundary } = builders;
@@ -71,19 +72,29 @@ export function insertEmbeddedLanguageName(
   names.splice(low, 0, name);
 }
 
-export function uuidV4() {
-  function s(n: number) {
-    return h((Math.random() * (1 << (n << 2))) ^ Date.now()).slice(-n);
-  }
-  function h(n: number) {
-    return (n | 0).toString(16);
-  }
-  return [
-    s(4) + s(4),
-    s(4),
-    "4" + s(3), // UUID version 4
-    h(8 | (Math.random() * 4)) + s(3), // {8|9|A|B}xxx
-    // s(4) + s(4) + s(4),
-    Date.now().toString(16).slice(-10) + s(2), // Use timestamp to avoid collisions
-  ].join("-");
+export const { randomUUID } = new ShortUniqueId({
+  length: 16,
+  dictionary: "alphanum_lower",
+});
+
+export function preparePlaceholder(leading = "p", trailing = "") {
+  const uuid1 = randomUUID();
+  const uuid2 = randomUUID();
+  const escapedLeading = escapeRegExp(leading);
+  const escapedTrailing = escapeRegExp(trailing);
+  const createPlaceholder = (index: number) => {
+    return `${leading}${uuid1}${index}${uuid2}${trailing}`;
+  };
+  const placeholderRegex = new RegExp(
+    `${escapedLeading}${uuid1}(\\d+)${uuid2}${escapedTrailing}`,
+    "g",
+  );
+  return {
+    createPlaceholder,
+    placeholderRegex,
+  };
+}
+
+export function escapeRegExp(text: string) {
+  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }

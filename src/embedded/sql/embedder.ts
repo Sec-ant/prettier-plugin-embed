@@ -5,7 +5,7 @@ import type { Embedder } from "../../types.js";
 import {
   printTemplateExpressions,
   throwIfPluginIsNotFound,
-  uuidV4,
+  preparePlaceholder,
 } from "../utils.js";
 import {
   NODE_SQL_PARSER_DATABASES,
@@ -173,19 +173,6 @@ function getOptionsOverride(
       "sql-formatter",
     ]);
   }
-}
-
-function preparePlaceholder() {
-  const uuid = uuidV4();
-  const stub = `p${uuid.replaceAll("-", "")}`;
-  const createPlaceholder = (index: number) => {
-    return `${stub}${index}`;
-  };
-  const placeholderRegex = new RegExp(`${stub}(\\d+)`, "g");
-  return {
-    createPlaceholder,
-    placeholderRegex,
-  };
 }
 
 declare module "../types.js" {

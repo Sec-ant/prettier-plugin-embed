@@ -4,7 +4,7 @@ import type { Embedder } from "../../types.js";
 import {
   printTemplateExpressions,
   throwIfPluginIsNotFound,
-  uuidV4,
+  preparePlaceholder,
 } from "../utils.js";
 import { name } from "./name.js";
 
@@ -33,12 +33,9 @@ export const embedder: Embedder<Options> = async (
       )
       .join("");
 
-    // TODO: handle leading and trailing whitespaces
     const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
     const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
 
-    // trim whitespaces as a workaround of
-    // https://github.com/SAP/xml-tools/issues/248
     const trimmedText = text.slice(
       leadingWhitespaces.length,
       -trailingWhitespaces.length || undefined,
@@ -47,9 +44,12 @@ export const embedder: Embedder<Options> = async (
     const expressionDocs = printTemplateExpressions(path, print);
 
     const docs: Doc[] = [];
-    let sliceIndex = 0;
-    do {
-      sliceIndex += options.__embeddedXmlFragmentRecoverIndex?.[0] ?? 0;
+    let sliceIndex: number | undefined = 0;
+    while (sliceIndex !== undefined) {
+      const textFragment = trimmedText.slice(sliceIndex);
+      if (textFragment.length === 0) {
+        break;
+      }
       const dGroup: Doc[] = [];
       if (sliceIndex > 0 && options.xmlWhitespaceSensitivity !== "strict") {
         dGroup.push(softline);
@@ -59,17 +59,19 @@ export const embedder: Embedder<Options> = async (
         0,
         options.__embeddedXmlFragmentRecoverIndex.length,
       );
-      // print the text fragment from the slice index
-      const textFragment = trimmedText.slice(sliceIndex);
-      dGroup.push(
-        await textToDoc(textFragment, {
-          parser: name,
-        }),
-      );
+      let printedText = await textToDoc(textFragment, { parser: name });
+      const [i1, i2] = options.__embeddedXmlFragmentRecoverIndex ?? [];
+      if (i1 === undefined) {
+        sliceIndex = undefined;
+      } else if (i2 === undefined) {
+        sliceIndex += i1;
+      } else {
+        printedText = textFragment.slice(i1, i2 + 1);
+        sliceIndex += i2 + 1;
+      }
+      dGroup.push(printedText);
       docs.push(dGroup);
-      // if __embeddedXmlFragmentRecoverIndex is not empty
-      // we have to run the next pass
-    } while (options.__embeddedXmlFragmentRecoverIndex?.length);
+    }
 
     const contentDocs = docs.map((doc) =>
       mapDoc(doc, (doc) => {
@@ -130,19 +132,6 @@ export const embedder: Embedder<Options> = async (
     throw e;
   }
 };
-
-function preparePlaceholder() {
-  const uuid = uuidV4();
-  const stub = `${uuid}-`;
-  const createPlaceholder = (index: number) => {
-    return `${stub}${index}`;
-  };
-  const placeholderRegex = new RegExp(`${stub}(\\d+)`, "g");
-  return {
-    createPlaceholder,
-    placeholderRegex,
-  };
-}
 
 declare module "../types.js" {
   interface EmbeddedEmbedders {
