@@ -2,7 +2,7 @@ import type { CoreCategoryType, SupportOptions } from "prettier";
 import { name } from "./name.js";
 import type { MakeOptionLangType, MakeLangsHolderType } from "../utils.js";
 
-// copied from https://raw.githubusercontent.com/microsoft/vscode/main/extensions/xml/package.json
+// copied from https://github.com/microsoft/vscode/blob/6a7a661757dec1983ff05ef908a2bbb75ce841e0/extensions/xml/package.json
 const DEFAULT_LANGS = [
   "xml",
   "xsd",

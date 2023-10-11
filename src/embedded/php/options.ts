@@ -2,7 +2,7 @@ import type { CoreCategoryType, SupportOptions } from "prettier";
 import { name } from "./name.js";
 import type { MakeOptionLangType, MakeLangsHolderType } from "../utils.js";
 
-// copied from https://raw.githubusercontent.com/microsoft/vscode/main/extensions/php/package.json
+// copied from https://github.com/microsoft/vscode/blob/6a7a661757dec1983ff05ef908a2bbb75ce841e0/extensions/php/package.json
 const DEFAULT_LANGS = ["php", "php5", "phtml", "ctp"] as const;
 type OptionLang = MakeOptionLangType<typeof DEFAULT_LANGS>;
 type DefaultLangsHolder = MakeLangsHolderType<typeof DEFAULT_LANGS>;

@@ -1,3 +1,4 @@
+// TODO: better tests
 import { test } from "vitest";
 import { format } from "prettier";
 import { name as pluginName } from "../package.json";

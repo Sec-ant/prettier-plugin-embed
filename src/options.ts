@@ -11,7 +11,7 @@ const NO_EMBEDDED_DETECTION_BY_COMMENT = "noEmbeddedDetectionByComment";
 const NO_EMBEDDED_DETECTION_BY_TAG = "noEmbeddedDetectionByTag";
 const PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES =
   "preserveEmbeddedExteriorWhitespaces";
-const NO_EMBEDDED_MULTILINE_INDENTATION = "noEmbeddedMultiLineIndentation";
+const NO_EMBEDDED_MULTI_LINE_INDENTATION = "noEmbeddedMultiLineIndentation";
 
 export const options = {
   ...embeddedOptions,
@@ -41,13 +41,13 @@ export const options = {
       "This option preserves leading and trailing whitespaces for the specified languages.",
   },
   // TODO: only supports xml as of now
-  [NO_EMBEDDED_MULTILINE_INDENTATION]: {
+  [NO_EMBEDDED_MULTI_LINE_INDENTATION]: {
     category: "Global",
     type: "string",
     array: true,
     default: [{ value: [] }],
     description:
-      "This option turns off auto indentation for the specified languages when they are formatted to span multilines.",
+      "This option turns off auto indentation for the specified languages when they are formatted to span multi lines.",
   },
 } satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
@@ -56,7 +56,7 @@ declare module "./embedded/types.js" {
     [NO_EMBEDDED_DETECTION_BY_COMMENT]?: EmbeddedLangs;
     [NO_EMBEDDED_DETECTION_BY_TAG]?: EmbeddedLangs;
     [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]?: EmbeddedLangs;
-    [NO_EMBEDDED_MULTILINE_INDENTATION]?: EmbeddedLangs;
+    [NO_EMBEDDED_MULTI_LINE_INDENTATION]?: EmbeddedLangs;
   }
 }
 

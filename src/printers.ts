@@ -57,6 +57,9 @@ const embed: Printer["embed"] = function (
   return estreePrinter.embed?.(path, options) ?? null;
 };
 
+// TODO: support tags like 'this.html', 'this["html"]'..., if possible
+// ideally, the best api to use is https://github.com/estools/esquery
+
 // function to get lang from template literal comments
 function getLangFromComment(
   { node, parent }: AstPath<PrettierNode>,
