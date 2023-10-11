@@ -15,7 +15,7 @@ import {
 } from "./options.js";
 import { name } from "./name.js";
 
-const { label, hardline, group, line, indent } = builders;
+const { hardline, group, line, softline, indent } = builders;
 const { mapDoc } = utils;
 
 export const embedder: Embedder<Options> = async (
@@ -41,8 +41,8 @@ export const embedder: Embedder<Options> = async (
       )
       .join("");
 
-    const leadingWhitespaces = /^\s/.test(text) ? " " : "";
-    const trailingWhitespaces = /\s$/.test(text) ? " " : "";
+    const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
+    const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
 
     const expressionDocs = printTemplateExpressions(path, print);
 
@@ -56,7 +56,6 @@ export const embedder: Embedder<Options> = async (
       ...optionsOverride,
     });
 
-    let multiline = false;
     const contentDoc = mapDoc(doc, (doc) => {
       if (typeof doc !== "string") {
         return doc;
@@ -73,9 +72,7 @@ export const embedder: Embedder<Options> = async (
           component
             .split(/(\n)/)
             .forEach((c) =>
-              c === "\n"
-                ? ((multiline = true), parts.push(hardline))
-                : parts.push(c),
+              c === "\n" ? parts.push(hardline) : parts.push(c),
             );
         } else {
           const placeholderIndex = Number(component);
@@ -85,31 +82,31 @@ export const embedder: Embedder<Options> = async (
       return parts;
     });
 
-    const linebreak = multiline
-      ? hardline
-      : leadingWhitespaces && trailingWhitespaces
-      ? line
-      : null;
-
-    if (linebreak) {
+    if (options.preserveEmbeddedExteriorWhitespaces?.includes(lang)) {
+      // TODO: should we label the doc with { hug: false } ?
+      // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
       return group([
         "`",
-        indent([linebreak, group(contentDoc)]),
-        linebreak,
+        leadingWhitespaces,
+        options.noEmbeddedMultiLineIndentation?.includes(lang)
+          ? [group(contentDoc)]
+          : indent([group(contentDoc)]),
+        trailingWhitespaces,
         "`",
       ]);
     }
 
-    return label(
-      { hug: false },
-      group([
-        "`",
-        leadingWhitespaces,
-        group(contentDoc),
-        trailingWhitespaces,
-        "`",
-      ]),
-    );
+    const leadingLineBreak = leadingWhitespaces.length ? line : softline;
+    const trailingLineBreak = trailingWhitespaces.length ? line : softline;
+
+    return group([
+      "`",
+      options.noEmbeddedMultiLineIndentation?.includes(lang)
+        ? [leadingLineBreak, group(contentDoc)]
+        : indent([leadingLineBreak, group(contentDoc)]),
+      trailingLineBreak,
+      "`",
+    ]);
   } catch (e) {
     console.error(e);
     throw e;
@@ -131,10 +128,18 @@ function getOptionsOverrideByFormatters(
 ): SqlBaseOptions | undefined {
   for (const formatter of formatters) {
     if (testFormatterLangs[formatter](lang)) {
-      return {
-        formatter,
-        language: lang,
-      };
+      switch (formatter) {
+        case "sql-formatter":
+          return {
+            formatter,
+            language: lang,
+          };
+        case "node-sql-parser":
+          return {
+            formatter,
+            database: lang,
+          };
+      }
     }
   }
 }
@@ -162,16 +167,28 @@ function getOptionsOverride(
   lang: string,
   langs: string[],
 ): SqlBaseOptions | undefined {
-  if (options.formatter === "sql-formatter") {
-    return getOptionsOverrideByFormattersWithFallback(lang, langs, [
-      "sql-formatter",
-      "node-sql-parser",
-    ]);
-  } else {
-    return getOptionsOverrideByFormattersWithFallback(lang, langs, [
-      "node-sql-parser",
-      "sql-formatter",
-    ]);
+  const formatter = options.formatter ?? "sql-formatter";
+  switch (formatter) {
+    case "sql-formatter":
+      return getOptionsOverrideByFormattersWithFallback(lang, langs, [
+        "sql-formatter",
+        "node-sql-parser",
+      ]);
+    case "node-sql-parser":
+      return getOptionsOverrideByFormattersWithFallback(lang, langs, [
+        "node-sql-parser",
+        "sql-formatter",
+      ]);
+    default:
+      // guard
+      formatter satisfies never;
+      // by falling back to the sql-formatter
+      // we use a rather forgiving strategy
+      // to parse the options
+      return getOptionsOverrideByFormattersWithFallback(lang, langs, [
+        "sql-formatter",
+        "node-sql-parser",
+      ]);
   }
 }
 

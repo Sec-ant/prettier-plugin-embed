@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-/* sql */ `SELECT *
+/* sql */ `  SELECT *
 FROM
 tbl
 WHERE
   foo = 'bar';
 
 
-  UPDATE a SET id = 1 WHERE name IN (SELECT name FROM b)`;
+  UPDATE a SET id = 1 WHERE name IN (SELECT name FROM b)  `;
 
 /* sql */ `
 ALTER TABLE ${"table"}

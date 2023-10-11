@@ -31,7 +31,7 @@ export const options = {
     description:
       'This option turns off "lang`...`" tag-based language detection for the specified languages.',
   },
-  // TODO: only supports xml as of now
+  // TODO: only supports xml, sql as of now
   [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]: {
     category: "Config",
     type: "string",
@@ -40,7 +40,7 @@ export const options = {
     description:
       "This option preserves leading and trailing whitespaces for the specified languages.",
   },
-  // TODO: only supports xml as of now
+  // TODO: only supports xml, sql as of now
   [NO_EMBEDDED_MULTI_LINE_INDENTATION]: {
     category: "Global",
     type: "string",
