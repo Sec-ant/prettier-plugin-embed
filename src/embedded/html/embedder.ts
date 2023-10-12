@@ -1,11 +1,7 @@
-import type { Options } from "prettier";
+import { type Options } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
-import {
-  printTemplateExpressions,
-  throwIfPluginIsNotFound,
-  preparePlaceholder,
-} from "../utils.js";
+import { printTemplateExpressions, preparePlaceholder } from "../utils.js";
 import { name } from "./name.js";
 
 const { line, group, indent, softline } = builders;
@@ -19,11 +15,9 @@ export const embedder: Embedder<Options> = async (
   lang,
 ) => {
   try {
-    throwIfPluginIsNotFound("@prettier/plugin-php", options, lang);
-
     const { node } = path;
 
-    const { createPlaceholder, placeholderRegex } = preparePlaceholder("$p");
+    const { createPlaceholder, placeholderRegex } = preparePlaceholder();
 
     const text = node.quasis
       .map((quasi, index, { length }) =>
@@ -36,15 +30,10 @@ export const embedder: Embedder<Options> = async (
     const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
     const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
 
-    const trimmedText = text.slice(
-      leadingWhitespaces.length,
-      -trailingWhitespaces.length || undefined,
-    );
-
     const expressionDocs = printTemplateExpressions(path, print);
 
-    const doc = await textToDoc(trimmedText, {
-      parser: "php",
+    const doc = await textToDoc(text, {
+      parser: "html",
     });
 
     const contentDoc = mapDoc(doc, (doc) => {
@@ -60,6 +49,9 @@ export const embedder: Embedder<Options> = async (
             continue;
           }
           component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
+          if (options.__embeddedInHtml) {
+            component = component.replaceAll(/<\/(?=script\b)/gi, "<\\/");
+          }
           parts.push(component);
         } else {
           const placeholderIndex = Number(component);
@@ -69,7 +61,12 @@ export const embedder: Embedder<Options> = async (
       return parts;
     });
 
-    if (options.preserveEmbeddedExteriorWhitespaces?.includes(lang)) {
+    if (
+      options.htmlWhitespaceSensitivity === "strict" ||
+      // TODO: is css mode should be included here?
+      options.htmlWhitespaceSensitivity === "css" ||
+      options.preserveEmbeddedExteriorWhitespaces?.includes(lang)
+    ) {
       // TODO: should we label the doc with { hug: false } ?
       // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
       return group([
