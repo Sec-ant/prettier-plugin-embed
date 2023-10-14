@@ -1,7 +1,7 @@
 <div align="center">
 
-[![prettier-plugin-embed-light](./public/prettier-plugin-embed-wide-light.svg#gh-light-mode-only)
-![prettier-plugin-embed-dark](./public/prettier-plugin-embed-wide-dark.svg#gh-dark-mode-only)](https://github.com/Sec-ant/prettier-plugin-embed)
+![prettier-plugin-embed-light](./public/prettier-plugin-embed-wide-light.svg#gh-light-mode-only)
+![prettier-plugin-embed-dark](./public/prettier-plugin-embed-wide-dark.svg#gh-dark-mode-only)
 
 # Prettier Plugin Embed
 
@@ -17,3 +17,16 @@ Although Prettier has introduced the [`embedded-language-formatting`](https://pr
 
 By leveraging Prettier's plugin system, this plugin extends the formatting capabilities to handle template literals containing code from various languages (e.g., XML, SQL) and makes its behavior configurable.
 
+## Features
+
+- **Customizable Embedded Language Detection:** Detect embedded languages based on customizable tags or comments preceding the template literals.
+- **Extended Formatting:** Utilizes Prettier's formatting capabilities alongside additional hooks to process embedded languages, ensuring a consistent and readable code style across different languages within the same file.
+- **Easy Integration:** Seamlessly integrates with your existing Prettier setup, requiring minimal configuration to get started.
+
+## Installation
+
+Install the plugin via `npm`:
+
+```bash
+npm install --save-dev prettier-plugin-embed
+```
