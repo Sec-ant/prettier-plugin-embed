@@ -53,3 +53,12 @@ test("es", async () => {
   });
   console.log(formattedCode);
 });
+
+test("ts", async () => {
+  const code = (await import("./code/ts.ts?raw")).default;
+  const formattedCode = await format(code, {
+    plugins: [prettierPluginEmbed],
+    filepath: "ts.ts",
+  });
+  console.log(formattedCode);
+});

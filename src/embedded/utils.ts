@@ -1,10 +1,11 @@
 import type { Expression, Comment, TemplateLiteral } from "estree";
-import type { AstPath, Options } from "prettier";
-import { builders } from "prettier/doc";
+import type { AstPath, Options, Doc } from "prettier";
+import { builders, utils } from "prettier/doc";
 import ShortUniqueId from "short-unique-id";
 import type { InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, lineSuffixBoundary } = builders;
+const { mapDoc } = utils;
 
 export function printTemplateExpression(
   path: AstPath<Expression & { comments?: Comment[] }>,
@@ -26,6 +27,35 @@ export function printTemplateExpressions(
     (path) => printTemplateExpression(path, print),
     "expressions",
   );
+}
+
+export function simpleRehydrateDoc(
+  doc: Doc,
+  placeholderRegex: RegExp,
+  expressionDocs: Doc[],
+) {
+  const contentDoc = mapDoc(doc, (doc) => {
+    if (typeof doc !== "string") {
+      return doc;
+    }
+    const parts = [];
+    const components = doc.split(placeholderRegex);
+    for (let i = 0; i < components.length; i++) {
+      let component = components[i];
+      if (i % 2 == 0) {
+        if (!component) {
+          continue;
+        }
+        component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
+        parts.push(component);
+      } else {
+        const placeholderIndex = Number(component);
+        parts.push(expressionDocs[placeholderIndex]);
+      }
+    }
+    return parts;
+  });
+  return contentDoc;
 }
 
 export function throwIfPluginIsNotFound(

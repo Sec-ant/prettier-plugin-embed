@@ -1,15 +1,15 @@
 import { type Options, type Doc } from "prettier";
-import { builders, utils } from "prettier/doc";
+import { builders } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
   printTemplateExpressions,
   throwIfPluginIsNotFound,
   preparePlaceholder,
+  simpleRehydrateDoc,
 } from "../utils.js";
 import { name } from "./name.js";
 
 const { line, group, indent, softline } = builders;
-const { mapDoc } = utils;
 
 export const embedder: Embedder<Options> = async (
   textToDoc,
@@ -43,16 +43,15 @@ export const embedder: Embedder<Options> = async (
 
     const expressionDocs = printTemplateExpressions(path, print);
 
-    const docs: Doc[] = [];
+    const doc: Doc[] = [];
     let sliceIndex: number | undefined = 0;
     while (sliceIndex !== undefined) {
       const textFragment = trimmedText.slice(sliceIndex);
       if (textFragment.length === 0) {
         break;
       }
-      const dGroup: Doc[] = [];
       if (sliceIndex > 0 && options.xmlWhitespaceSensitivity !== "strict") {
-        dGroup.push(softline);
+        doc.push(softline);
       }
       // clear recover index holder
       options.__embeddedXmlFragmentRecoverIndex?.splice(
@@ -69,34 +68,13 @@ export const embedder: Embedder<Options> = async (
         printedText = textFragment.slice(i1, i2 + 1);
         sliceIndex += i2 + 1;
       }
-      dGroup.push(printedText);
-      docs.push(dGroup);
+      doc.push(printedText);
     }
 
-    const contentDocs = docs.map((doc) =>
-      mapDoc(doc, (doc) => {
-        if (typeof doc !== "string") {
-          return doc;
-        }
-        const parts = [];
-        const components = doc.split(placeholderRegex);
-        for (let i = 0; i < components.length; i++) {
-          let component = components[i];
-          if (i % 2 == 0) {
-            if (!component) {
-              continue;
-            }
-            component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
-            // TODO: do we need the counterpart of options.__embeddedInHtml in xml?
-            // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L58-L60
-            parts.push(component);
-          } else {
-            const placeholderIndex = Number(component);
-            parts.push(expressionDocs[placeholderIndex]);
-          }
-        }
-        return parts;
-      }),
+    const contentDoc = simpleRehydrateDoc(
+      doc,
+      placeholderRegex,
+      expressionDocs,
     );
 
     if (
@@ -109,8 +87,8 @@ export const embedder: Embedder<Options> = async (
         "`",
         leadingWhitespaces,
         options.noEmbeddedMultiLineIndentation?.includes(lang)
-          ? [group(contentDocs)]
-          : indent([group(contentDocs)]),
+          ? [group(contentDoc)]
+          : indent([group(contentDoc)]),
         trailingWhitespaces,
         "`",
       ]);
@@ -122,8 +100,8 @@ export const embedder: Embedder<Options> = async (
     return group([
       "`",
       options.noEmbeddedMultiLineIndentation?.includes(lang)
-        ? [leadingLineBreak, group(contentDocs)]
-        : indent([leadingLineBreak, group(contentDocs)]),
+        ? [leadingLineBreak, group(contentDoc)]
+        : indent([leadingLineBreak, group(contentDoc)]),
       trailingLineBreak,
       "`",
     ]);

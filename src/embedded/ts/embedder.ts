@@ -1,11 +1,14 @@
 import { type Options } from "prettier";
-import { builders, utils } from "prettier/doc";
+import { builders } from "prettier/doc";
 import type { Embedder } from "../../types.js";
-import { printTemplateExpressions, preparePlaceholder } from "../utils.js";
+import {
+  printTemplateExpressions,
+  preparePlaceholder,
+  simpleRehydrateDoc,
+} from "../utils.js";
 import { name } from "./name.js";
 
 const { line, group, indent, softline } = builders;
-const { mapDoc } = utils;
 
 export const embedder: Embedder<Options> = async (
   textToDoc,
@@ -36,27 +39,11 @@ export const embedder: Embedder<Options> = async (
       parser: options.embeddedTsParser ?? "typescript",
     });
 
-    const contentDoc = mapDoc(doc, (doc) => {
-      if (typeof doc !== "string") {
-        return doc;
-      }
-      const parts = [];
-      const components = doc.split(placeholderRegex);
-      for (let i = 0; i < components.length; i++) {
-        let component = components[i];
-        if (i % 2 == 0) {
-          if (!component) {
-            continue;
-          }
-          component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
-          parts.push(component);
-        } else {
-          const placeholderIndex = Number(component);
-          parts.push(expressionDocs[placeholderIndex]);
-        }
-      }
-      return parts;
-    });
+    const contentDoc = simpleRehydrateDoc(
+      doc,
+      placeholderRegex,
+      expressionDocs,
+    );
 
     if (options.preserveEmbeddedExteriorWhitespaces?.includes(lang)) {
       // TODO: should we label the doc with { hug: false } ?

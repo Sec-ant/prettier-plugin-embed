@@ -1,0 +1,1 @@
+/* ts */`let roundedWeather:object = {};for (let city in weather) {roundedWeather[city] = {};roundedWeather[city].temp = Math.ceil(weather[city].temp);roundedWeather[city].humidity = Math.ceil(weather[city].humidity);}`
