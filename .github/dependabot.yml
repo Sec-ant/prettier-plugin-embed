@@ -8,7 +8,7 @@ updates:
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "weekly"
     groups:
       minor-and-patch-updates:
         update-types:
@@ -19,3 +19,6 @@ updates:
           - "major"
     ignore:
       - dependency-name: "chevrotain"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
