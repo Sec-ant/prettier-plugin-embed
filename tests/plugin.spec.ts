@@ -44,3 +44,12 @@ test("php", async () => {
   });
   console.log(formattedCode);
 });
+
+test("es", async () => {
+  const code = (await import("./code/es.ts?raw")).default;
+  const formattedCode = await format(code, {
+    plugins: [prettierPluginEmbed],
+    filepath: "es.ts",
+  });
+  console.log(formattedCode);
+});
