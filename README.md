@@ -7,15 +7,25 @@
 
 A Configurable [Prettier](https://prettier.io/) [Plugin](https://prettier.io/docs/en/plugins.html) to Format [Embedded Languages](https://prettier.io/docs/en/options.html#embedded-language-formatting) in `js`/`ts` Files.
 
+```bash
+npm i -D prettier-plugin-embed
+```
+
 </div>
 
 ## Introduction
 
-This Prettier plugin (namely `prettier-plugin-embed`) provides a configurable solution for formatting embedded languages in the form of [template literals](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals) within JavaScript (`js`) and TypeScript (`ts`) files.
+### What?
 
-Although Prettier has introduced the [`embedded-language-formatting`](https://prettier.io/docs/en/options.html#embedded-language-formatting) option for formatting embedded languages, this option only supports two modes: `auto` and `off`. It doesn't allow for individual formatting adjustments for specific languages, nor does it support customizing the languages and tag names that require formatting. These limitations restrict the usability of this feature. For more detailed discussions, refer to: https://github.com/prettier/prettier/issues/4424 and https://github.com/prettier/prettier/issues/5588
+This Prettier plugin (namely `prettier-plugin-embed`) provides a configurable solution for formatting embedded languages in the form of [template literals](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals) within JavaScript (`js`) or TypeScript (`ts`) files.
 
-By leveraging Prettier's plugin system, this plugin extends the formatting capabilities to handle template literals containing code from various languages (e.g., XML, SQL) and makes its behavior configurable.
+### Why?
+
+Although Prettier has introduced the [`embedded-language-formatting`](https://prettier.io/docs/en/options.html#embedded-language-formatting) option for formatting embedded languages, it only supports two modes: `auto` and `off`. Therefore it doesn't allow for individual formatting adjustments for specific languages, nor does it support customizing the languages and tag names that require formatting. These limitations restrict the usability of this feature. For more detailed discussions, refer to: https://github.com/prettier/prettier/issues/4424 and https://github.com/prettier/prettier/issues/5588.
+
+### How?
+
+By leveraging Prettier's plugin system, this plugin overrides the default [`embed`](https://prettier.io/docs/en/plugins#optional-embed) function of the `estree` printer, so varieties of new languages can be hooked in through this function. Check [this file](./src/printers.ts) to get an idea of how this is accomplished.
 
 ## Features
 
@@ -55,9 +65,11 @@ npm i -D prettier-plugin-embed
 
 ## Usage
 
+### Basic Usage
+
 This is a Prettier plugin, which follows the [standard usage pattern](https://prettier.io/docs/en/plugins.html#using-plugins) of many other Prettier plugins:
 
-### CLI
+#### [CLI](https://prettier.io/docs/en/cli):
 
 Via `--plugin`:
 
@@ -65,7 +77,7 @@ Via `--plugin`:
 prettier --write main.ts --plugin=prettier-plugin-embed
 ```
 
-### API
+#### [API](https://prettier.io/docs/en/api):
 
 Via the `plugins` options:
 
@@ -76,10 +88,26 @@ await prettier.format(code, {
 });
 ```
 
-### Configuration File
+#### [Configuration File](https://prettier.io/docs/en/configuration):
 
 ```json
 {
   "plugins": ["prettier-plugin-embed"]
 }
 ```
+
+### Language-Specific Use Cases
+
+TODO
+
+## Configuration
+
+TODO
+
+## Contributing
+
+TODO
+
+## License
+
+MIT
