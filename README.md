@@ -29,33 +29,19 @@ By leveraging Prettier's plugin system, this plugin overrides the default [`embe
 
 ## Features
 
-- **Support for Additional Languages:**
+- **Support for Additional Languages:** Extend the embedded language formatting capability to include languages such as XML, SQL, PHP, and more.
 
-  Extend the embedded language formatting capability to include languages such as XML, SQL, PHP, and more.
+- **Dual Detection Modes:** Identify embedded languages by tags `` lang`...` `` or comments `` /* lang */ `...` `` preceding the template literals.
 
-- **Dual Detection Modes:**
+- **Customizable Language Tags/Comments:** Customize the language tags or comments used for identifying the embedded languages.
 
-  Identify embedded languages by tags `` lang`...` `` or comments `` /* lang */ `...` `` preceding the template literals.
+- **Formatting Opt-out Mechanism:** Offer the capability to deactivate formatting for certain embedded languages, including the default languages supported by the `embedded-language-formatting` option.
 
-- **Customizable Language Tags/Comments:**
+- **Configurable Formatting Style:** Provide additional options to tailor the formatting style for embedded languages.
 
-  Customize the language tags or comments used for identifying the embedded languages.
+- **Strongly Typed API:** Benefit from comprehensive type support for configuring this plugin's options when employing the [Prettier API](https://prettier.io/docs/en/api) in TypeScript.
 
-- **Formatting Opt-out Mechanism:**
-
-  Offer the capability to deactivate formatting for certain embedded languages, including the default languages supported by the `embedded-language-formatting` option.
-
-- **Configurable Formatting Style:**
-
-  Provide additional options to tailor the formatting style for embedded languages.
-
-- **Strongly Typed API:**
-
-  Benefit from comprehensive type support for configuring this plugin's options when employing the [Prettier API](https://prettier.io/docs/en/api) in TypeScript.
-
-- **Easy Integration:**
-
-  Integrate with the existing Prettier setup seamlessly, requiring minimal configuration to get started.
+- **Easy Integration:** Integrate with the existing Prettier setup seamlessly, requiring minimal configuration to get started.
 
 ## Installation
 
