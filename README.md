@@ -65,7 +65,7 @@ npm i -D prettier-plugin-embed
 
 ## Usage
 
-### Basic Usage
+### Getting Started
 
 This is a Prettier plugin, which follows the [standard usage pattern](https://prettier.io/docs/en/plugins.html#using-plugins) of many other Prettier plugins:
 
@@ -96,11 +96,41 @@ await prettier.format(code, {
 }
 ```
 
-### Language-Specific Use Cases
+### An Overlook of the Philosophy
 
-TODO
+This plugin does not aim to implement parsers or printers to support every newly added embedded languages. Instead, ideally, it makes use of the existing [Prettier plugins](https://prettier.io/docs/en/plugins.html#official-plugins) for these languages and only adds formatting support when they are embedded.
 
-## Configuration
+Therefore, to support embedded language formatting for a specific language, the corresponding Prettier plugin to format that language will also have to be loaded at the same time. For example, when you want to format embedded XML code, apart from loading this plugin, you'll also need to load [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml). To find out which other plugin is needed when using this plugin, please refer to [Language-Specific Configuration](#language-specific-configuration) below.
+
+TODO: Introduce template literals, tag function and comment.
+
+This plugin comes preconfigured with a built-in set of tag and comment names for identifying various embedded languages. For example, using tags or comments like `xml` or `svg` will trigger automatic formatting of the embedded XML code, and you can specify an alternate list of identifiers in the `embeddedXML` option to alter this behavior. The naming convention for these options follows the pattern of `embedded{Language}` for other languages as well. Comprehensive details about these options and how to configure them can also be found in [Language-Specific Configuration](#language-specific-configuration).
+
+To exclude certain languages from formatting, including the default ones supported by the `embedded-language-formatting` option, list them in the `embeddedNoop` option. Any matching language names in this option will take precedence over other `embedded{Language}` options, effectively disabling their formatting.
+
+### Language-Specific Configuration
+
+#### XML
+
+|    Option     |                Default                 | Description                                                                                       |
+| :-----------: | :------------------------------------: | ------------------------------------------------------------------------------------------------- |
+| `embeddedXml` | [[...]](./src/embedded/xml/options.ts) | tag or comment identifiers that make their subsequent template literals be identified as XML code |
+
+Formatting embedded XML code requires [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml) to be loaded as well. And [options](https://github.com/prettier/plugin-xml#configuration) supported by `@prettier/plugin-xml` can therefore be used to further control the formatting behavior.
+
+#### SQL
+
+|    Option     |                Default                 | Description                                                                                       |
+| :-----------: | :------------------------------------: | ------------------------------------------------------------------------------------------------- |
+| `embeddedSql` | [[...]](./src/embedded/sql/options.ts) | tag or comment identifiers that make their subsequent template literals be identified as SQL code |
+
+TODO: Explain differernt flavors.
+
+Formatting embedded SQL code requires [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql` can therefore be used to further control the formatting behavior.
+
+TODO: add other languages
+
+### Language-Agnostic Configuration
 
 TODO
 

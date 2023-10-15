@@ -138,3 +138,5 @@ export type MakeOptionLangType<T extends readonly string[]> =
 export type MakeLangsHolderType<T extends readonly string[]> = {
   [key in T[number]]: void;
 };
+
+export type Satisfies<U, T extends U> = T;
