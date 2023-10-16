@@ -1,0 +1,90 @@
+{
+  "name": "prettier-plugin-embed",
+  "description": "A configurable Prettier plugin to format embedded languages in js/ts files.",
+  "private": false,
+  "version": "0.0.6",
+  "type": "module",
+  "files": [
+    "./dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sec-ant/prettier-plugin-embed.git"
+  },
+  "homepage": "https://github.com/Sec-ant/prettier-plugin-embed",
+  "bugs": {
+    "url": "https://github.com/Sec-ant/prettier-plugin-embed/issues",
+    "email": "zzwu@zju.edu.cn"
+  },
+  "keywords": [
+    "prettier",
+    "plugin",
+    "prettier-plugin",
+    "embed",
+    "embedded",
+    "embedded-language",
+    "format"
+  ],
+  "author": {
+    "name": "Ze-Zheng Wu"
+  },
+  "license": "MIT",
+  "config": {},
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vite",
+    "lint": "eslint . --ext .ts",
+    "type-check": "tsc --noEmit --emitDeclarationOnly false",
+    "format": "prettier . --write",
+    "prebuild": "npm run lint && npm run type-check && npm run format",
+    "build": "vite build",
+    "add-glob-import-types": "tsx ./scripts/add-glob-import-types.ts",
+    "postbuild": "tsc --project ./tsconfig.production.json && npm run add-glob-import-types",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build",
+    "ncu": "npx npm-check-updates -u",
+    "postncu": "npm i"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.8.0",
+    "@commitlint/config-conventional": "^17.8.0",
+    "@semantic-release/git": "^10.0.1",
+    "@types/estree": "^1.0.2",
+    "@typescript-eslint/eslint-plugin": "^6.7.5",
+    "@typescript-eslint/parser": "^6.7.5",
+    "@vitest/browser": "^0.34.6",
+    "@vitest/coverage-istanbul": "^0.34.6",
+    "@vitest/ui": "^0.34.6",
+    "code-tag": "^1.1.0",
+    "eslint": "^8.51.0",
+    "fast-glob": "^3.3.1",
+    "npm-check-updates": "^16.14.6",
+    "playwright": "^1.39.0",
+    "semantic-release": "^22.0.5",
+    "tsx": "^3.13.0",
+    "typescript": "^5.2.2",
+    "vite": "^4.4.11",
+    "vitest": "^0.34.6"
+  },
+  "peerDependencies": {
+    "prettier": "^3.0.3",
+    "@prettier/plugin-php": "^0.20.1",
+    "@prettier/plugin-xml": "^3.2.1",
+    "@xml-tools/parser": "^1.0.11",
+    "chevrotain": "7.1.1",
+    "prettier-plugin-sql": "^0.15.1"
+  },
+  "dependencies": {
+    "short-unique-id": "^5.0.3"
+  }
+}
