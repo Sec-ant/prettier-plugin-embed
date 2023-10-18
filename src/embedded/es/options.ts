@@ -1,8 +1,8 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import { embeddedLanguage } from "./embedded-language.js";
 import type {
-  MakeIdentifiersType,
-  MakeIdentifiersHolderType,
+  AutocompleteStringList,
+  StringListToInterfaceKey,
 } from "../utils.js";
 
 // copied from https://github.com/microsoft/vscode/blob/267f09acea3b2416861661d702b3be767bdeef6e/extensions/javascript/package.json
@@ -15,8 +15,8 @@ const DEFAULT_IDENTIFIERS = [
   "pac",
   "javascript",
 ] as const;
-type Identifiers = MakeIdentifiersType<typeof DEFAULT_IDENTIFIERS>;
-type DefaultIdentifiersHolder = MakeIdentifiersHolderType<
+type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
+type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 

@@ -131,11 +131,11 @@ export function escapeRegExp(text: string) {
 
 // this weird generic can provide autocomplete prompts of type T[number] to users
 // while also accepts any string
-export type MakeIdentifiersType<T extends readonly string[]> =
+export type AutocompleteStringList<T extends readonly string[]> =
   | (T[number][] & string[])
   | string[];
 
-export type MakeIdentifiersHolderType<T extends readonly string[]> = {
+export type StringListToInterfaceKey<T extends readonly string[]> = {
   [key in T[number]]: void;
 };
 

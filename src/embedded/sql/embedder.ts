@@ -52,7 +52,7 @@ export const embedder: Embedder<Options> = async (
       identifiers,
     );
     if (typeof optionsOverride === "undefined") {
-      throw new SyntaxError(`Unrecognized language: ${identifier}`);
+      throw new SyntaxError(`Unrecognized identifier: ${identifier}`);
     }
 
     const doc = await textToDoc(text, {

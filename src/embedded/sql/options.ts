@@ -1,7 +1,7 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import type { SqlBaseOptions as PrettierPluginDepsOptions } from "prettier-plugin-sql";
 import { embeddedLanguage } from "./embedded-language.js";
-import { MakeIdentifiersType, MakeIdentifiersHolderType } from "../utils.js";
+import { AutocompleteStringList, StringListToInterfaceKey } from "../utils.js";
 
 export const SQL_FORMATTER_LANGUAGES = [
   "sql",
@@ -33,10 +33,10 @@ export const NODE_SQL_PARSER_DATABASES = [
   "flinksql",
 ] as const;
 
-type Identifiers = MakeIdentifiersType<
+type Identifiers = AutocompleteStringList<
   typeof SQL_FORMATTER_LANGUAGES | typeof NODE_SQL_PARSER_DATABASES
 >;
-type DefaultIdentifiersHolder = MakeIdentifiersHolderType<
+type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof SQL_FORMATTER_LANGUAGES | typeof NODE_SQL_PARSER_DATABASES
 >;
 
