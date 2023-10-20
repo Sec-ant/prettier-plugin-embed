@@ -1,11 +1,12 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import { embeddedLanguage } from "./embedded-language.js";
-import type {
-  AutocompleteStringList,
-  StringListToInterfaceKey,
+import {
+  type AutocompleteStringList,
+  type StringListToInterfaceKey,
+  makeIdentifiersOptionName,
 } from "../utils.js";
 
-const RUBY_PARSERS = ["ruby", "rbs", "haml"];
+const RUBY_PARSERS = ["ruby", "rbs", "haml"] as const;
 export type RubyParser = (typeof RUBY_PARSERS)[number];
 
 // copied from https://github.com/prettier/plugin-ruby/blob/0a2100ca3b8b53d9491270ece64806d95da181a6/src/plugin.js
@@ -54,18 +55,9 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 
-export const options = {
-  [embeddedLanguage]: {
-    category: "Global",
-    type: "string",
-    array: true,
-    default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description:
-      "Specify embedded Ruby languages. This requires @prettier/plugin-ruby",
-  },
-} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+const EMBEDDED_LANGUAGE_PARSER = "embeddedRubyParser";
 
-type Options = typeof options;
+const embeddedLanguageIdentifiers = makeIdentifiersOptionName(embeddedLanguage);
 
 export interface PrettierPluginDepsOptions {
   rubyPlugins?: AutocompleteStringList<
@@ -79,11 +71,32 @@ export interface PrettierPluginDepsOptions {
   rubyExecutablePath?: string;
 }
 
+export const options = {
+  [embeddedLanguageIdentifiers]: {
+    category: "Global",
+    type: "string",
+    array: true,
+    default: [{ value: [...DEFAULT_IDENTIFIERS] }],
+    description:
+      'Specify embedded Ruby language identifiers. This requires "@prettier/plugin-ruby".',
+  },
+  [EMBEDDED_LANGUAGE_PARSER]: {
+    category: "Global",
+    type: "string",
+    array: false,
+    default: undefined,
+    description: "Specify the embedded Ruby language parser.",
+  },
+} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+
+type Options = typeof options;
+
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
-    [embeddedLanguage]?: Identifiers;
+    [embeddedLanguageIdentifiers]?: Identifiers;
+    [EMBEDDED_LANGUAGE_PARSER]?: RubyParser;
   }
 }
 

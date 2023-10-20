@@ -3,9 +3,10 @@ import {
   embeddedOptions,
   PrettierPluginEmbedOptions,
   EmbeddedDefaultIdentifier,
+  AutocompleteStringList,
 } from "./embedded/index.js";
 
-type EmbeddedIdentifiers = (EmbeddedDefaultIdentifier[] & string[]) | string[];
+type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
 
 const NO_EMBEDDED_IDENTIFICATION_BY_COMMENT =
   "noEmbeddedIdentificationByComment";

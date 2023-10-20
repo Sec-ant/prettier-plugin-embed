@@ -129,6 +129,14 @@ export function escapeRegExp(text: string) {
   return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 }
 
+export function makeIdentifiersOptionName<T extends string>(language: T) {
+  return `${language}Identifiers` as const;
+}
+
+export function makeParserOptionName<T extends string>(language: T) {
+  return `${language}Parser` as const;
+}
+
 // this weird generic can provide autocomplete prompts of type T[number] to users
 // while also accepts any string
 export type AutocompleteStringList<T extends readonly string[]> =

@@ -4,8 +4,9 @@ import { builders } from "prettier/doc";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
 import type { PrettierNode } from "./types.js";
 import {
-  embeddedLanguages as embeddedLanguages,
+  embeddedLanguages,
   embeddedEmbedders,
+  makeIdentifiersName,
 } from "./embedded/index.js";
 
 const { estree: estreePrinter } = estreePrinters;
@@ -27,7 +28,7 @@ const embed: Printer["embed"] = function (
     return null;
   }
   for (const embeddedLanguage of embeddedLanguages) {
-    const identifiers = options[embeddedLanguage];
+    const identifiers = options[makeIdentifiersName(embeddedLanguage)];
     if (!identifiers) {
       continue;
     }

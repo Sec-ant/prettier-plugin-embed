@@ -1,8 +1,10 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import { embeddedLanguage } from "./embedded-language.js";
-import type {
-  AutocompleteStringList,
-  StringListToInterfaceKey,
+import {
+  type AutocompleteStringList,
+  type StringListToInterfaceKey,
+  makeIdentifiersOptionName,
+  makeParserOptionName,
 } from "../utils.js";
 
 // copied from https://github.com/microsoft/vscode/blob/267f09acea3b2416861661d702b3be767bdeef6e/extensions/javascript/package.json
@@ -32,26 +34,29 @@ const DEFAULT_ES_PARSERS = [
 
 type EsParser = (typeof DEFAULT_ES_PARSERS)[number];
 
-const EMBEDDED_ES_PARSER = "embeddedEsParser";
+const embeddedLanguageIdentifiersOptionName =
+  makeIdentifiersOptionName(embeddedLanguage);
+
+const embeddedLanguageParserOptionName = makeParserOptionName(embeddedLanguage);
 
 export interface PrettierPluginDepsOptions {
   /* prettier built-in options */
 }
 
 export const options = {
-  [embeddedLanguage]: {
+  [embeddedLanguageIdentifiersOptionName]: {
     category: "Global",
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded ES languages.",
+    description: "Specify embedded ES language identifiers.",
   },
-  [EMBEDDED_ES_PARSER]: {
+  [embeddedLanguageParserOptionName]: {
     category: "Global",
     type: "string",
     array: false,
     default: "babel" satisfies EsParser,
-    description: "Specify the parser for the embedded ES languages.",
+    description: "Specify the embedded ES language parser.",
   },
 } satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
@@ -61,8 +66,8 @@ declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
-    [embeddedLanguage]?: Identifiers;
-    [EMBEDDED_ES_PARSER]?: EsParser;
+    [embeddedLanguageIdentifiersOptionName]?: Identifiers;
+    [embeddedLanguageParserOptionName]?: EsParser;
   }
 }
 

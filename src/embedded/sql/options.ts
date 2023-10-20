@@ -1,7 +1,11 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import type { SqlBaseOptions as PrettierPluginDepsOptions } from "prettier-plugin-sql";
 import { embeddedLanguage } from "./embedded-language.js";
-import { AutocompleteStringList, StringListToInterfaceKey } from "../utils.js";
+import {
+  type AutocompleteStringList,
+  type StringListToInterfaceKey,
+  makeIdentifiersOptionName,
+} from "../utils.js";
 
 export const SQL_FORMATTER_LANGUAGES = [
   "sql",
@@ -44,16 +48,18 @@ export type SqlFormatterLanguage = (typeof SQL_FORMATTER_LANGUAGES)[number];
 
 export type NodeSqlParserDataBase = (typeof NODE_SQL_PARSER_DATABASES)[number];
 
+const embeddedLanguageIdentifiers = makeIdentifiersOptionName(embeddedLanguage);
+
 export { PrettierPluginDepsOptions };
 
 export const options = {
-  [embeddedLanguage]: {
+  [embeddedLanguageIdentifiers]: {
     category: "Global",
     type: "string",
     array: true,
     default: [{ value: [...SQL_FORMATTER_LANGUAGES] }],
     description:
-      "Specify embedded SQL languages. This requires prettier-plugin-sql",
+      'Specify embedded SQL language identifiers. This requires "prettier-plugin-sql".',
   },
 } satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
@@ -63,7 +69,7 @@ declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
-    [embeddedLanguage]?: Identifiers;
+    [embeddedLanguageIdentifiers]?: Identifiers;
   }
 }
 

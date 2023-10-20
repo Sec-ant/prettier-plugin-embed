@@ -6,20 +6,30 @@ import {
   makeIdentifiersOptionName,
 } from "../utils.js";
 
-// copied from https://github.com/microsoft/vscode/blob/6a7a661757dec1983ff05ef908a2bbb75ce841e0/extensions/html/package.json
+// copied from https://github.com/NaridaL/glsl-language-toolkit/blob/a7bd08d3f31355b335ae002b6a44c2999998b952/packages/prettier-plugin-glsl/src/prettier-plugin.ts
 const DEFAULT_IDENTIFIERS = [
-  "html",
-  "htm",
-  "shtml",
-  "xhtml",
-  "xht",
-  "mdoc",
-  "jsp",
-  "asp",
-  "aspx",
-  "jshtm",
-  "volt",
-  "rhtml",
+  "glsl",
+  "fp",
+  "frag",
+  "frg",
+  "fs",
+  "fsh",
+  "fshader",
+  "geo",
+  "geom",
+  "glslf",
+  "glslv",
+  "gs",
+  "gshader",
+  "rchit",
+  "rmiss",
+  "shader",
+  "tesc",
+  "tese",
+  "vert",
+  "vrx",
+  "vsh",
+  "vshader",
 ] as const;
 type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
@@ -28,9 +38,7 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 
 const embeddedLanguageIdentifiers = makeIdentifiersOptionName(embeddedLanguage);
 
-export interface PrettierPluginDepsOptions {
-  /* prettier built-in options */
-}
+export interface PrettierPluginDepsOptions {}
 
 export const options = {
   [embeddedLanguageIdentifiers]: {
@@ -38,7 +46,8 @@ export const options = {
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded HTML language identifiers.",
+    description:
+      'Specify embedded GLSL language identifiers. This requires "prettier-plugin-glsl".',
   },
 } satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 

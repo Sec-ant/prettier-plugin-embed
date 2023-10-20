@@ -1,8 +1,9 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import { embeddedLanguage } from "./embedded-language.js";
-import type {
-  AutocompleteStringList,
-  StringListToInterfaceKey,
+import {
+  type AutocompleteStringList,
+  type StringListToInterfaceKey,
+  makeIdentifiersOptionName,
 } from "../utils.js";
 
 // copied from https://github.com/microsoft/vscode/blob/6a7a661757dec1983ff05ef908a2bbb75ce841e0/extensions/php/package.json
@@ -12,18 +13,7 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 
-export const options = {
-  [embeddedLanguage]: {
-    category: "Global",
-    type: "string",
-    array: true,
-    default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description:
-      "Specify embedded PHP languages. This requires @prettier/plugin-php",
-  },
-} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
-
-type Options = typeof options;
+const embeddedLanguageIdentifiers = makeIdentifiersOptionName(embeddedLanguage);
 
 export interface PrettierPluginDepsOptions {
   phpVersion?:
@@ -46,11 +36,24 @@ export interface PrettierPluginDepsOptions {
   braceStyle?: "psr-2" | "per-cs" | "1tbs";
 }
 
+export const options = {
+  [embeddedLanguageIdentifiers]: {
+    category: "Global",
+    type: "string",
+    array: true,
+    default: [{ value: [...DEFAULT_IDENTIFIERS] }],
+    description:
+      'Specify embedded PHP language identifiers. This requires "@prettier/plugin-php".',
+  },
+} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+
+type Options = typeof options;
+
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
-    [embeddedLanguage]?: Identifiers;
+    [embeddedLanguageIdentifiers]?: Identifiers;
   }
 }
 

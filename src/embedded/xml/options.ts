@@ -1,8 +1,9 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import { embeddedLanguage } from "./embedded-language.js";
-import type {
-  AutocompleteStringList,
-  StringListToInterfaceKey,
+import {
+  type AutocompleteStringList,
+  type StringListToInterfaceKey,
+  makeIdentifiersOptionName,
 } from "../utils.js";
 
 // copied from https://github.com/microsoft/vscode/blob/6a7a661757dec1983ff05ef908a2bbb75ce841e0/extensions/xml/package.json
@@ -70,6 +71,8 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 
+const embeddedLanguageIdentifiers = makeIdentifiersOptionName(embeddedLanguage);
+
 export interface PrettierPluginDepsOptions {
   xmlSelfClosingSpace?: boolean;
   xmlWhitespaceSensitivity?: "strict" | "preserve" | "ignore";
@@ -78,13 +81,13 @@ export interface PrettierPluginDepsOptions {
 }
 
 export const options = {
-  [embeddedLanguage]: {
+  [embeddedLanguageIdentifiers]: {
     category: "Global",
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      "Specify embedded XML languages. This requires @prettier/plugin-xml",
+      'Specify embedded XML language identifiers. This requires "@prettier/plugin-xml".',
   },
   /** @internal */
   __embeddedXmlFragmentRecoverIndex: {
@@ -103,7 +106,7 @@ declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
-    [embeddedLanguage]?: Identifiers;
+    [embeddedLanguageIdentifiers]?: Identifiers;
     /** @internal */
     __embeddedXmlFragmentRecoverIndex?: [number] | [number, number];
   }
