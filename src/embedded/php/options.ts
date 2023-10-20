@@ -6,7 +6,10 @@ import {
   makeIdentifiersOptionName,
 } from "../utils.js";
 
-// copied from https://github.com/microsoft/vscode/blob/6a7a661757dec1983ff05ef908a2bbb75ce841e0/extensions/php/package.json
+/** References
+ * - https://github.com/microsoft/vscode/blob/de0121cf0e05d1673903551b6dbb2871556bfae9/extensions/php/package.json#L15
+ * - https://github.com/github-linguist/linguist/blob/7ca3799b8b5f1acde1dd7a8dfb7ae849d3dfb4cd/lib/linguist/languages.yml#L4971
+ */
 const DEFAULT_IDENTIFIERS = ["php", "php5", "phtml", "ctp"] as const;
 type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<

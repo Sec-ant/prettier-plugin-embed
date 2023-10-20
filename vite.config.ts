@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
+import { peerDependencies } from "./package.json";
 
 export default defineConfig({
   build: {
@@ -11,13 +12,9 @@ export default defineConfig({
       fileName: (format, entryName) =>
         format === "es" ? `${entryName}.js` : `${entryName}.${format}.js`,
     },
+    copyPublicDir: false,
     rollupOptions: {
-      external: [
-        /^@?prettier(?:\/|$)/,
-        "@xml-tools/parser",
-        "chevrotain",
-        "prettier-plugin-sql",
-      ],
+      external: [/^@?prettier(?:\/|$)/, ...Object.keys(peerDependencies ?? {})],
     },
   },
   test: {

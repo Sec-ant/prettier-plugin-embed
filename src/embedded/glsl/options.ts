@@ -6,7 +6,10 @@ import {
   makeIdentifiersOptionName,
 } from "../utils.js";
 
-// copied from https://github.com/NaridaL/glsl-language-toolkit/blob/a7bd08d3f31355b335ae002b6a44c2999998b952/packages/prettier-plugin-glsl/src/prettier-plugin.ts
+/** References:
+ * - https://github.com/NaridaL/glsl-language-toolkit/blob/a7bd08d3f31355b335ae002b6a44c2999998b952/packages/prettier-plugin-glsl/src/prettier-plugin.ts#L88
+ * - https://github.com/github-linguist/linguist/blob/7ca3799b8b5f1acde1dd7a8dfb7ae849d3dfb4cd/lib/linguist/languages.yml#L2180
+ */
 const DEFAULT_IDENTIFIERS = [
   "glsl",
   "fp",

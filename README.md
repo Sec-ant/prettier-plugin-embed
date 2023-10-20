@@ -84,15 +84,15 @@ await prettier.format(code, {
 
 ### An Overview of the Philosophy
 
-To use this plugin, `embedded-language-formatting` option must be set to `auto` (which is the default setting as of now), because this option serves as the main switch for activating embedded language formatting.
+To use this plugin, [`embedded-language-formatting`](https://prettier.io/docs/en/options.html#embedded-language-formatting) option must be set to `auto` (which is the default setting as of now), because this option serves as the main switch for activating embedded language formatting.
 
-This plugin does not aim to implement parsers or printers to support every newly added embedded language. Instead, ideally, it makes use of existing [Prettier plugins](https://prettier.io/docs/en/plugins.html#official-plugins) for those languages and only adds formatting support when they are embedded.
+This plugin does not aim to implement parsers or printers to support every newly added embedded language. Instead, ideally, it makes use of existing [Prettier plugins](https://prettier.io/docs/en/plugins.html#official-plugins) for those languages and only adds formatting support when they are embedded in template literals.
 
 Therefore, to enable formatting for a specific embedded language, the corresponding Prettier plugin for that language must also be loaded. For example, if you wish to format embedded XML code, you will need to load both this plugin and [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml). To find out which other plugins are required when using this plugin, please refer to the [Language-Specific Options](#language-specific-options) section below.
 
-Embedded languages to be formatted are required to be enclosed in the template literals, and are identified by the preceding [tags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) `` identifier`...` `` or block comments `` /* identifier */ `...` ``. This plugin comes pre-configured with a built-in set of identifiers for identifying various embedded languages. For instance, using identifiers like `xml` or `svg` will trigger automatic formatting for the embedded XML code. You can specify an alternative list of identifiers using the `embeddedXML` option. The naming convention for these options follows the pattern of `embedded{CapitalizedLanguageName}` for other languages as well. Further details on these options and how to configure them are also available in the [Language-Specific Options](#language-specific-options) section.
+Embedded languages to be formatted are required to be enclosed in the template literals, and are identified by the preceding [tags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) `` identifier`...` `` or [block comments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#block_comments) `` /* identifier */ `...` ``. This plugin comes pre-configured with a built-in set of identifiers for identifying various embedded languages. For instance, using identifiers like `xml` or `svg` will trigger automatic formatting for the embedded XML code. You can specify an alternative list of identifiers using the `embeddedXmlIdentifiers` option. The naming convention for these options follows the pattern of `embedded<Language>Identifiers` for other languages as well. Further details on these options and how to configure them are also available in the [Language-Specific Options](#language-specific-options) section.
 
-To exclude certain identifiers from being identified, including the default ones supported by the `embedded-language-formatting` option, add them to the list of the `embeddedNoop` option. Any matching identifiers listed in this option will take precedence over other `embedded{CapitalizedLanguageName}` options, effectively disabling their formatting.
+To exclude certain identifiers from being identified, including the default ones supported by the [`embedded-language-formatting`](https://prettier.io/docs/en/options.html#embedded-language-formatting) option, add them to the list of the `embeddedNoopIdentifiers` option. Any matching identifiers listed in this option will take precedence over other `embedded<Language>Identifiers` options, effectively disabling their formatting.
 
 ### Language-Specific Options
 
@@ -103,42 +103,66 @@ Click Here
 
 #### NOOP
 
-|     Option     | Default | Description                                                                                                                                     |
-| :------------: | :-----: | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `embeddedNoop` |  `[]`   | Tag or comment identifiers that prevent their subsequent template literals from being identified as embedded languages and from being formatted |
+|          Option           | Default | Description                                                                                                                                     |
+| :-----------------------: | :-----: | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embeddedNoopIdentifiers` |  `[]`   | Tag or comment identifiers that prevent their subsequent template literals from being identified as embedded languages and from being formatted |
 
 This doesn't require other plugins and can override the native embedded language formatting for ECMAScript code. It serves as a way to turn off embedded language formatting for specific language identifiers.
 
+#### CSS
+
+|          Option          |                 Default                  | Description                                                                                       |
+| :----------------------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
+| `embeddedCssIdentifiers` | [`[...]`](./src/embedded/css/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as CSS code |
+
+Formatting embedded CSS code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for CSS code.
+
 #### ES
 
-|       Option       |                  Default                  | Description                                                                                                           |
-| :----------------: | :---------------------------------------: | --------------------------------------------------------------------------------------------------------------------- |
-|    `embeddedEs`    |  [`[...]`](./src/embedded/es/options.ts)  | Tag or comment identifiers that make their subsequent template literals be identified as ECMAScript (JavaScript) code |
-| `embeddedEsParser` | [`"babel"`](./src/embedded/es/options.ts) | The parser used to parse the ECMASCript (JavaScript) code                                                             |
+|         Option          |                  Default                  | Description                                                                                                           |
+| :---------------------: | :---------------------------------------: | --------------------------------------------------------------------------------------------------------------------- |
+| `embeddedEsIdentifiers` |  [`[...]`](./src/embedded/es/options.ts)  | Tag or comment identifiers that make their subsequent template literals be identified as ECMAScript (JavaScript) code |
+|   `embeddedEsParser`    | [`"babel"`](./src/embedded/es/options.ts) | The parser used to parse the ECMASCript (JavaScript) code                                                             |
 
 Formatting embedded ECMAScript code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for ECMAScript code.
 
 #### HTML
 
-|     Option     |                  Default                  | Description                                                                                                           |
-| :------------: | :---------------------------------------: | --------------------------------------------------------------------------------------------------------------------- |
-| `embeddedHtml` | [`[...]`](./src/embedded/html/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as ECMAScript (JavaScript) code |
+|          Option           |                  Default                  | Description                                                                                                           |
+| :-----------------------: | :---------------------------------------: | --------------------------------------------------------------------------------------------------------------------- |
+| `embeddedHtmlIdentifiers` | [`[...]`](./src/embedded/html/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as ECMAScript (JavaScript) code |
 
 Formatting embedded HTML code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for HTML code.
 
+#### Markdown
+
+|            Option             |                    Default                    | Description                                                                                            |
+| :---------------------------: | :-------------------------------------------: | ------------------------------------------------------------------------------------------------------ |
+| `embeddedMarkdownIdentifiers` | [`[...]`](./src/embedded/markdown/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as Markdown code |
+
+Formatting embedded Markdown code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for Markdown code.
+
 #### PHP
 
-|    Option     |                 Default                  | Description                                                                                       |
-| :-----------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
-| `embeddedPhp` | [`[...]`](./src/embedded/php/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as PHP code |
+|          Option          |                 Default                  | Description                                                                                       |
+| :----------------------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
+| `embeddedPhpIdentifiers` | [`[...]`](./src/embedded/php/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as PHP code |
 
 Formatting embedded PHP code requires [`@prettier/plugin-php`](https://github.com/prettier/plugin-php) to be loaded as well. And [options](https://github.com/prettier/plugin-php#configuration) supported by `@prettier/plugin-php` can therefore be used to further control the formatting behavior.
 
+#### Ruby
+
+|          Option           |                  Default                  | Description                                                                                        |
+| :-----------------------: | :---------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedRubyIdentifiers` | [`[...]`](./src/embedded/ruby/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as Ruby code |
+
+Formatting embedded Ruby code requires [`@prettier/plugin-ruby`](https://github.com/prettier/plugin-ruby) to be loaded and [its dependencies to be installed](https://github.com/prettier/plugin-ruby#getting-started) as well. And [options](https://github.com/prettier/plugin-ruby#configuration) supported by `@prettier/plugin-php` can therefore be used to further control the formatting behavior.
+
 #### SQL
 
-|    Option     |                 Default                  | Description                                                                                       |
-| :-----------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
-| `embeddedSql` | [`[...]`](./src/embedded/sql/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as SQL code |
+|          Option          |                 Default                  | Description                                                                                       |
+| :----------------------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
+| `embeddedSqlIdentifiers` | [`[...]`](./src/embedded/sql/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as SQL code |
 
 Formatting embedded SQL code requires [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql` can therefore be used to further control the formatting behavior.
 
@@ -146,18 +170,18 @@ Note that `prettier-plugin-sql` supports many different SQL dialects, and there'
 
 #### TS
 
-|       Option       |                    Default                     | Description                                                                                              |
-| :----------------: | :--------------------------------------------: | -------------------------------------------------------------------------------------------------------- |
-|    `embeddedTs`    |    [`[...]`](./src/embedded/ts/options.ts)     | Tag or comment identifiers that make their subsequent template literals be identified as TypeScript code |
-| `embeddedTsParser` | [`"typescript"`](./src/embedded/ts/options.ts) | The parser used to parse the TypeScript code                                                             |
+|         Option          |                    Default                     | Description                                                                                              |
+| :---------------------: | :--------------------------------------------: | -------------------------------------------------------------------------------------------------------- |
+| `embeddedTsIdentifiers` |    [`[...]`](./src/embedded/ts/options.ts)     | Tag or comment identifiers that make their subsequent template literals be identified as TypeScript code |
+|   `embeddedTsParser`    | [`"typescript"`](./src/embedded/ts/options.ts) | The parser used to parse the TypeScript code                                                             |
 
 Formatting embedded TypeScript code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for TypeScript code.
 
 #### XML
 
-|    Option     |                 Default                  | Description                                                                                       |
-| :-----------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
-| `embeddedXml` | [`[...]`](./src/embedded/xml/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as XML code |
+|          Option          |                 Default                  | Description                                                                                       |
+| :----------------------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
+| `embeddedXmlIdentifiers` | [`[...]`](./src/embedded/xml/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as XML code |
 
 Formatting embedded XML code requires [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml) to be loaded as well. And [options](https://github.com/prettier/plugin-xml#configuration) supported by `@prettier/plugin-xml` can therefore be used to further control the formatting behavior.
 
@@ -165,12 +189,12 @@ Formatting embedded XML code requires [`@prettier/plugin-xml`](https://github.co
 
 ### Language-Agnostic Options
 
-|                Option                 | Default | Description                                                                                                                     |
-| :-----------------------------------: | :-----: | ------------------------------------------------------------------------------------------------------------------------------- |
-|  `noEmbeddedIdentificationByComment`  |  `[]`   | Turns off `` /* identifier */ `...` `` comment-based language identification for the specified identifiers                      |
-|    `noEmbeddedIdentificationByTag`    |  `[]`   | Turns off `` identifier`...` `` tag-based language identification for the specified identifiers                                 |
-| `preserveEmbeddedExteriorWhitespaces` |  `[]`   | Preserves leading and trailing whitespaces in the formatting results for the specified identifiers                              |
-|   `noEmbeddedMultiLineIndentation`    |  `[]`   | Tsurns off auto indentation in the formatting results for the specified identifiers when they are formatted to span multi lines |
+|                Option                 | Default | Description                                                                                                                    |
+| :-----------------------------------: | :-----: | ------------------------------------------------------------------------------------------------------------------------------ |
+|  `noEmbeddedIdentificationByComment`  |  `[]`   | Turns off `` /* identifier */ `...` `` comment-based language identification for the specified identifiers                     |
+|    `noEmbeddedIdentificationByTag`    |  `[]`   | Turns off `` identifier`...` `` tag-based language identification for the specified identifiers                                |
+| `preserveEmbeddedExteriorWhitespaces` |  `[]`   | Preserves leading and trailing whitespaces in the formatting results for the specified identifiers                             |
+|   `noEmbeddedMultiLineIndentation`    |  `[]`   | Turns off auto indentation in the formatting results when they are formatted to span multi lines for the specified identifiers |
 
 ## Demos
 
@@ -178,7 +202,7 @@ TBD.
 
 ## Contributing
 
-To add support for new languages, create a new directory named after the language within the [`src/embedded`](./src/embedded) directory. Then, export the required variables in the `index.ts` file. Check the existing directories for guidance.
+Bug fixes, new language support and tests are welcome. Please have a look at the project structure before getting started. Feel free to leave questions or suggestions.
 
 ## License
 

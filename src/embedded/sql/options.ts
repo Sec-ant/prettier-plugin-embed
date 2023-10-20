@@ -7,6 +7,9 @@ import {
   makeIdentifiersOptionName,
 } from "../utils.js";
 
+/** References
+ * - https://github.com/un-ts/prettier/blob/214a5ff53c2485aabc6e78e1c346b69b712bee42/packages/sql/src/index.ts
+ */
 export const SQL_FORMATTER_LANGUAGES = [
   "sql",
   "bigquery",

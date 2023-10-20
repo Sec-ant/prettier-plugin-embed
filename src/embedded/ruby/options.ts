@@ -9,7 +9,9 @@ import {
 const RUBY_PARSERS = ["ruby", "rbs", "haml"] as const;
 export type RubyParser = (typeof RUBY_PARSERS)[number];
 
-// copied from https://github.com/prettier/plugin-ruby/blob/0a2100ca3b8b53d9491270ece64806d95da181a6/src/plugin.js
+/** References
+ * - https://github.com/prettier/plugin-ruby/blob/0a2100ca3b8b53d9491270ece64806d95da181a6/src/plugin.js#L194
+ */
 export const RUBY_PARSER_IDENTIFIERS = [
   "ruby" satisfies RubyParser,
   "arb",

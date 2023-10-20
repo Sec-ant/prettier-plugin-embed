@@ -6,7 +6,10 @@ import {
   makeIdentifiersOptionName,
 } from "../utils.js";
 
-// copied from https://github.com/microsoft/vscode/blob/267f09acea3b2416861661d702b3be767bdeef6e/extensions/typescript-basics/package.json
+/** References:
+ * - https://github.com/microsoft/vscode/blob/de0121cf0e05d1673903551b6dbb2871556bfae9/extensions/typescript-basics/package.json#L24
+ * - https://github.com/github-linguist/linguist/blob/7ca3799b8b5f1acde1dd7a8dfb7ae849d3dfb4cd/lib/linguist/languages.yml#L7158
+ */
 const DEFAULT_IDENTIFIERS = ["ts", "cts", "mts", "typescript"] as const;
 type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
