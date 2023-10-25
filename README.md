@@ -109,7 +109,7 @@ Click Here
 | :-----------------------: | :-----: | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `embeddedNoopIdentifiers` |  `[]`   | Tag or comment identifiers that prevent their subsequent template literals from being identified as embedded languages and from being formatted |
 
-This doesn't require other plugins and can override the native embedded language formatting for ECMAScript code. It serves as a way to turn off embedded language formatting for specific language identifiers.
+This doesn't require other plugins and can override the native embedded language formatting. It serves as a way to turn off embedded language formatting for specific language identifiers.
 
 #### CSS
 
