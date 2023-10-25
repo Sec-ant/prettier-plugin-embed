@@ -13,6 +13,7 @@ import {
  */
 const DEFAULT_IDENTIFIERS = [
   "js",
+  "jsx",
   "es",
   "es6",
   "mjs",
