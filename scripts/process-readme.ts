@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const readmeFilePath = fileURLToPath(new URL("../README.md", import.meta.url));
 
-const readmeBackupFilePath = resolve(dirname(readmeFilePath), "README.bak");
+const readmeBackupFilePath = resolve(dirname(readmeFilePath), "__rm.bak");
 
 await copyFile(readmeFilePath, readmeBackupFilePath);
 

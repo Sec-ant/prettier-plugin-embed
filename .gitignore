@@ -25,4 +25,4 @@ dist-ssr
 *.sw?
 
 coverage
-README.bak
+*.bak
