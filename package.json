@@ -5,7 +5,8 @@
   "version": "0.2.2",
   "type": "module",
   "files": [
-    "./dist"
+    "./dist",
+    "!README.bak"
   ],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
