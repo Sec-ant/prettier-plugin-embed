@@ -130,9 +130,9 @@ Formatting embedded ECMAScript code doesn't require other plugins and uses the p
 
 #### HTML
 
-|          Option           |                  Default                  | Description                                                                                                           |
-| :-----------------------: | :---------------------------------------: | --------------------------------------------------------------------------------------------------------------------- |
-| `embeddedHtmlIdentifiers` | [`[...]`](./src/embedded/html/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as ECMAScript (JavaScript) code |
+|          Option           |                  Default                  | Description                                                                                        |
+| :-----------------------: | :---------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedHtmlIdentifiers` | [`[...]`](./src/embedded/html/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as HTML code |
 
 Formatting embedded HTML code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for HTML code.
 
@@ -168,7 +168,7 @@ Formatting embedded Ruby code requires [`@prettier/plugin-ruby`](https://github.
 
 Formatting embedded SQL code requires [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql` can therefore be used to further control the formatting behavior.
 
-Note that `prettier-plugin-sql` supports many different SQL dialects, and there's a one-to-one correspondence between the dialects and the identifiers. To support custom identifiers for a specific dialect, put the identifiers after that specific dialect in the identifier list in option `embeddedSql`.
+Note that `prettier-plugin-sql` supports many different SQL dialects, and there's a one-to-one correspondence between the dialects and the identifiers. To support custom identifiers for a specific dialect, put the identifiers after that specific dialect in the identifier list in option `embeddedSqlIdentifiers`.
 
 #### TS
 
