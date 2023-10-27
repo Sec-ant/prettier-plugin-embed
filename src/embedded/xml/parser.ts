@@ -1,5 +1,4 @@
 import type { Parser, Options } from "prettier";
-import { parse as xmlToolsParse } from "@xml-tools/parser";
 import type {
   CstElement,
   CstNode,
@@ -69,7 +68,9 @@ function createSyntaxErrorFromParseError(parseError: IRecognitionException) {
 }
 
 export const parser: Parser<CstNode> = {
-  parse(text: string, options: Options) {
+  async parse(text: string, options: Options) {
+    const { parse: xmlToolsParse } = await import("@xml-tools/parser");
+
     const { lexErrors, parseErrors, cst } = xmlToolsParse(text);
 
     // If there are any lexical errors, throw the first of them as an error.

@@ -51,6 +51,20 @@ By leveraging Prettier's plugin system, this plugin overrides the default [`embe
 npm i -D prettier-plugin-embed
 ```
 
+Peer dependecies are automatically installed by default if you're using npm v7 or higher versions. The peer dependencies of this plugin are mainly packages to support parsing and formatting for different languages. If you only plan to use this plugin for a very specific language and don't want to bloat your node modules folder, you can omit the peer dependencies by changing the installation command to either:
+
+```bash
+npm i -D --legacy-peer-deps prettier-plugin-embed
+```
+
+or:
+
+```bash
+npm i -D --omit=peer prettier-plugin-embed
+```
+
+For other package managers, refer to their documents on how to achieve the same result.
+
 ## Usage
 
 ### Getting Started

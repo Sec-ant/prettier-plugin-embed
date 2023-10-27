@@ -83,13 +83,13 @@
   },
   "peerDependencies": {
     "@prettier/plugin-php": "^0.20.1",
-    "@prettier/plugin-ruby": "^4.0.2",
-    "@prettier/plugin-xml": "^3.2.1",
+    "@prettier/plugin-ruby": "^4.0.0",
+    "@prettier/plugin-xml": "^3.1.0",
     "@xml-tools/parser": "^1.0.11",
     "chevrotain": "7.1.1",
-    "prettier": "^3.0.3",
+    "prettier": "^3.0.0",
     "prettier-plugin-glsl": "^0.1.2",
-    "prettier-plugin-sql": "^0.15.1"
+    "prettier-plugin-sql": "^0.15.0"
   },
   "dependencies": {
     "short-unique-id": "^5.0.3"
