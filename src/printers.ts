@@ -6,7 +6,7 @@ import type { PrettierNode } from "./types.js";
 import {
   embeddedLanguages,
   embeddedEmbedders,
-  makeIdentifiersName,
+  makeIdentifiersOptionName,
 } from "./embedded/index.js";
 
 const { estree: estreePrinter } = estreePrinters;
@@ -28,7 +28,7 @@ const embed: Printer["embed"] = function (
     return null;
   }
   for (const embeddedLanguage of embeddedLanguages) {
-    const identifiers = options[makeIdentifiersName(embeddedLanguage)];
+    const identifiers = options[makeIdentifiersOptionName(embeddedLanguage)];
     if (!identifiers) {
       continue;
     }
@@ -46,8 +46,8 @@ const embed: Printer["embed"] = function (
     if (identifier === undefined) {
       continue;
     }
-    const embeddedPrinter = embeddedEmbedders[embeddedLanguage];
-    if (!embeddedPrinter) {
+    const embeddedEmbedder = embeddedEmbedders[embeddedLanguage];
+    if (!embeddedEmbedder) {
       return null;
     }
     const node = path.node as TemplateLiteral;
@@ -55,7 +55,7 @@ const embed: Printer["embed"] = function (
       return "``";
     }
     return async (...args) => {
-      const doc = await embeddedPrinter(...args, identifier, identifiers);
+      const doc = await embeddedEmbedder(...args, identifier, identifiers);
       return builders.label(
         { embed: true, ...(doc as builders.Label).label },
         doc,

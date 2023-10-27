@@ -8,6 +8,6 @@ export type {
   PrettierPluginEmbedOptions,
 } from "./types.js";
 export {
-  makeIdentifiersOptionName as makeIdentifiersName,
+  makeIdentifiersOptionName,
   type AutocompleteStringList,
 } from "./utils.js";
