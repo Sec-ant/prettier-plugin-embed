@@ -18,70 +18,61 @@ export const embedder: Embedder<Options> = async (
   options,
   identifier,
 ) => {
-  try {
-    throwIfPluginIsNotFound("prettier-plugin-glsl", options, identifier);
+  throwIfPluginIsNotFound("prettier-plugin-glsl", options, identifier);
 
-    const { node } = path;
+  const { node } = path;
 
-    const { createPlaceholder, placeholderRegex } = preparePlaceholder();
+  const { createPlaceholder, placeholderRegex } = preparePlaceholder();
 
-    const text = node.quasis
-      .map((quasi, index, { length }) =>
-        index === length - 1
-          ? quasi.value.cooked
-          : quasi.value.cooked + createPlaceholder(index),
-      )
-      .join("");
+  const text = node.quasis
+    .map((quasi, index, { length }) =>
+      index === length - 1
+        ? quasi.value.cooked
+        : quasi.value.cooked + createPlaceholder(index),
+    )
+    .join("");
 
-    const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
-    const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
+  const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
+  const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
 
-    const trimmedText = text.slice(
-      leadingWhitespaces.length,
-      -trailingWhitespaces.length || undefined,
-    );
+  const trimmedText = text.slice(
+    leadingWhitespaces.length,
+    -trailingWhitespaces.length || undefined,
+  );
 
-    const expressionDocs = printTemplateExpressions(path, print);
+  const expressionDocs = printTemplateExpressions(path, print);
 
-    const doc = await textToDoc(trimmedText, {
-      parser: "glsl-parser",
-    });
+  const doc = await textToDoc(trimmedText, {
+    parser: "glsl-parser",
+  });
 
-    const contentDoc = simpleRehydrateDoc(
-      doc,
-      placeholderRegex,
-      expressionDocs,
-    );
+  const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
 
-    if (options.preserveEmbeddedExteriorWhitespaces?.includes(identifier)) {
-      // TODO: should we label the doc with { hug: false } ?
-      // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
-      return group([
-        "`",
-        leadingWhitespaces,
-        options.noEmbeddedMultiLineIndentation?.includes(identifier)
-          ? [group(contentDoc)]
-          : indent([group(contentDoc)]),
-        trailingWhitespaces,
-        "`",
-      ]);
-    }
-
-    const leadingLineBreak = leadingWhitespaces.length ? line : softline;
-    const trailingLineBreak = trailingWhitespaces.length ? line : softline;
-
+  if (options.preserveEmbeddedExteriorWhitespaces?.includes(identifier)) {
+    // TODO: should we label the doc with { hug: false } ?
+    // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
     return group([
       "`",
+      leadingWhitespaces,
       options.noEmbeddedMultiLineIndentation?.includes(identifier)
-        ? [leadingLineBreak, group(contentDoc)]
-        : indent([leadingLineBreak, group(contentDoc)]),
-      trailingLineBreak,
+        ? [group(contentDoc)]
+        : indent([group(contentDoc)]),
+      trailingWhitespaces,
       "`",
     ]);
-  } catch (e) {
-    console.error(e);
-    throw e;
   }
+
+  const leadingLineBreak = leadingWhitespaces.length ? line : softline;
+  const trailingLineBreak = trailingWhitespaces.length ? line : softline;
+
+  return group([
+    "`",
+    options.noEmbeddedMultiLineIndentation?.includes(identifier)
+      ? [leadingLineBreak, group(contentDoc)]
+      : indent([leadingLineBreak, group(contentDoc)]),
+    trailingLineBreak,
+    "`",
+  ]);
 };
 
 declare module "../types.js" {

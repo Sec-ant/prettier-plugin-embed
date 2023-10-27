@@ -17,66 +17,57 @@ export const embedder: Embedder<Options> = async (
   options,
   identifier,
 ) => {
-  try {
-    const { node } = path;
+  const { node } = path;
 
-    const { createPlaceholder, placeholderRegex } = preparePlaceholder();
+  const { createPlaceholder, placeholderRegex } = preparePlaceholder();
 
-    const text = node.quasis
-      .map((quasi, index, { length }) =>
-        index === length - 1
-          ? quasi.value.cooked
-          : quasi.value.cooked + createPlaceholder(index),
-      )
-      .join("");
+  const text = node.quasis
+    .map((quasi, index, { length }) =>
+      index === length - 1
+        ? quasi.value.cooked
+        : quasi.value.cooked + createPlaceholder(index),
+    )
+    .join("");
 
-    const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
-    const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
+  const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
+  const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
 
-    const expressionDocs = printTemplateExpressions(path, print);
+  const expressionDocs = printTemplateExpressions(path, print);
 
-    const doc = await textToDoc(text, {
-      parser: options.embeddedTsParser ?? "typescript",
-      // set filepath to undefined to enable jsx auto detection:
-      // https://github.com/prettier/prettier/blob/427a84d24203e2d54160cde153a1e6a6390fe65a/src/language-js/parse/typescript.js#L49-L53
-      filepath: undefined,
-    });
+  const doc = await textToDoc(text, {
+    parser: options.embeddedTsParser ?? "typescript",
+    // set filepath to undefined to enable jsx auto detection:
+    // https://github.com/prettier/prettier/blob/427a84d24203e2d54160cde153a1e6a6390fe65a/src/language-js/parse/typescript.js#L49-L53
+    filepath: undefined,
+  });
 
-    const contentDoc = simpleRehydrateDoc(
-      doc,
-      placeholderRegex,
-      expressionDocs,
-    );
+  const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
 
-    if (options.preserveEmbeddedExteriorWhitespaces?.includes(identifier)) {
-      // TODO: should we label the doc with { hug: false } ?
-      // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
-      return group([
-        "`",
-        leadingWhitespaces,
-        options.noEmbeddedMultiLineIndentation?.includes(identifier)
-          ? [group(contentDoc)]
-          : indent([group(contentDoc)]),
-        trailingWhitespaces,
-        "`",
-      ]);
-    }
-
-    const leadingLineBreak = leadingWhitespaces.length ? line : softline;
-    const trailingLineBreak = trailingWhitespaces.length ? line : softline;
-
+  if (options.preserveEmbeddedExteriorWhitespaces?.includes(identifier)) {
+    // TODO: should we label the doc with { hug: false } ?
+    // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
     return group([
       "`",
+      leadingWhitespaces,
       options.noEmbeddedMultiLineIndentation?.includes(identifier)
-        ? [leadingLineBreak, group(contentDoc)]
-        : indent([leadingLineBreak, group(contentDoc)]),
-      trailingLineBreak,
+        ? [group(contentDoc)]
+        : indent([group(contentDoc)]),
+      trailingWhitespaces,
       "`",
     ]);
-  } catch (e) {
-    console.error(e);
-    throw e;
   }
+
+  const leadingLineBreak = leadingWhitespaces.length ? line : softline;
+  const trailingLineBreak = trailingWhitespaces.length ? line : softline;
+
+  return group([
+    "`",
+    options.noEmbeddedMultiLineIndentation?.includes(identifier)
+      ? [leadingLineBreak, group(contentDoc)]
+      : indent([leadingLineBreak, group(contentDoc)]),
+    trailingLineBreak,
+    "`",
+  ]);
 };
 
 declare module "../types.js" {

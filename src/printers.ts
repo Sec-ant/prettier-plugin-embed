@@ -54,12 +54,18 @@ const embed: Printer["embed"] = function (
     if (node.quasis.length === 1 && node.quasis[0].value.raw.trim() === "") {
       return "``";
     }
+
     return async (...args) => {
-      const doc = await embeddedEmbedder(...args, identifier, identifiers);
-      return builders.label(
-        { embed: true, ...(doc as builders.Label).label },
-        doc,
-      );
+      try {
+        const doc = await embeddedEmbedder(...args, identifier, identifiers);
+        return builders.label(
+          { embed: true, ...(doc as builders.Label).label },
+          doc,
+        );
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
     };
   }
   // fall back
