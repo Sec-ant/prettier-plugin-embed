@@ -43,6 +43,7 @@ export const embedder: Embedder<Options> = async (
   const expressionDocs = printTemplateExpressions(path, print);
 
   const doc = await textToDoc(trimmedText, {
+    ...options,
     parser: "php",
   });
 

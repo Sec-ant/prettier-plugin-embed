@@ -1,5 +1,9 @@
 import type { Options, Doc, AstPath } from "prettier";
 import type { Node as EsTreeNode, TemplateLiteral, Comment } from "estree";
+import type {
+  EmbeddedDefaultIdentifier,
+  AutocompleteStringList,
+} from "./embedded/index.js";
 
 export type PrettierNode = EsTreeNode & {
   comments?: (Comment & {
@@ -21,3 +25,11 @@ export type Embedder<T extends Options = Options> = (
   identifier: string,
   identifiers: string[],
 ) => Promise<Doc>;
+
+export interface EmbeddedOverride {
+  identifiers: AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
+  // TODO: Options type is a little too wide
+  options: Options;
+}
+
+export type EmbeddedOverrides = EmbeddedOverride[];

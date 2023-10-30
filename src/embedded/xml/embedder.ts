@@ -58,6 +58,7 @@ export const embedder: Embedder<Options> = async (
       options.__embeddedXmlFragmentRecoverIndex.length,
     );
     let printedText = await textToDoc(textFragment, {
+      ...options,
       parser: embeddedLanguage,
     });
     const [i1, i2] = options.__embeddedXmlFragmentRecoverIndex ?? [];
