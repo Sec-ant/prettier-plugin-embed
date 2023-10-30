@@ -1,9 +1,11 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
 import { peerDependencies } from "./package.json";
+import { builtinModules } from "node:module";
 
 export default defineConfig({
   build: {
+    target: ["node18"],
     lib: {
       entry: {
         index: "./src/index.ts",
@@ -14,7 +16,12 @@ export default defineConfig({
     },
     copyPublicDir: false,
     rollupOptions: {
-      external: [/^@?prettier(?:\/|$)/, ...Object.keys(peerDependencies ?? {})],
+      external: [
+        /^@?prettier(?:\/|$)/,
+        ...Object.keys(peerDependencies ?? {}),
+        ...builtinModules,
+        /^node:/,
+      ],
     },
   },
   test: {

@@ -14,6 +14,7 @@ const NO_EMBEDDED_IDENTIFICATION_BY_TAG = "noEmbeddedIdentificationByTag";
 const PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES =
   "preserveEmbeddedExteriorWhitespaces";
 const NO_EMBEDDED_MULTI_LINE_INDENTATION = "noEmbeddedMultiLineIndentation";
+const EMBEDDED_OVERRIDES = "embeddedOverrides";
 
 export const options = {
   ...embeddedOptions,
@@ -49,6 +50,14 @@ export const options = {
     description:
       "This option turns off auto indentation in the formatting results for the specified identifiers when they are formatted to span multi lines.",
   },
+  [EMBEDDED_OVERRIDES]: {
+    category: "Global",
+    type: "string",
+    array: false,
+    default: undefined,
+    description:
+      "This option accepts option overrides for embedded languages. It should either be a stringified JSON or an absolute filepath to the option overrides file.",
+  },
 } satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
 declare module "./embedded/types.js" {
@@ -57,6 +66,7 @@ declare module "./embedded/types.js" {
     [NO_EMBEDDED_IDENTIFICATION_BY_TAG]?: EmbeddedIdentifiers;
     [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]?: EmbeddedIdentifiers;
     [NO_EMBEDDED_MULTI_LINE_INDENTATION]?: EmbeddedIdentifiers;
+    [EMBEDDED_OVERRIDES]?: string;
   }
 }
 

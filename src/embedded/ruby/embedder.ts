@@ -55,6 +55,7 @@ export const embedder: Embedder<Options> = async (
   const parser = getParser(options, identifier, identifiers);
 
   const doc = await textToDoc(trimmedText, {
+    ...options,
     parser,
   });
 

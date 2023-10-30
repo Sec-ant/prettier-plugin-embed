@@ -51,6 +51,7 @@ export const embedder: Embedder<Options> = async (
   }
 
   const doc = await textToDoc(text, {
+    ...options,
     parser: "sql",
     ...optionsOverride,
   });
