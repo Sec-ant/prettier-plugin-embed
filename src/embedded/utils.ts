@@ -1,7 +1,6 @@
 import type { Expression, Comment, TemplateLiteral } from "estree";
 import type { AstPath, Options, Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
-import ShortUniqueId from "short-unique-id";
 import type { InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, lineSuffixBoundary } = builders;
@@ -102,10 +101,22 @@ export function insertEmbeddedLanguage(
   embeddedLanguages.splice(low, 0, embeddedLanguage);
 }
 
-export const { randomUUID } = new ShortUniqueId({
-  length: 16,
-  dictionary: "alphanum_lower",
-});
+export const randomUUID = (() => {
+  const dict = [...Array(26).keys()]
+    .map((key) => String.fromCharCode(key + 97))
+    .concat([...Array(10).keys()].map((key) => `${key}`));
+  return () => {
+    const uuidLength = 16;
+    let id = "";
+    for (let i = 0; i < uuidLength; ++i) {
+      id +=
+        dict[
+          parseInt((Math.random() * dict.length).toFixed(0), 10) % dict.length
+        ];
+    }
+    return id;
+  };
+})();
 
 export function preparePlaceholder(leading = "p", trailing = "") {
   const uuid1 = randomUUID();
