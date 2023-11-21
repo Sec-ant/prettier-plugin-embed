@@ -2,7 +2,7 @@
   "name": "prettier-plugin-embed",
   "description": "A configurable Prettier plugin to format embedded languages in js/ts files.",
   "private": false,
-  "version": "0.2.5",
+  "version": "0.3.0-rc.0",
   "type": "module",
   "files": [
     "./dist"
