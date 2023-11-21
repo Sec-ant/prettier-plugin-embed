@@ -102,7 +102,7 @@ export const parser: Parser<CstNode> = {
           continue;
         }
         if (
-          /Expecting token of type --> EOF <-- but found --> '.+' <--/.test(
+          /Expecting token of type --> EOF <-- but found --> '[\s\S]+' <--/.test(
             parseError.message,
           ) ||
           /Redundant input, expecting EOF but found: /.test(parseError.message)
@@ -120,7 +120,7 @@ export const parser: Parser<CstNode> = {
           break;
         }
         if (
-          /Expecting token of type --> OPEN <-- but found --> '.+' <--/.test(
+          /Expecting token of type --> OPEN <-- but found --> '[\s\S]+' <--/.test(
             parseError.message,
           )
         ) {
