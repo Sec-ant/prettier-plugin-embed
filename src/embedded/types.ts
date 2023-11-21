@@ -27,7 +27,3 @@ export interface EmbeddedDefaultIdentifiersHolder {}
 export type EmbeddedDefaultIdentifier = keyof EmbeddedDefaultIdentifiersHolder;
 
 export interface PrettierPluginEmbedOptions {}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginEmbedOptions {}
-}

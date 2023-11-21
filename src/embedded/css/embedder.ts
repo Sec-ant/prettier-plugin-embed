@@ -5,6 +5,7 @@ import {
   printTemplateExpressions,
   preparePlaceholder,
   simpleRehydrateDoc,
+  parseEmbeddedOverrideOptions,
 } from "../utils.js";
 import { embeddedLanguage } from "./embedded-language.js";
 
@@ -17,6 +18,11 @@ export const embedder: Embedder<Options> = async (
   options,
   identifier,
 ) => {
+  options = {
+    ...options,
+    ...parseEmbeddedOverrideOptions(options.embeddedOverrides, identifier),
+  };
+
   const { node } = path;
 
   const { createPlaceholder, placeholderRegex } = preparePlaceholder("@p");
