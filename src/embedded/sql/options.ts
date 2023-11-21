@@ -7,21 +7,25 @@ import {
   makeIdentifiersOptionName,
 } from "../utils.js";
 
+// TODO: we shouldn't hardcode the dialects because they may differ in different plugin versions
+// TODO: reach out to the maintainer of prettier-plugin-sql to export them.
 /** References
- * - https://github.com/un-ts/prettier/blob/214a5ff53c2485aabc6e78e1c346b69b712bee42/packages/sql/src/index.ts
+ * - https://github.com/un-ts/prettier/blob/a5f1aae6464aa54749377d69a8237a70a6509a13/packages/sql/src/index.ts
  */
 export const SQL_FORMATTER_LANGUAGES = [
   "sql",
   "bigquery",
+  "db2",
+  "db2i",
   "hive",
   "mariadb",
   "mysql",
-  "postgresql",
-  "db2",
-  "plsql",
   "n1ql",
+  "postgresql",
+  "plsql",
   "redshift",
   "singlestoredb",
+  "snowflake",
   "spark",
   "sqlite",
   "transactsql",
@@ -38,6 +42,7 @@ export const NODE_SQL_PARSER_DATABASES = [
   "postgresql",
   "transactsql",
   "flinksql",
+  "snowflake",
 ] as const;
 
 type Identifiers = AutocompleteStringList<
@@ -60,7 +65,8 @@ export const options = {
     category: "Global",
     type: "string",
     array: true,
-    default: [{ value: [...SQL_FORMATTER_LANGUAGES] }],
+    // TODO: remove these hardcoded defaults once supported diacts are exported from prettier-plugin-sql
+    default: [{ value: ["sql", "mysql", "mariadb", "postgresql"] }],
     description:
       'Specify embedded SQL language identifiers. This requires "prettier-plugin-sql".',
   },
