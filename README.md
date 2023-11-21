@@ -182,7 +182,7 @@ Formatting embedded Ruby code requires [`@prettier/plugin-ruby`](https://github.
 
 Formatting embedded SQL code requires [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql` can therefore be used to further control the formatting behavior.
 
-Note that `prettier-plugin-sql` supports many different SQL dialects, and there's a one-to-one correspondence between the dialects and the identifiers. To support custom identifiers for a specific dialect, put the identifiers after that specific dialect in the identifier list in option `embeddedSqlIdentifiers`.
+Note that `prettier-plugin-sql` supports many different SQL dialects, and there's a one-to-one correspondence between the dialects and the identifiers. To support custom identifiers for a specific dialect, put the identifiers after that specific dialect in the identifier list in option `embeddedSqlIdentifiers`, or use [`embeddedOverrides`](#embeddedoverrides).
 
 #### TS
 
@@ -205,12 +205,38 @@ Formatting embedded XML code requires [`@prettier/plugin-xml`](https://github.co
 
 ### Language-Agnostic Options
 
-|                Option                 | Default | Description                                                                                                                    |
-| :-----------------------------------: | :-----: | ------------------------------------------------------------------------------------------------------------------------------ |
-|  `noEmbeddedIdentificationByComment`  |  `[]`   | Turns off `` /* identifier */ `...` `` comment-based language identification for the specified identifiers                     |
-|    `noEmbeddedIdentificationByTag`    |  `[]`   | Turns off `` identifier`...` `` tag-based language identification for the specified identifiers                                |
-| `preserveEmbeddedExteriorWhitespaces` |  `[]`   | Preserves leading and trailing whitespaces in the formatting results for the specified identifiers                             |
-|   `noEmbeddedMultiLineIndentation`    |  `[]`   | Turns off auto indentation in the formatting results when they are formatted to span multi lines for the specified identifiers |
+|                Option                 |   Default   | Description                                                                                                                                               |
+| :-----------------------------------: | :---------: | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|  `noEmbeddedIdentificationByComment`  |    `[]`     | Turns off `` /* identifier */ `...` `` comment-based language identification for the specified identifiers                                                |
+|    `noEmbeddedIdentificationByTag`    |    `[]`     | Turns off `` identifier`...` `` tag-based language identification for the specified identifiers                                                           |
+| `preserveEmbeddedExteriorWhitespaces` |    `[]`     | Preserves leading and trailing whitespaces in the formatting results for the specified identifiers                                                        |
+|   `noEmbeddedMultiLineIndentation`    |    `[]`     | Turns off auto indentation in the formatting results when they are formatted to span multi lines for the specified identifiers                            |
+|          `embeddedOverrides`          | `undefined` | Option overrides for the specified identifiers. This option accepts a string if not undefined. See [below](#embeddedoverrides) for a detailed explanation |
+
+#### `embeddedOverrides`
+
+This option is provided for users to override certain options based on identifiers. Due to the lack of support for using objects in prettier plugin options (https://github.com/prettier/prettier/issues/14671), it accepts a **stringified** json string or an **absolute** json file path as its value.
+
+The value should be an array of objects. Each object must have 2 fields: `identifiers` and `options`. The `options` are considerred overrides that will be applied to the global `options` of prettier for those `idenfitiers` only. It's like the [`overrides`](https://prettier.io/docs/en/configuration.html#configuration-overrides) of `prettier`, but it is identifier-based instead of file-based. An example is:
+
+```json
+[
+  {
+    "identifiers": ["sql"],
+    "options": {
+      "keywordCase": "lower"
+    }
+  },
+  {
+    "identifiers": ["mysql"],
+    "options": {
+      "keywordCase": "upper"
+    }
+  }
+]
+```
+
+Please note that not every option is supported to override. That largely depends on at which phase those options will kick in and take effect. For example, you can't override `tabWidth` in `embeddedOverrides` because this option is used in the [`printDocToString`](https://github.com/prettier/prettier/blob/7aecca5d6473d73f562ca3af874831315f8f2581/src/document/printer.js#L302) phase, where `prettier-plugin-embed` cannot override this option for only a set of specified identifiers. To find the list of unsupported options, please check the interface definition of `EmbeddedOverride` in the [source code](https://github.com/Sec-ant/prettier-plugin-embed/blob/main/src/types.ts).
 
 ## Demos
 
