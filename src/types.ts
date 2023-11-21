@@ -1,9 +1,13 @@
 import type { Options, Doc, AstPath } from "prettier";
 import type { Node as EsTreeNode, TemplateLiteral, Comment } from "estree";
-import type {
-  EmbeddedDefaultIdentifier,
-  AutocompleteStringList,
+import {
+  type EmbeddedDefaultIdentifier,
+  type AutocompleteStringList,
+  type PrettierPluginEmbedOptions,
+  makeIdentifiersOptionName,
+  EmbeddedLanguage,
 } from "./embedded/index.js";
+import type { PrettierPluginGlobalOptions } from "./options.js";
 
 export type PrettierNode = EsTreeNode & {
   comments?: (Comment & {
@@ -28,8 +32,31 @@ export type Embedder<T extends Options = Options> = (
 
 export interface EmbeddedOverride {
   identifiers: AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
-  // TODO: Options type is a little too wide
-  options: Options;
+  options: Omit<
+    // native prettier options
+    Omit<Options, keyof PrettierPluginEmbedOptions> &
+      // prettier-plugin-embed options
+      // except for "embedded<Language>Identifiers"
+      // and global options
+      // (they should be set globally, not in overrides)
+      Omit<
+        PrettierPluginEmbedOptions,
+        | keyof PrettierPluginGlobalOptions
+        | ReturnType<typeof makeIdentifiersOptionName<EmbeddedLanguage>>
+      >,
+    // these options are used in `printDocToString`,
+    // we cannot override them because plugins can only affect ast and doc generation at most
+    // check: https://github.com/prettier/prettier/blob/7aecca5d6473d73f562ca3af874831315f8f2581/src/document/printer.js
+    | "printWidth"
+    | "endOfLine"
+    | "useTabs"
+    | "tabWidth"
+    // some other options we don't want to expose to the users or don't make sense to override
+    | "parser"
+    | "filepath"
+    | "embeddedLanguageFormatting"
+    | `__${string}`
+  >;
 }
 
 export type EmbeddedOverrides = EmbeddedOverride[];

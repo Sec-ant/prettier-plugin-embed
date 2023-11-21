@@ -56,18 +56,20 @@ export const options = {
     array: false,
     default: undefined,
     description:
-      "This option accepts option overrides for embedded languages. It should either be a stringified JSON or an absolute filepath to the option overrides file.",
+      "This option accepts option overrides for the specified identifiers. It should either be a stringified JSON or an absolute filepath to the option overrides file.",
   },
 } satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
 
+export interface PrettierPluginGlobalOptions {
+  [NO_EMBEDDED_IDENTIFICATION_BY_COMMENT]?: EmbeddedIdentifiers;
+  [NO_EMBEDDED_IDENTIFICATION_BY_TAG]?: EmbeddedIdentifiers;
+  [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]?: EmbeddedIdentifiers;
+  [NO_EMBEDDED_MULTI_LINE_INDENTATION]?: EmbeddedIdentifiers;
+  [EMBEDDED_OVERRIDES]?: string;
+}
+
 declare module "./embedded/types.js" {
-  interface PrettierPluginEmbedOptions {
-    [NO_EMBEDDED_IDENTIFICATION_BY_COMMENT]?: EmbeddedIdentifiers;
-    [NO_EMBEDDED_IDENTIFICATION_BY_TAG]?: EmbeddedIdentifiers;
-    [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]?: EmbeddedIdentifiers;
-    [NO_EMBEDDED_MULTI_LINE_INDENTATION]?: EmbeddedIdentifiers;
-    [EMBEDDED_OVERRIDES]?: string;
-  }
+  interface PrettierPluginEmbedOptions extends PrettierPluginGlobalOptions {}
 }
 
 declare module "prettier" {

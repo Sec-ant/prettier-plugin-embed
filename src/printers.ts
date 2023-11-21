@@ -2,9 +2,7 @@ import type { TemplateLiteral } from "estree";
 import type { Plugin, Printer, AstPath, Options } from "prettier";
 import { builders } from "prettier/doc";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
-import { isAbsolute } from "node:path";
-import { readFileSync } from "node:fs";
-import type { EmbeddedOverrides, PrettierNode } from "./types.js";
+import type { PrettierNode } from "./types.js";
 import {
   embeddedLanguages,
   embeddedEmbedders,
@@ -62,7 +60,7 @@ const embed: Printer["embed"] = function (
           textToDoc,
           print,
           path,
-          getOptionsWithOverrides(options, identifier),
+          options,
           identifier,
           identifiers,
         );
@@ -143,30 +141,6 @@ function getIdentifierFromTag(
     }
   }
   return;
-}
-
-function getOptionsWithOverrides(
-  options: Options,
-  identifier: string,
-): Options {
-  const { embeddedOverrides } = options;
-  if (typeof embeddedOverrides === "string") {
-    const stringifiedOverrides = isAbsolute(embeddedOverrides)
-      ? readFileSync(embeddedOverrides, { encoding: "utf-8" })
-      : embeddedOverrides;
-    try {
-      const overrides = JSON.parse(stringifiedOverrides) as EmbeddedOverrides;
-      for (const { identifiers, options: overrideOptions } of overrides) {
-        if (!identifiers.includes(identifier)) {
-          continue;
-        }
-        return { ...options, ...overrideOptions };
-      }
-    } catch {
-      /* void */
-    }
-  }
-  return options;
 }
 
 // extends estree printer to parse embedded lanaguges in js/ts files

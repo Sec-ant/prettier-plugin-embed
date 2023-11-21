@@ -6,6 +6,7 @@ import {
   printTemplateExpressions,
   throwIfPluginIsNotFound,
   preparePlaceholder,
+  parseEmbeddedOverrideOptions,
 } from "../utils.js";
 import {
   NODE_SQL_PARSER_DATABASES,
@@ -27,6 +28,16 @@ export const embedder: Embedder<Options> = async (
   identifiers,
 ) => {
   throwIfPluginIsNotFound("prettier-plugin-sql", options, identifier);
+
+  const embeddedOverrideOptions = parseEmbeddedOverrideOptions(
+    options.embeddedOverrides,
+    identifier,
+  );
+
+  options = {
+    ...options,
+    ...embeddedOverrideOptions,
+  };
 
   const { node } = path;
 
@@ -54,6 +65,7 @@ export const embedder: Embedder<Options> = async (
     ...options,
     parser: "sql",
     ...optionsOverride,
+    ...embeddedOverrideOptions,
   });
 
   const contentDoc = mapDoc(doc, (doc) => {

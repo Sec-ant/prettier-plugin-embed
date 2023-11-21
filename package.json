@@ -90,5 +90,8 @@
     "prettier": "^3.0.0",
     "prettier-plugin-glsl": ">=0.1.2 <1",
     "prettier-plugin-sql": ">=0.15.0 <1"
+  },
+  "dependencies": {
+    "micro-memoize": "^4.1.2"
   }
 }

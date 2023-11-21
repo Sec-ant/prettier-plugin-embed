@@ -1,7 +1,10 @@
 import type { Expression, Comment, TemplateLiteral } from "estree";
 import type { AstPath, Options, Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
-import type { InternalPrintFun } from "../types.js";
+import memoize from "micro-memoize";
+import { isAbsolute } from "node:path";
+import { readFileSync } from "node:fs";
+import type { EmbeddedOverrides, InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, lineSuffixBoundary } = builders;
 const { mapDoc } = utils;
@@ -159,3 +162,37 @@ export type StringListToInterfaceKey<T extends readonly string[]> = {
 };
 
 export type Satisfies<U, T extends U> = T;
+
+const parseEmbeddedOverrides = memoize((embeddedOverrides: string) => {
+  const stringifiedEmbeddedOverrides = isAbsolute(embeddedOverrides)
+    ? readFileSync(embeddedOverrides, { encoding: "utf-8" })
+    : embeddedOverrides;
+  try {
+    return JSON.parse(stringifiedEmbeddedOverrides) as EmbeddedOverrides;
+  } catch {
+    console.error(`Error parsing embedded overrides.`);
+  }
+  return undefined;
+});
+
+export const parseEmbeddedOverrideOptions = memoize(
+  (embeddedOverrides: string | undefined, identifier: string) => {
+    if (typeof embeddedOverrides === "string") {
+      const parsedEmbeddedOverrides = parseEmbeddedOverrides(embeddedOverrides);
+      if (typeof parsedEmbeddedOverrides === "undefined") {
+        return undefined;
+      }
+      try {
+        for (const { identifiers, options } of parsedEmbeddedOverrides) {
+          if (!identifiers.includes(identifier)) {
+            continue;
+          }
+          return options;
+        }
+      } catch {
+        console.error(`Error parsing embedded override options.`);
+      }
+    }
+    return undefined;
+  },
+);

@@ -6,6 +6,7 @@ import {
   throwIfPluginIsNotFound,
   preparePlaceholder,
   simpleRehydrateDoc,
+  parseEmbeddedOverrideOptions,
 } from "../utils.js";
 import { embeddedLanguage } from "./embedded-language.js";
 
@@ -19,6 +20,11 @@ export const embedder: Embedder<Options> = async (
   identifier,
 ) => {
   throwIfPluginIsNotFound("prettier-plugin-glsl", options, identifier);
+
+  options = {
+    ...options,
+    ...parseEmbeddedOverrideOptions(options.embeddedOverrides, identifier),
+  };
 
   const { node } = path;
 
