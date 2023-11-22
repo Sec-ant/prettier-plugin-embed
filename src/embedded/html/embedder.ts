@@ -1,11 +1,7 @@
 import { type Options } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
-import {
-  printTemplateExpressions,
-  preparePlaceholder,
-  parseEmbeddedOverrideOptions,
-} from "../utils.js";
+import { printTemplateExpressions, preparePlaceholder } from "../utils.js";
 import { embeddedLanguage } from "./embedded-language.js";
 
 const { line, group, indent, softline } = builders;
@@ -16,15 +12,11 @@ export const embedder: Embedder<Options> = async (
   print,
   path,
   options,
-  identifier,
+  { identifier, embeddedOverrideOptions },
 ) => {
   options = {
     ...options,
-    ...(await parseEmbeddedOverrideOptions(
-      options.embeddedOverrides,
-      identifier,
-      options.filepath,
-    )),
+    ...embeddedOverrideOptions,
   };
 
   const { node } = path;

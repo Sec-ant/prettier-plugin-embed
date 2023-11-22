@@ -8,6 +8,11 @@ import {
   embeddedEmbedders,
   makeIdentifiersOptionName,
 } from "./embedded/index.js";
+import {
+  resolveEmbeddedOverrideOptions,
+  getIdentifierFromTag,
+  getIdentifierFromComment,
+} from "./utils.js";
 
 const { estree: estreePrinter } = estreePrinters;
 
@@ -55,15 +60,17 @@ const embed: Printer["embed"] = function (
       return "``";
     }
     return async (textToDoc, print, path, options) => {
+      const embeddedOverrideOptions = await resolveEmbeddedOverrideOptions(
+        options.embeddedOverrides,
+        identifier,
+        options.filepath,
+      );
       try {
-        const doc = await embeddedEmbedder(
-          textToDoc,
-          print,
-          path,
-          options,
+        const doc = await embeddedEmbedder(textToDoc, print, path, options, {
           identifier,
           identifiers,
-        );
+          embeddedOverrideOptions,
+        });
         return builders.label(
           { embed: true, ...(doc as builders.Label).label },
           doc,
@@ -77,71 +84,6 @@ const embed: Printer["embed"] = function (
   // fall back
   return estreePrinter.embed?.(path, options) ?? null;
 };
-
-// TODO: support tags like 'this.html', 'this["html"]'..., if possible
-// ideally, the best api to use is https://github.com/estools/esquery
-
-// function to get identifier from template literal comments
-function getIdentifierFromComment(
-  { node, parent }: AstPath<PrettierNode>,
-  comments: string[],
-  noIdentificationList: string[],
-): string | undefined {
-  if (comments.length === 0) {
-    return;
-  }
-  if (node.type !== "TemplateLiteral") {
-    return;
-  }
-  const nodeComments = node.comments ?? parent?.comments;
-  if (!nodeComments) {
-    return;
-  }
-  const lastNodeComment = nodeComments[nodeComments.length - 1];
-  if (
-    ![
-      "MultiLine", // meriyah
-      "Block", // typescript, acorn, espree, flow
-      "CommentBlock", // babel, babel-flow, babel-ts
-    ].includes(lastNodeComment.type) ||
-    !lastNodeComment.leading
-  ) {
-    return;
-  }
-  for (const comment of comments) {
-    if (
-      ` ${comment} ` === lastNodeComment.value &&
-      !noIdentificationList.includes(comment)
-    ) {
-      return comment;
-    }
-  }
-  return;
-}
-
-// function to get identifier from template literal tags
-function getIdentifierFromTag(
-  { node, parent }: AstPath<PrettierNode>,
-  tags: string[],
-  noIdentificationList: string[],
-): string | undefined {
-  if (tags.length === 0) {
-    return;
-  }
-  if (
-    node.type !== "TemplateLiteral" ||
-    parent?.type !== "TaggedTemplateExpression" ||
-    parent.tag.type !== "Identifier"
-  ) {
-    return;
-  }
-  for (const tag of tags) {
-    if (parent.tag.name === tag && !noIdentificationList.includes(tag)) {
-      return tag;
-    }
-  }
-  return;
-}
 
 // extends estree printer to parse embedded lanaguges in js/ts files
 export const printers: Plugin["printers"] = {
