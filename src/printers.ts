@@ -1,17 +1,17 @@
 import type { TemplateLiteral } from "estree";
-import type { Plugin, Printer, AstPath, Options } from "prettier";
+import type { AstPath, Options, Plugin, Printer } from "prettier";
 import { builders } from "prettier/doc";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
-import type { PrettierNode } from "./types.js";
 import {
-  embeddedLanguages,
   embeddedEmbedders,
+  embeddedLanguages,
   makeIdentifiersOptionName,
 } from "./embedded/index.js";
+import type { PrettierNode } from "./types.js";
 import {
-  resolveEmbeddedOverrideOptions,
-  getIdentifierFromTag,
   getIdentifierFromComment,
+  getIdentifierFromTag,
+  resolveEmbeddedOverrideOptions,
 } from "./utils.js";
 
 const { estree: estreePrinter } = estreePrinters;

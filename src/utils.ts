@@ -1,9 +1,9 @@
-import { resolveConfigFile, type AstPath } from "prettier";
 import memoize from "micro-memoize";
-import { isAbsolute, resolve, dirname, extname } from "node:path";
 import { readFile } from "node:fs/promises";
+import { dirname, extname, isAbsolute, resolve } from "node:path";
 import { Worker } from "node:worker_threads";
 import { packageUp } from "package-up";
+import { resolveConfigFile, type AstPath } from "prettier";
 import type { EmbeddedOverrides, PrettierNode } from "./types.js";
 
 async function importJson(absolutePath: string) {

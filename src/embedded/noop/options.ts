@@ -1,10 +1,10 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
-import { embeddedLanguage } from "./embedded-language.js";
+import type { EmbeddedDefaultIdentifier } from "../types.js";
 import {
   makeIdentifiersOptionName,
   type AutocompleteStringList,
 } from "../utils.js";
-import type { EmbeddedDefaultIdentifier } from "../types.js";
+import { embeddedLanguage } from "./embedded-language.js";
 
 type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
 

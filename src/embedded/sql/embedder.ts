@@ -1,19 +1,19 @@
 import type { Options } from "prettier";
-import { builders, utils } from "prettier/doc";
 import type { SqlBaseOptions } from "prettier-plugin-sql";
+import { builders, utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
+  preparePlaceholder,
   printTemplateExpressions,
   throwIfPluginIsNotFound,
-  preparePlaceholder,
 } from "../utils.js";
+import { embeddedLanguage } from "./embedded-language.js";
 import {
   NODE_SQL_PARSER_DATABASES,
-  type NodeSqlParserDataBase,
   SQL_FORMATTER_LANGUAGES,
+  type NodeSqlParserDataBase,
   type SqlFormatterLanguage,
 } from "./options.js";
-import { embeddedLanguage } from "./embedded-language.js";
 
 const { hardline, group, line, softline, indent } = builders;
 const { mapDoc } = utils;

@@ -1,9 +1,9 @@
-import type { SupportOptions, CoreCategoryType } from "prettier";
+import type { CoreCategoryType, SupportOptions } from "prettier";
 import {
   embeddedOptions,
-  PrettierPluginEmbedOptions,
-  EmbeddedDefaultIdentifier,
-  AutocompleteStringList,
+  type AutocompleteStringList,
+  type EmbeddedDefaultIdentifier,
+  type PrettierPluginEmbedOptions,
 } from "./embedded/index.js";
 
 type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier[]>;

@@ -1,11 +1,11 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import type { SqlBaseOptions as PrettierPluginDepsOptions } from "prettier-plugin-sql";
-import { embeddedLanguage } from "./embedded-language.js";
 import {
+  makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
-  makeIdentifiersOptionName,
 } from "../utils.js";
+import { embeddedLanguage } from "./embedded-language.js";
 
 // TODO: we shouldn't hardcode the dialects because they may differ in different plugin versions
 // TODO: reach out to the maintainer of prettier-plugin-sql to export them.

@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
-import { defineConfig } from "vite";
-import { peerDependencies, optionalDependencies } from "./package.json";
 import { builtinModules } from "node:module";
+import { defineConfig } from "vite";
+import { optionalDependencies, peerDependencies } from "./package.json";
 
 export default defineConfig({
   build: {

@@ -1,11 +1,11 @@
-import type { Options, Doc, AstPath } from "prettier";
-import type { Node as EsTreeNode, TemplateLiteral, Comment } from "estree";
+import type { Comment, Node as EsTreeNode, TemplateLiteral } from "estree";
+import type { AstPath, Doc, Options } from "prettier";
 import {
-  type EmbeddedDefaultIdentifier,
-  type AutocompleteStringList,
-  type PrettierPluginEmbedOptions,
-  type EmbeddedLanguage,
   makeIdentifiersOptionName,
+  type AutocompleteStringList,
+  type EmbeddedDefaultIdentifier,
+  type EmbeddedLanguage,
+  type PrettierPluginEmbedOptions,
 } from "./embedded/index.js";
 import type { PrettierPluginGlobalOptions } from "./options.js";
 
