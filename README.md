@@ -1,7 +1,7 @@
 <div align="center">
 
-![prettier-plugin-embed-light](./public/prettier-plugin-embed-wide-light.svg#gh-light-mode-only)
-![prettier-plugin-embed-dark](./public/prettier-plugin-embed-wide-dark.svg#gh-dark-mode-only)
+![prettier-plugin-embed-light](./asset/prettier-plugin-embed-wide-light.svg#gh-light-mode-only)
+![prettier-plugin-embed-dark](./asset/prettier-plugin-embed-wide-dark.svg#gh-dark-mode-only)
 
 # Prettier Plugin Embed
 

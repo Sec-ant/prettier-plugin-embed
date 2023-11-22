@@ -14,7 +14,6 @@ export default defineConfig({
       fileName: (format, entryName) =>
         format === "es" ? `${entryName}.js` : `${entryName}.${format}.js`,
     },
-    copyPublicDir: false,
     rollupOptions: {
       external: [
         /^@?prettier(?:\/|$)/,
