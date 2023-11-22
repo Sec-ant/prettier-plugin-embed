@@ -5,7 +5,9 @@
 
 # Prettier Plugin Embed
 
-[![npm](https://img.shields.io/npm/v/prettier-plugin-embed)](https://www.npmjs.com/package/prettier-plugin-embed/v/latest) [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/prettier-plugin-embed)](https://www.npmjs.com/package/prettier-plugin-embed/v/latest) [![jsDelivr hits (npm scoped)](https://img.shields.io/jsdelivr/npm/hm/prettier-plugin-embed?color=%23ff5627)](https://cdn.jsdelivr.net/npm/prettier-plugin-embed@latest/)
+[![npm version](https://badgen.net/npm/v/prettier-plugin-embed?cache=300)](https://www.npmjs.com/package/prettier-plugin-embed/v/latest) [![npm downloads](https://badgen.net/npm/dm/prettier-plugin-embed?cache=300)](https://www.npmjs.com/package/prettier-plugin-embed/v/latest) [![npm license](https://badgen.net/npm/license/prettier-plugin-embed?cache=300)](https://www.npmjs.com/package/prettier-plugin-embed/v/latest)
+
+[![github last commit](https://badgen.net/github/last-commit/Sec-ant/prettier-plugin-embed?cache=300)](https://github.com/Sec-ant/prettier-plugin-embed) [![bundlephobia minzipped](https://badgen.net/bundlephobia/minzip/prettier-plugin-embed?cache=300)](https://bundlephobia.com/package/prettier-plugin-embed@latest) [![](https://data.jsdelivr.com/v1/package/npm/prettier-plugin-embed/badge?style=rounded)](https://www.jsdelivr.com/package/npm/prettier-plugin-embed)
 
 A Configurable [Prettier](https://prettier.io/) [Plugin](https://prettier.io/docs/en/plugins.html) to Format [Embedded Languages](https://prettier.io/docs/en/options.html#embedded-language-formatting) in `js`/`ts` Files.
 
