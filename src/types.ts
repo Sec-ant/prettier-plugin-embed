@@ -4,8 +4,8 @@ import {
   type EmbeddedDefaultIdentifier,
   type AutocompleteStringList,
   type PrettierPluginEmbedOptions,
+  type EmbeddedLanguage,
   makeIdentifiersOptionName,
-  EmbeddedLanguage,
 } from "./embedded/index.js";
 import type { PrettierPluginGlobalOptions } from "./options.js";
 
@@ -21,13 +21,18 @@ export type InternalPrintFun = (
   selector?: string | number | (string | number)[] | AstPath<TemplateLiteral>,
 ) => Doc;
 
+export interface EmbedderPayload {
+  identifier: string;
+  identifiers: string[];
+  embeddedOverrideOptions: EmbeddedOverride["options"] | undefined;
+}
+
 export type Embedder<T extends Options = Options> = (
   textToDoc: (text: string, options: T) => Promise<Doc>,
   print: InternalPrintFun,
   path: AstPath<TemplateLiteral>,
   options: T,
-  identifier: string,
-  identifiers: string[],
+  embedderPayload: EmbedderPayload,
 ) => Promise<Doc>;
 
 export interface EmbeddedOverride {

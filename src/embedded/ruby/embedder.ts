@@ -6,7 +6,6 @@ import {
   throwIfPluginIsNotFound,
   preparePlaceholder,
   simpleRehydrateDoc,
-  parseEmbeddedOverrideOptions,
 } from "../utils.js";
 import { embeddedLanguage } from "./embedded-language.js";
 import {
@@ -26,18 +25,13 @@ export const embedder: Embedder<Options> = async (
   print,
   path,
   options,
-  identifier,
-  identifiers,
+  { identifier, identifiers, embeddedOverrideOptions },
 ) => {
   throwIfPluginIsNotFound("@prettier/plugin-ruby", options, identifier);
 
   options = {
     ...options,
-    ...(await parseEmbeddedOverrideOptions(
-      options.embeddedOverrides,
-      identifier,
-      options.filepath,
-    )),
+    ...embeddedOverrideOptions,
   };
 
   const { node } = path;
