@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/consistent-indexed-object-style */
-import type { Parser, SupportOption, Options } from "prettier";
+import type { Options, Parser, SupportOption } from "prettier";
 import type { Embedder } from "../types.js";
 import type { Satisfies } from "./utils.js";
 

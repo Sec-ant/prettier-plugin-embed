@@ -1,11 +1,11 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
-import { embeddedLanguage } from "./embedded-language.js";
 import {
-  type AutocompleteStringList,
-  type StringListToInterfaceKey,
   makeIdentifiersOptionName,
   makeParserOptionName,
+  type AutocompleteStringList,
+  type StringListToInterfaceKey,
 } from "../utils.js";
+import { embeddedLanguage } from "./embedded-language.js";
 
 /** References:
  * - https://github.com/microsoft/vscode/blob/de0121cf0e05d1673903551b6dbb2871556bfae9/extensions/javascript/package.json#L37

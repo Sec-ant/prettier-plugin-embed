@@ -2,20 +2,20 @@ import type { Options } from "prettier";
 import { builders } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
-  printTemplateExpressions,
-  throwIfPluginIsNotFound,
   preparePlaceholder,
+  printTemplateExpressions,
   simpleRehydrateDoc,
+  throwIfPluginIsNotFound,
 } from "../utils.js";
 import { embeddedLanguage } from "./embedded-language.js";
 import {
-  RUBY_PARSER_IDENTIFIERS,
-  RBS_PARSER_IDENTIFIERS,
   HAML_PARSER_IDENTIFIERS,
-  type RubyParserIdentifier,
-  type RbsParserIdentifier,
+  RBS_PARSER_IDENTIFIERS,
+  RUBY_PARSER_IDENTIFIERS,
   type HamlParserIdentifier,
+  type RbsParserIdentifier,
   type RubyParser,
+  type RubyParserIdentifier,
 } from "./options.js";
 
 const { line, group, indent, softline } = builders;

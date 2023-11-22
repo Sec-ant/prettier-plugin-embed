@@ -1,11 +1,11 @@
-import { type Options, type Doc } from "prettier";
+import type { Doc, Options } from "prettier";
 import { builders } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
-  printTemplateExpressions,
-  throwIfPluginIsNotFound,
   preparePlaceholder,
+  printTemplateExpressions,
   simpleRehydrateDoc,
+  throwIfPluginIsNotFound,
 } from "../utils.js";
 import { embeddedLanguage } from "./embedded-language.js";
 

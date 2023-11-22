@@ -1,10 +1,10 @@
 export * from "./register.js";
 export type {
-  EmbeddedLanguage,
-  EmbeddedParsers,
-  EmbeddedEmbedders,
-  EmbeddedOptions,
   EmbeddedDefaultIdentifier,
+  EmbeddedEmbedders,
+  EmbeddedLanguage,
+  EmbeddedOptions,
+  EmbeddedParsers,
   PrettierPluginEmbedOptions,
 } from "./types.js";
 export {

@@ -1,10 +1,10 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
-import { embeddedLanguage } from "./embedded-language.js";
 import {
+  makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
-  makeIdentifiersOptionName,
 } from "../utils.js";
+import { embeddedLanguage } from "./embedded-language.js";
 
 const RUBY_PARSERS = ["ruby", "rbs", "haml"] as const;
 export type RubyParser = (typeof RUBY_PARSERS)[number];

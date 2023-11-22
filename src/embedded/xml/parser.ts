@@ -1,10 +1,10 @@
-import type { Parser, Options } from "prettier";
 import type {
   CstElement,
   CstNode,
   ILexingError,
   IRecognitionException,
 } from "chevrotain";
+import type { Options, Parser } from "prettier";
 import { embeddedLanguage } from "./embedded-language.js";
 
 interface Position {

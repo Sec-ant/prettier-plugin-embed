@@ -1,13 +1,13 @@
 import type { Options, Parser, SupportOptions } from "prettier";
 import type { Embedder } from "../types.js";
-import { insertEmbeddedLanguage } from "./utils.js";
 import { embeddedLanguage as embeddedNoop } from "./noop/index.js";
 import type {
   EmbeddedEmbedders,
   EmbeddedLanguage,
-  EmbeddedParsers,
   EmbeddedOptions,
+  EmbeddedParsers,
 } from "./types.js";
+import { insertEmbeddedLanguage } from "./utils.js";
 
 export const embeddedLanguages: EmbeddedLanguage[] = [];
 export const embeddedParsers: EmbeddedParsers = {} as EmbeddedParsers;

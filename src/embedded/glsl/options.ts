@@ -1,10 +1,10 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
-import { embeddedLanguage } from "./embedded-language.js";
 import {
+  makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
-  makeIdentifiersOptionName,
 } from "../utils.js";
+import { embeddedLanguage } from "./embedded-language.js";
 
 /** References:
  * - https://github.com/NaridaL/glsl-language-toolkit/blob/a7bd08d3f31355b335ae002b6a44c2999998b952/packages/prettier-plugin-glsl/src/prettier-plugin.ts#L88

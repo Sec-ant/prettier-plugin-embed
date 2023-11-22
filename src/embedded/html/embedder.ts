@@ -1,7 +1,7 @@
-import { type Options } from "prettier";
+import type { Options } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
-import { printTemplateExpressions, preparePlaceholder } from "../utils.js";
+import { preparePlaceholder, printTemplateExpressions } from "../utils.js";
 import { embeddedLanguage } from "./embedded-language.js";
 
 const { line, group, indent, softline } = builders;
