@@ -29,9 +29,10 @@ export const embedder: Embedder<Options> = async (
 ) => {
   throwIfPluginIsNotFound("prettier-plugin-sql", options, identifier);
 
-  const embeddedOverrideOptions = parseEmbeddedOverrideOptions(
+  const embeddedOverrideOptions = await parseEmbeddedOverrideOptions(
     options.embeddedOverrides,
     identifier,
+    options.filepath,
   );
 
   options = {
