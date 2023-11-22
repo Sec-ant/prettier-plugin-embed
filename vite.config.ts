@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from "vite";
-import { peerDependencies } from "./package.json";
+import { peerDependencies, optionalDependencies } from "./package.json";
 import { builtinModules } from "node:module";
 
 export default defineConfig({
@@ -19,6 +19,8 @@ export default defineConfig({
       external: [
         /^@?prettier(?:\/|$)/,
         ...Object.keys(peerDependencies ?? {}),
+        ...Object.keys(optionalDependencies ?? {}),
+        /^tsx(?:\/|$)/,
         ...builtinModules,
         /^node:/,
       ],

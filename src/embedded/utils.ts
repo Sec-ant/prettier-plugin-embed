@@ -197,6 +197,23 @@ function loadAsCjsModule(absolutePath: string) {
   }
 }
 
+async function getModuleType(sourceFilePath?: string) {
+  const packageJsonFilePath = await packageUp({ cwd: sourceFilePath });
+  if (packageJsonFilePath === undefined) {
+    return "cjs";
+  } else {
+    const packageJson = await loadAsJson(packageJsonFilePath);
+    switch (packageJson?.type) {
+      case "module":
+        return "es";
+      case "commonjs":
+        return "cjs";
+      default:
+        return "cjs";
+    }
+  }
+}
+
 const resolveEmbeddedOverridesFileAbsolutePath = memoize(
   async (embeddedOverridesFilePath: string, sourceFilePath?: string) => {
     if (isAbsolute(embeddedOverridesFilePath)) {
@@ -213,124 +230,107 @@ const resolveEmbeddedOverridesFileAbsolutePath = memoize(
   },
 );
 
-const parseEmbeddedOverrides = memoize(
-  async (embeddedOverridesString: string, sourceFilePath?: string) => {
-    const absolutePathPromise = resolveEmbeddedOverridesFileAbsolutePath(
-      embeddedOverridesString,
-      sourceFilePath,
-    );
-    const extensionName = extname(embeddedOverridesString);
-    // json file
-    if (extensionName === ".json") {
-      const absolutePath = await absolutePathPromise;
-      const parsedEmbeddedOverrides = await loadAsJson(absolutePath);
-      if (parsedEmbeddedOverrides !== undefined) {
-        return parsedEmbeddedOverrides as EmbeddedOverrides;
-      }
-      console.error(`Failed to parse the json file: ${absolutePath}`);
-      return;
+const parseEmbeddedOverrides = async (
+  embeddedOverridesString: string,
+  sourceFilePath?: string,
+) => {
+  const absolutePathPromise = resolveEmbeddedOverridesFileAbsolutePath(
+    embeddedOverridesString,
+    sourceFilePath,
+  );
+  const moduleTypePromise = getModuleType(sourceFilePath);
+  const extensionName = extname(embeddedOverridesString);
+  // json file
+  if (extensionName === ".json") {
+    const absolutePath = await absolutePathPromise;
+    const parsedEmbeddedOverrides = await loadAsJson(absolutePath);
+    if (parsedEmbeddedOverrides !== undefined) {
+      return parsedEmbeddedOverrides as EmbeddedOverrides;
     }
-    // esm file
-    else if (extensionName === ".mjs") {
-      const absolutePath = await absolutePathPromise;
-      const parsedEmbeddedOverrides = await loadAsEsModule(absolutePath);
-      if (parsedEmbeddedOverrides !== undefined) {
-        return parsedEmbeddedOverrides as EmbeddedOverrides;
-      }
-      console.error(`Failed to parse the es module file: ${absolutePath}`);
-      return;
-    }
-    // cjs file
-    else if (extensionName === ".cjs") {
-      const absolutePath = await absolutePathPromise;
-      const parsedEmbeddedOverrides = loadAsCjsModule(absolutePath);
-      if (parsedEmbeddedOverrides !== undefined) {
-        return parsedEmbeddedOverrides as EmbeddedOverrides;
-      }
-      console.error(`Failed to the cjs module file: ${absolutePath}`);
-      return;
-    }
-    // js file
-    else if (extensionName === ".js") {
-      const absolutePath = await absolutePathPromise;
-      let loadAs: "mjs" | "cjs";
-      const packageJsonFilePath = await packageUp({ cwd: sourceFilePath });
-      if (packageJsonFilePath === undefined) {
-        loadAs = "cjs";
-      } else {
-        const packageJson = await loadAsJson(packageJsonFilePath);
-        switch (packageJson?.type) {
-          case "module":
-            loadAs = "mjs";
-            break;
-          case "commonjs":
-            loadAs = "cjs";
-            break;
-          default:
-            loadAs = "cjs";
-            break;
-        }
-      }
-      if (loadAs === "mjs") {
-        const parsedEmbeddedOverrides = await loadAsEsModule(absolutePath);
-        if (parsedEmbeddedOverrides !== undefined) {
-          return parsedEmbeddedOverrides as EmbeddedOverrides;
-        }
-        console.error(`Failed to parse the es module file: ${absolutePath}`);
-        return;
-      } else if (loadAs === "cjs") {
-        const parsedEmbeddedOverrides = loadAsCjsModule(absolutePath);
-        if (parsedEmbeddedOverrides !== undefined) {
-          return parsedEmbeddedOverrides as EmbeddedOverrides;
-        }
-        console.error(`Failed to parse the cjs module file: ${absolutePath}`);
-        return;
-      }
-    }
-    // no ext, fallback to json
-    else if (extensionName === "") {
-      const absolutePath = await absolutePathPromise;
-      const parsedEmbeddedOverrides = await loadAsJson(absolutePath);
-      if (parsedEmbeddedOverrides !== undefined) {
-        return parsedEmbeddedOverrides as EmbeddedOverrides;
-      }
-    }
-    // fallback to stringified json
-    try {
-      return JSON.parse(embeddedOverridesString) as EmbeddedOverrides;
-    } catch {
-      console.error("Failed to parse embeddedOverrides as a json object");
-    }
+    console.error(`Failed to parse the json file: ${absolutePath}`);
     return;
-  },
-);
+  }
+  // es module file
+  else if (
+    extensionName === ".mjs" ||
+    (extensionName === ".js" && (await moduleTypePromise) === "es")
+  ) {
+    const absolutePath = await absolutePathPromise;
+    const parsedEmbeddedOverrides = await loadAsEsModule(absolutePath);
+    if (parsedEmbeddedOverrides !== undefined) {
+      return parsedEmbeddedOverrides as EmbeddedOverrides;
+    }
+    console.error(`Failed to parse the es module file: ${absolutePath}`);
+    return;
+  }
+  // cjs module file
+  else if (
+    extensionName === ".cjs" ||
+    (extensionName === ".js" && (await moduleTypePromise) === "cjs")
+  ) {
+    const absolutePath = await absolutePathPromise;
+    const parsedEmbeddedOverrides = loadAsCjsModule(absolutePath);
+    if (parsedEmbeddedOverrides !== undefined) {
+      return parsedEmbeddedOverrides as EmbeddedOverrides;
+    }
+    console.error(`Failed to parse the cjs module file: ${absolutePath}`);
+    return;
+  }
+  // typed es module file
+  else if (
+    extensionName === ".mts" ||
+    (extensionName === ".ts" && (await moduleTypePromise) === "es")
+  ) {
+    /* TBD */
+  }
+  // typed cjs module file
+  else if (
+    extensionName === ".cts" ||
+    (extensionName === ".ts" && (await moduleTypePromise) === "cjs")
+  ) {
+    /* TBD */
+  }
+  // no ext, fallback to json
+  else if (extensionName === "") {
+    const absolutePath = await absolutePathPromise;
+    const parsedEmbeddedOverrides = await loadAsJson(absolutePath);
+    if (parsedEmbeddedOverrides !== undefined) {
+      return parsedEmbeddedOverrides as EmbeddedOverrides;
+    }
+  }
+  // fallback to stringified json
+  try {
+    return JSON.parse(embeddedOverridesString) as EmbeddedOverrides;
+  } catch {
+    console.error("Failed to parse embeddedOverrides as a json object");
+  }
+  return;
+};
 
-export const parseEmbeddedOverrideOptions = memoize(
-  async (
-    embeddedOverrides: string | undefined,
-    identifier: string,
-    filePath?: string,
-  ) => {
-    if (embeddedOverrides === undefined) {
-      return;
-    }
-    const parsedEmbeddedOverrides = await parseEmbeddedOverrides(
-      embeddedOverrides,
-      filePath,
-    );
-    if (parsedEmbeddedOverrides === undefined) {
-      return;
-    }
-    try {
-      for (const { identifiers, options } of parsedEmbeddedOverrides) {
-        if (!identifiers.includes(identifier)) {
-          continue;
-        }
-        return options;
+export const parseEmbeddedOverrideOptions = async (
+  embeddedOverrides: string | undefined,
+  identifier: string,
+  filePath?: string,
+) => {
+  if (embeddedOverrides === undefined) {
+    return;
+  }
+  const parsedEmbeddedOverrides = await parseEmbeddedOverrides(
+    embeddedOverrides,
+    filePath,
+  );
+  if (parsedEmbeddedOverrides === undefined) {
+    return;
+  }
+  try {
+    for (const { identifiers, options } of parsedEmbeddedOverrides) {
+      if (!identifiers.includes(identifier)) {
+        continue;
       }
-    } catch {
-      console.error(`Error parsing embedded override options.`);
+      return options;
     }
-    return undefined;
-  },
-);
+  } catch {
+    console.error(`Error parsing embedded override options.`);
+  }
+  return undefined;
+};
