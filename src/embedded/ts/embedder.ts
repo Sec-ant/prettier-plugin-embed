@@ -20,7 +20,11 @@ export const embedder: Embedder<Options> = async (
 ) => {
   options = {
     ...options,
-    ...parseEmbeddedOverrideOptions(options.embeddedOverrides, identifier),
+    ...(await parseEmbeddedOverrideOptions(
+      options.embeddedOverrides,
+      identifier,
+      options.filepath,
+    )),
   };
 
   const { node } = path;

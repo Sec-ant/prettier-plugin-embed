@@ -1,9 +1,15 @@
 import type { Expression, Comment, TemplateLiteral } from "estree";
-import type { AstPath, Options, Doc } from "prettier";
+import {
+  type AstPath,
+  type Options,
+  type Doc,
+  resolveConfigFile,
+} from "prettier";
 import { builders, utils } from "prettier/doc";
 import memoize from "micro-memoize";
-import { isAbsolute } from "node:path";
-import { readFileSync } from "node:fs";
+import { isAbsolute, resolve, dirname, extname } from "node:path";
+import { readFile } from "node:fs/promises";
+import { packageUp } from "package-up";
 import type { EmbeddedOverrides, InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, lineSuffixBoundary } = builders;
@@ -163,35 +169,167 @@ export type StringListToInterfaceKey<T extends readonly string[]> = {
 
 export type Satisfies<U, T extends U> = T;
 
-const parseEmbeddedOverrides = memoize((embeddedOverrides: string) => {
-  const stringifiedEmbeddedOverrides = isAbsolute(embeddedOverrides)
-    ? readFileSync(embeddedOverrides, { encoding: "utf-8" })
-    : embeddedOverrides;
+async function loadAsJson(absolutePath: string) {
   try {
-    return JSON.parse(stringifiedEmbeddedOverrides) as EmbeddedOverrides;
+    const content = await readFile(absolutePath, { encoding: "utf-8" });
+    return JSON.parse(content);
   } catch {
-    console.error(`Error parsing embedded overrides.`);
+    /* void */
   }
-  return undefined;
-});
+}
+
+async function loadAsEsModule(absolutePath: string) {
+  try {
+    const imported = await import(absolutePath);
+    return imported.embeddedOverrides ?? imported.default ?? undefined;
+  } catch {
+    /* void */
+  }
+}
+
+function loadAsCjsModule(absolutePath: string) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const imported = require(absolutePath);
+    return imported.embeddedOverrides ?? imported ?? undefined;
+  } catch {
+    /* void */
+  }
+}
+
+const resolveEmbeddedOverridesFileAbsolutePath = memoize(
+  async (embeddedOverridesFilePath: string, sourceFilePath?: string) => {
+    if (isAbsolute(embeddedOverridesFilePath)) {
+      return embeddedOverridesFilePath;
+    }
+    const configFilePath = await resolveConfigFile(sourceFilePath);
+    let configDir: string;
+    if (typeof configFilePath !== "string") {
+      configDir = process.env.PWD ?? process.cwd();
+    } else {
+      configDir = dirname(configFilePath);
+    }
+    return resolve(configDir, embeddedOverridesFilePath);
+  },
+);
+
+const parseEmbeddedOverrides = memoize(
+  async (embeddedOverridesString: string, sourceFilePath?: string) => {
+    const absolutePathPromise = resolveEmbeddedOverridesFileAbsolutePath(
+      embeddedOverridesString,
+      sourceFilePath,
+    );
+    const extensionName = extname(embeddedOverridesString);
+    // json file
+    if (extensionName === ".json") {
+      const absolutePath = await absolutePathPromise;
+      const parsedEmbeddedOverrides = await loadAsJson(absolutePath);
+      if (parsedEmbeddedOverrides !== undefined) {
+        return parsedEmbeddedOverrides as EmbeddedOverrides;
+      }
+      console.error(`Failed to parse the json file: ${absolutePath}`);
+      return;
+    }
+    // esm file
+    else if (extensionName === ".mjs") {
+      const absolutePath = await absolutePathPromise;
+      const parsedEmbeddedOverrides = await loadAsEsModule(absolutePath);
+      if (parsedEmbeddedOverrides !== undefined) {
+        return parsedEmbeddedOverrides as EmbeddedOverrides;
+      }
+      console.error(`Failed to parse the es module file: ${absolutePath}`);
+      return;
+    }
+    // cjs file
+    else if (extensionName === ".cjs") {
+      const absolutePath = await absolutePathPromise;
+      const parsedEmbeddedOverrides = loadAsCjsModule(absolutePath);
+      if (parsedEmbeddedOverrides !== undefined) {
+        return parsedEmbeddedOverrides as EmbeddedOverrides;
+      }
+      console.error(`Failed to the cjs module file: ${absolutePath}`);
+      return;
+    }
+    // js file
+    else if (extensionName === ".js") {
+      const absolutePath = await absolutePathPromise;
+      let loadAs: "mjs" | "cjs";
+      const packageJsonFilePath = await packageUp({ cwd: sourceFilePath });
+      if (packageJsonFilePath === undefined) {
+        loadAs = "cjs";
+      } else {
+        const packageJson = await loadAsJson(packageJsonFilePath);
+        switch (packageJson?.type) {
+          case "module":
+            loadAs = "mjs";
+            break;
+          case "commonjs":
+            loadAs = "cjs";
+            break;
+          default:
+            loadAs = "cjs";
+            break;
+        }
+      }
+      if (loadAs === "mjs") {
+        const parsedEmbeddedOverrides = await loadAsEsModule(absolutePath);
+        if (parsedEmbeddedOverrides !== undefined) {
+          return parsedEmbeddedOverrides as EmbeddedOverrides;
+        }
+        console.error(`Failed to parse the es module file: ${absolutePath}`);
+        return;
+      } else if (loadAs === "cjs") {
+        const parsedEmbeddedOverrides = loadAsCjsModule(absolutePath);
+        if (parsedEmbeddedOverrides !== undefined) {
+          return parsedEmbeddedOverrides as EmbeddedOverrides;
+        }
+        console.error(`Failed to parse the cjs module file: ${absolutePath}`);
+        return;
+      }
+    }
+    // no ext, fallback to json
+    else if (extensionName === "") {
+      const absolutePath = await absolutePathPromise;
+      const parsedEmbeddedOverrides = await loadAsJson(absolutePath);
+      if (parsedEmbeddedOverrides !== undefined) {
+        return parsedEmbeddedOverrides as EmbeddedOverrides;
+      }
+    }
+    // fallback to stringified json
+    try {
+      return JSON.parse(embeddedOverridesString) as EmbeddedOverrides;
+    } catch {
+      console.error("Failed to parse embeddedOverrides as a json object");
+    }
+    return;
+  },
+);
 
 export const parseEmbeddedOverrideOptions = memoize(
-  (embeddedOverrides: string | undefined, identifier: string) => {
-    if (typeof embeddedOverrides === "string") {
-      const parsedEmbeddedOverrides = parseEmbeddedOverrides(embeddedOverrides);
-      if (typeof parsedEmbeddedOverrides === "undefined") {
-        return undefined;
-      }
-      try {
-        for (const { identifiers, options } of parsedEmbeddedOverrides) {
-          if (!identifiers.includes(identifier)) {
-            continue;
-          }
-          return options;
+  async (
+    embeddedOverrides: string | undefined,
+    identifier: string,
+    filePath?: string,
+  ) => {
+    if (embeddedOverrides === undefined) {
+      return;
+    }
+    const parsedEmbeddedOverrides = await parseEmbeddedOverrides(
+      embeddedOverrides,
+      filePath,
+    );
+    if (parsedEmbeddedOverrides === undefined) {
+      return;
+    }
+    try {
+      for (const { identifiers, options } of parsedEmbeddedOverrides) {
+        if (!identifiers.includes(identifier)) {
+          continue;
         }
-      } catch {
-        console.error(`Error parsing embedded override options.`);
+        return options;
       }
+    } catch {
+      console.error(`Error parsing embedded override options.`);
     }
     return undefined;
   },
