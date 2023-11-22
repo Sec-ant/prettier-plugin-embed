@@ -9,6 +9,7 @@ import { builders, utils } from "prettier/doc";
 import memoize from "micro-memoize";
 import { isAbsolute, resolve, dirname, extname } from "node:path";
 import { readFile } from "node:fs/promises";
+import { Worker } from "node:worker_threads";
 import { packageUp } from "package-up";
 import type { EmbeddedOverrides, InternalPrintFun } from "../types.js";
 
@@ -178,23 +179,30 @@ async function loadAsJson(absolutePath: string) {
   }
 }
 
-async function loadAsEsModule(absolutePath: string) {
-  try {
-    const imported = await import(absolutePath);
-    return imported.embeddedOverrides ?? imported.default ?? undefined;
-  } catch {
-    /* void */
-  }
-}
+const workerDataUrl = new URL(
+  "data:text/javascript," +
+    encodeURIComponent(
+      `import{workerData as r,parentPort as t}from"node:worker_threads";import{pathToFileURL as a}from"node:url";async function d({absolutePath:o}){try{const e=await import(a(o).href);t?.postMessage(e.embeddedOverrides??e.default??void 0)}catch{t?.postMessage(void 0)}}d(r);`,
+    ),
+);
 
-function loadAsCjsModule(absolutePath: string) {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const imported = require(absolutePath);
-    return imported.embeddedOverrides ?? imported ?? undefined;
-  } catch {
-    /* void */
-  }
+async function importModule(absolutePath: string) {
+  return new Promise<EmbeddedOverrides | undefined>((resolve) => {
+    const worker = new Worker(workerDataUrl, {
+      workerData: {
+        absolutePath,
+      },
+    });
+
+    worker.once("message", (result) => {
+      resolve(result as EmbeddedOverrides | undefined);
+    });
+
+    worker.once("error", (error) => {
+      console.error(error);
+      resolve(undefined);
+    });
+  });
 }
 
 async function getModuleType(sourceFilePath?: string) {
@@ -250,30 +258,18 @@ const parseEmbeddedOverrides = async (
     console.error(`Failed to parse the json file: ${absolutePath}`);
     return;
   }
-  // es module file
+  // js module file
   else if (
     extensionName === ".mjs" ||
-    (extensionName === ".js" && (await moduleTypePromise) === "es")
-  ) {
-    const absolutePath = await absolutePathPromise;
-    const parsedEmbeddedOverrides = await loadAsEsModule(absolutePath);
-    if (parsedEmbeddedOverrides !== undefined) {
-      return parsedEmbeddedOverrides as EmbeddedOverrides;
-    }
-    console.error(`Failed to parse the es module file: ${absolutePath}`);
-    return;
-  }
-  // cjs module file
-  else if (
     extensionName === ".cjs" ||
-    (extensionName === ".js" && (await moduleTypePromise) === "cjs")
+    extensionName === ".js"
   ) {
     const absolutePath = await absolutePathPromise;
-    const parsedEmbeddedOverrides = loadAsCjsModule(absolutePath);
+    const parsedEmbeddedOverrides = await importModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverrides;
     }
-    console.error(`Failed to parse the cjs module file: ${absolutePath}`);
+    console.error(`Failed to parse the js module file: ${absolutePath}`);
     return;
   }
   // typed es module file
