@@ -7,54 +7,16 @@ import {
 } from "../utils.js";
 import { embeddedLanguage } from "./embedded-language.js";
 
-// TODO: we shouldn't hardcode the dialects because they may differ in different plugin versions
-// track: https://github.com/un-ts/prettier/issues/311
 /** References
- * - https://github.com/un-ts/prettier/blob/a5f1aae6464aa54749377d69a8237a70a6509a13/packages/sql/src/index.ts
+ * - https://github.com/un-ts/prettier/blob/master/packages/sql/src/index.ts
+ * "sql" is the default dialect, so we only have "sql" as the default identifier to avoid confusion.
  */
-export const SQL_FORMATTER_LANGUAGES = [
-  "sql",
-  "bigquery",
-  "db2",
-  "db2i",
-  "hive",
-  "mariadb",
-  "mysql",
-  "n1ql",
-  "postgresql",
-  "plsql",
-  "redshift",
-  "singlestoredb",
-  "snowflake",
-  "spark",
-  "sqlite",
-  "transactsql",
-  "tsql",
-  "trino",
-] as const;
+const DEFAULT_IDENTIFIERS = ["sql"] as const;
 
-export const NODE_SQL_PARSER_DATABASES = [
-  "bigquery",
-  "db2",
-  "hive",
-  "mariadb",
-  "mysql",
-  "postgresql",
-  "transactsql",
-  "flinksql",
-  "snowflake",
-] as const;
-
-type Identifiers = AutocompleteStringList<
-  typeof SQL_FORMATTER_LANGUAGES | typeof NODE_SQL_PARSER_DATABASES
->;
+type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
-  typeof SQL_FORMATTER_LANGUAGES | typeof NODE_SQL_PARSER_DATABASES
+  typeof DEFAULT_IDENTIFIERS
 >;
-
-export type SqlFormatterLanguage = (typeof SQL_FORMATTER_LANGUAGES)[number];
-
-export type NodeSqlParserDataBase = (typeof NODE_SQL_PARSER_DATABASES)[number];
 
 const embeddedLanguageIdentifiers = makeIdentifiersOptionName(embeddedLanguage);
 
@@ -65,8 +27,7 @@ export const options = {
     category: "Global",
     type: "string",
     array: true,
-    // TODO: remove these hardcoded defaults once supported diacts are exported from prettier-plugin-sql
-    default: [{ value: ["sql", "mysql", "mariadb", "postgresql"] }],
+    default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
       'Specify embedded SQL language identifiers. This requires "prettier-plugin-sql".',
   },
