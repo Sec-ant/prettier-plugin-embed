@@ -156,11 +156,12 @@ Formatting embedded PHP code requires [`@prettier/plugin-php`](https://github.co
 
 #### Ruby
 
-|          Option           |                  Default                  | Description                                                                                        |
-| :-----------------------: | :---------------------------------------: | -------------------------------------------------------------------------------------------------- |
-| `embeddedRubyIdentifiers` | [`[...]`](./src/embedded/ruby/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as Ruby code |
+|          Option           |                    Default                    | Description                                                                                                                                        |
+| :-----------------------: | :-------------------------------------------: | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embeddedRubyIdentifiers` |   [`[...]`](./src/embedded/ruby/options.ts)   | Tag or comment identifiers that make their subsequent template literals be identified as Ruby code                                                 |
+|   `embeddedRubyParser`    | [`undefined`](./src/embedded/ruby/options.ts) | The parser used to parse the Ruby code. Available choices are `"ruby"`, `"rbs"` and `"haml"`. It will auto detect the parser if this is undefined. |
 
-Formatting embedded Ruby code requires [`@prettier/plugin-ruby`](https://github.com/prettier/plugin-ruby) to be loaded and [its dependencies to be installed](https://github.com/prettier/plugin-ruby#getting-started) as well. And [options](https://github.com/prettier/plugin-ruby#configuration) supported by `@prettier/plugin-php` can therefore be used to further control the formatting behavior.
+Formatting embedded Ruby code requires [`@prettier/plugin-ruby`](https://github.com/prettier/plugin-ruby) to be loaded and [its dependencies to be installed](https://github.com/prettier/plugin-ruby#getting-started) as well. And [options](https://github.com/prettier/plugin-ruby#configuration) supported by `@prettier/plugin-ruby` can therefore be used to further control the formatting behavior.
 
 #### SQL
 
