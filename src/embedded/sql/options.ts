@@ -8,7 +8,7 @@ import {
 import { embeddedLanguage } from "./embedded-language.js";
 
 // TODO: we shouldn't hardcode the dialects because they may differ in different plugin versions
-// TODO: reach out to the maintainer of prettier-plugin-sql to export them.
+// track: https://github.com/un-ts/prettier/issues/311
 /** References
  * - https://github.com/un-ts/prettier/blob/a5f1aae6464aa54749377d69a8237a70a6509a13/packages/sql/src/index.ts
  */
