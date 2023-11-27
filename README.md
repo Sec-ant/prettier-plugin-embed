@@ -187,6 +187,14 @@ Formatting embedded SQL code requires [`prettier-plugin-sql`](https://github.com
 
 Note that `prettier-plugin-sql` supports many different SQL dialects and they are specified by the [`language` or `database` option](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options). To map a subset of identifiers to another dialect, please use [`embeddedOverrides`](#embeddedoverrides).
 
+#### TOML
+
+|          Option           |                  Default                  | Description                                                                                        |
+| :-----------------------: | :---------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedTomlIdentifiers` | [`[...]`](./src/embedded/toml/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as TOML code |
+
+Formatting embedded TOML code requires [`prettier-plugin-toml`](https://github.com/un-ts/prettier/tree/master/packages/toml#readme) to be loaded as well. And options supported by `prettier-plugin-toml` can therefore be used to further control the formatting behavior.
+
 #### TS
 
 |         Option          |                    Default                     | Description                                                                                              |
