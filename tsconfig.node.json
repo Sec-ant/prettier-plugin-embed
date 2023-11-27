@@ -9,6 +9,7 @@
   "include": [
     "./scripts",
     "./vite.config.ts",
+    "./.ncurc.cjs",
     "./package.json",
     "./package-lock.json"
   ]

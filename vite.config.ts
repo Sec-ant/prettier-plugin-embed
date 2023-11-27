@@ -3,7 +3,7 @@ import { transform } from "esbuild";
 import { readFile } from "node:fs/promises";
 import { builtinModules } from "node:module";
 import { defineConfig } from "vite";
-import { peerDependencies } from "./package.json";
+import { reject } from "./.ncurc.cjs";
 
 export default defineConfig({
   build: {
@@ -17,12 +17,7 @@ export default defineConfig({
         format === "es" ? `${entryName}.js` : `${entryName}.${format}.js`,
     },
     rollupOptions: {
-      external: [
-        /^@?prettier(?:\/|$)/,
-        ...Object.keys(peerDependencies ?? {}),
-        ...builtinModules,
-        /^node:/,
-      ],
+      external: [...reject, ...builtinModules, /^node:/],
     },
   },
   define: {
