@@ -122,6 +122,9 @@ const testFormatterIdentifiers: Record<
     SQL_FORMATTER_LANGUAGES.includes(identifier as SqlFormatterLanguage),
   "node-sql-parser": (identifier: string) =>
     NODE_SQL_PARSER_DATABASES.includes(identifier as NodeSqlParserDataBase),
+  // TODO: This seems not implemented yet
+  "sql-cst": (identifier: string) =>
+    SQL_FORMATTER_LANGUAGES.includes(identifier as SqlFormatterLanguage),
 };
 
 function getOptionsOverrideByFormatters(
@@ -185,6 +188,13 @@ function getOptionsOverride(
         identifier,
         identifiers,
         ["node-sql-parser", "sql-formatter"],
+      );
+    case "sql-cst":
+      // TODO: This seems not implemented yet
+      return getOptionsOverrideByFormattersWithFallback(
+        identifier,
+        identifiers,
+        ["sql-formatter", "node-sql-parser"],
       );
     default:
       // guard
