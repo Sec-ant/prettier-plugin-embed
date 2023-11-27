@@ -1,7 +1,9 @@
 /// <reference types="vitest" />
+import { transform } from "esbuild";
+import { readFile } from "node:fs/promises";
 import { builtinModules } from "node:module";
 import { defineConfig } from "vite";
-import { optionalDependencies, peerDependencies } from "./package.json";
+import { peerDependencies } from "./package.json";
 
 export default defineConfig({
   build: {
@@ -18,12 +20,23 @@ export default defineConfig({
       external: [
         /^@?prettier(?:\/|$)/,
         ...Object.keys(peerDependencies ?? {}),
-        ...Object.keys(optionalDependencies ?? {}),
-        /^tsx(?:\/|$)/,
         ...builtinModules,
         /^node:/,
       ],
     },
+  },
+  define: {
+    IMPORT_JS_MODULE_WORKER: JSON.stringify(
+      (
+        await transform(
+          await readFile("./scripts/import-js-module-worker.ts"),
+          {
+            loader: "ts",
+            minify: true,
+          },
+        )
+      ).code.trim(),
+    ),
   },
   test: {
     passWithNoTests: true,

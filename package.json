@@ -65,19 +65,21 @@
     "@commitlint/config-conventional": "^18.4.3",
     "@semantic-release/git": "^10.0.1",
     "@types/estree": "^1.0.5",
+    "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.12.0",
     "@vitest/browser": "^0.34.6",
     "@vitest/coverage-istanbul": "^0.34.6",
     "@vitest/ui": "^0.34.6",
     "code-tag": "^1.1.0",
+    "esbuild": "^0.19.8",
     "eslint": "^8.54.0",
     "fast-glob": "^3.3.2",
     "npm-check-updates": "^16.14.11",
     "playwright": "^1.40.0",
     "prettier-plugin-organize-imports": "^3.2.4",
     "semantic-release": "^22.0.8",
-    "tsx": "^4.2.0",
+    "tsx": "^4.5.0",
     "typescript": "^5.3.2",
     "vite": "^5.0.2",
     "vitest": "^0.34.6"
@@ -95,8 +97,5 @@
   "dependencies": {
     "micro-memoize": "^4.1.2",
     "package-up": "^5.0.0"
-  },
-  "optionalDependencies": {
-    "tsx": "^4.2.0"
   }
 }

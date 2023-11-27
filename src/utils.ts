@@ -2,7 +2,6 @@ import memoize from "micro-memoize";
 import { readFile } from "node:fs/promises";
 import { dirname, extname, isAbsolute, resolve } from "node:path";
 import { Worker } from "node:worker_threads";
-import { packageUp } from "package-up";
 import { resolveConfigFile, type AstPath } from "prettier";
 import type { EmbeddedOverrides, PrettierNode } from "./types.js";
 
@@ -15,16 +14,13 @@ async function importJson(absolutePath: string) {
   }
 }
 
-const workerDataUrl = new URL(
-  "data:text/javascript," +
-    encodeURIComponent(
-      `import{workerData as r,parentPort as t}from"node:worker_threads";import{pathToFileURL as a}from"node:url";async function d({absolutePath:o}){try{const e=await import(a(o).href);t?.postMessage(e.embeddedOverrides??e.default??void 0)}catch{t?.postMessage(void 0)}}d(r);`,
-    ),
+const importJsModuleWorkerDataUrl = /* @__PURE__ */ new URL(
+  "data:text/javascript," + encodeURIComponent(IMPORT_JS_MODULE_WORKER),
 );
 
-async function importModule(absolutePath: string) {
+async function importJsModule(absolutePath: string) {
   return new Promise<EmbeddedOverrides | undefined>((resolve) => {
-    const worker = new Worker(workerDataUrl, {
+    const worker = new Worker(importJsModuleWorkerDataUrl, {
       workerData: {
         absolutePath,
       },
@@ -41,21 +37,18 @@ async function importModule(absolutePath: string) {
   });
 }
 
-async function getModuleType(sourceFilePath?: string) {
-  const packageJsonFilePath = await packageUp({ cwd: sourceFilePath });
-  if (packageJsonFilePath === undefined) {
-    return "cjs";
-  } else {
-    const packageJson = await importJson(packageJsonFilePath);
-    switch (packageJson?.type) {
-      case "module":
-        return "es";
-      case "commonjs":
-        return "cjs";
-      default:
-        return "cjs";
-    }
-  }
+/**
+ * Import typescript module
+ * @param absolutePath
+ * @returns
+ */
+async function importTsModule(absolutePath: string) {
+  // TODO: Just a placeholder, doesn't work at the moment
+  absolutePath;
+  console.error(
+    "Ts module type embeddedOverrides has not been implemented yet.",
+  );
+  return undefined;
 }
 
 const resolveEmbeddedOverridesFileAbsolutePath = memoize(
@@ -82,7 +75,6 @@ const resolveEmbeddedOverrides = async (
     embeddedOverridesString,
     sourceFilePath,
   );
-  const moduleTypePromise = getModuleType(sourceFilePath);
   const extensionName = extname(embeddedOverridesString);
   // json file
   if (extensionName === ".json") {
@@ -101,26 +93,26 @@ const resolveEmbeddedOverrides = async (
     extensionName === ".js"
   ) {
     const absolutePath = await absolutePathPromise;
-    const parsedEmbeddedOverrides = await importModule(absolutePath);
+    const parsedEmbeddedOverrides = await importJsModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverrides;
     }
     console.error(`Failed to parse the js module file: ${absolutePath}`);
     return;
   }
-  // typed es module file
+  // typescript module file
   else if (
     extensionName === ".mts" ||
-    (extensionName === ".ts" && (await moduleTypePromise) === "es")
-  ) {
-    /* TBD */
-  }
-  // typed cjs module file
-  else if (
     extensionName === ".cts" ||
-    (extensionName === ".ts" && (await moduleTypePromise) === "cjs")
+    extensionName === ".ts"
   ) {
-    /* TBD */
+    const absolutePath = await absolutePathPromise;
+    const parsedEmbeddedOverrides = await importTsModule(absolutePath);
+    if (parsedEmbeddedOverrides !== undefined) {
+      return parsedEmbeddedOverrides as EmbeddedOverrides;
+    }
+    console.error(`Failed to parse the ts module file: ${absolutePath}`);
+    return;
   }
   // no ext, fallback to json
   else if (extensionName === "") {
