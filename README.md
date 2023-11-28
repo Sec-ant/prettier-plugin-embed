@@ -160,6 +160,14 @@ Formatting embedded HTML code doesn't require other plugins and uses the parsers
 
 Formatting embedded INI code requires [`prettier-plugin-ini`](https://github.com/kddnewton/prettier-plugin-ini) to be loaded as well. And [options](https://github.com/kddnewton/prettier-plugin-ini#configuration) supported by `prettier-plugin-ini` can therefore be used to further control the formatting behavior.
 
+#### LaTeX
+
+|           Option           |                  Default                   | Description                                                                                         |
+| :------------------------: | :----------------------------------------: | --------------------------------------------------------------------------------------------------- |
+| `embeddedLatexIdentifiers` | [`[...]`](./src/embedded/latex/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as LaTeX code |
+
+Formatting embedded LaTeX code requires [`prettier-plugin-latex`](https://github.com/siefkenj/prettier-plugin-latex) to be loaded as well.
+
 #### Markdown
 
 |            Option             |                    Default                    | Description                                                                                            |
