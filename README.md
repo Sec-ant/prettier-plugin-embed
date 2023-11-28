@@ -160,6 +160,15 @@ Formatting embedded HTML code doesn't require other plugins and uses the parsers
 
 Formatting embedded INI code requires [`prettier-plugin-ini`](https://github.com/kddnewton/prettier-plugin-ini) to be loaded as well. And [options](https://github.com/kddnewton/prettier-plugin-ini#configuration) supported by `prettier-plugin-ini` can therefore be used to further control the formatting behavior.
 
+#### JSON
+
+|          Option           |                  Default                   | Description                                                                                        |
+| :-----------------------: | :----------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedJsonIdentifiers` | [`[...]`](./src/embedded/json/options.ts)  | Tag or comment identifiers that make their subsequent template literals be identified as JSON code |
+|   `embeddedJsonParser`    | [`"json"`](./src/embedded/json/options.ts) | The parser used to parse the JSON code                                                             |
+
+Formatting embedded JSON code doesn't require other plugins and uses the parsers and printers provided by Prettier natively.
+
 #### LaTeX
 
 |           Option           |                  Default                   | Description                                                                                         |
