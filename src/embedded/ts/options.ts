@@ -1,6 +1,7 @@
 import type { CoreCategoryType, SupportOptions } from "prettier";
 import {
   makeIdentifiersOptionName,
+  makeParserOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
 } from "../utils.js";
@@ -21,16 +22,17 @@ const DEFAULT_TS_PARSERS = ["typescript", "babel-ts"] as const;
 
 type TsParser = (typeof DEFAULT_TS_PARSERS)[number];
 
-const EMBEDDED_LANGUAGE_PARSER = "embeddedTsParser";
+const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(embeddedLanguage);
 
-const embeddedLanguageIdentifiers = makeIdentifiersOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_IDENTIFIERS =
+  makeIdentifiersOptionName(embeddedLanguage);
 
 export interface PrettierPluginDepsOptions {
   /* prettier built-in options */
 }
 
 export const options = {
-  [embeddedLanguageIdentifiers]: {
+  [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
     category: "Global",
     type: "string",
     array: true,
@@ -52,7 +54,7 @@ declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
-    [embeddedLanguageIdentifiers]?: Identifiers;
+    [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
     [EMBEDDED_LANGUAGE_PARSER]?: TsParser;
   }
 }

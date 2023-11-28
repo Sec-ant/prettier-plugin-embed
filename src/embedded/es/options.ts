@@ -38,24 +38,24 @@ const DEFAULT_ES_PARSERS = [
 
 type EsParser = (typeof DEFAULT_ES_PARSERS)[number];
 
-const embeddedLanguageIdentifiersOptionName =
+const EMBEDDED_LANGUAGE_IDENTIFIERS =
   makeIdentifiersOptionName(embeddedLanguage);
 
-const embeddedLanguageParserOptionName = makeParserOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(embeddedLanguage);
 
 export interface PrettierPluginDepsOptions {
   /* prettier built-in options */
 }
 
 export const options = {
-  [embeddedLanguageIdentifiersOptionName]: {
+  [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
     category: "Global",
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description: "Specify embedded ES language identifiers.",
   },
-  [embeddedLanguageParserOptionName]: {
+  [EMBEDDED_LANGUAGE_PARSER]: {
     category: "Global",
     type: "string",
     array: false,
@@ -70,8 +70,8 @@ declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
-    [embeddedLanguageIdentifiersOptionName]?: Identifiers;
-    [embeddedLanguageParserOptionName]?: EsParser;
+    [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
+    [EMBEDDED_LANGUAGE_PARSER]?: EsParser;
   }
 }
 
