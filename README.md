@@ -98,6 +98,8 @@ Embedded languages to be formatted are required to be enclosed in the template l
 
 To exclude certain identifiers from being identified, including the default ones supported by the [`embedded-language-formatting`](https://prettier.io/docs/en/options.html#embedded-language-formatting) option, add them to the list of the `embeddedNoopIdentifiers` option. Any matching identifiers listed in this option will take precedence over other `embedded<Language>Identifiers` options, effectively disabling their formatting.
 
+**Important: Until this notice is removed, always specify identifiers explicitly and do not rely on the built-in defaults, as they may be subject to change.**
+
 ### Language-Specific Options
 
 <details>
