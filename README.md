@@ -236,6 +236,14 @@ Formatting embedded TypeScript code doesn't require other plugins and uses the p
 
 Formatting embedded XML code requires [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml) to be loaded as well. And [options](https://github.com/prettier/plugin-xml#configuration) supported by `@prettier/plugin-xml` can therefore be used to further control the formatting behavior.
 
+#### YAML
+
+|          Option           |                  Default                  | Description                                                                                        |
+| :-----------------------: | :---------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedYamlIdentifiers` | [`[...]`](./src/embedded/yaml/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as YAML code |
+
+Formatting embedded YAML code doesn't require other plugins and uses the parsers and printers provided by Prettier natively.
+
 </details>
 
 ### Language-Agnostic Options
