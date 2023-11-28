@@ -8,10 +8,11 @@ import { embeddedLanguage } from "./embedded-language.js";
 
 type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
 
-const embeddedLanguageIdentifiers = makeIdentifiersOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_IDENTIFIERS =
+  makeIdentifiersOptionName(embeddedLanguage);
 
 export const options = {
-  [embeddedLanguageIdentifiers]: {
+  [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
     category: "Global",
     type: "string",
     array: true,
@@ -26,6 +27,6 @@ type Options = typeof options;
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface PrettierPluginEmbedOptions {
-    [embeddedLanguageIdentifiers]?: EmbeddedIdentifiers;
+    [EMBEDDED_LANGUAGE_IDENTIFIERS]?: EmbeddedIdentifiers;
   }
 }
