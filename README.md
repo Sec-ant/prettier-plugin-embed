@@ -184,6 +184,14 @@ Formatting embedded Markdown code doesn't require other plugins and uses the par
 
 Formatting embedded PHP code requires [`@prettier/plugin-php`](https://github.com/prettier/plugin-php) to be loaded as well. And [options](https://github.com/prettier/plugin-php#configuration) supported by `@prettier/plugin-php` can therefore be used to further control the formatting behavior.
 
+#### Properties
+
+|             Option              |                     Default                     | Description                                                                                                   |
+| :-----------------------------: | :---------------------------------------------: | ------------------------------------------------------------------------------------------------------------- |
+| `embeddedPropertiesIdentifiers` | [`[...]`](./src/embedded/properties/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as Java Properties code |
+
+Formatting embedded Java Properties code requires [`prettier-plugin-properties`](https://github.com/eemeli/prettier-plugin-properties) to be loaded as well. And [options](https://github.com/eemeli/prettier-plugin-properties#configuration) supported by `prettier-plugin-properties` can therefore be used to further control the formatting behavior.
+
 #### Ruby
 
 |          Option           |                    Default                    | Description                                                                                                                                        |
