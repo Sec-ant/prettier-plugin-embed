@@ -132,6 +132,14 @@ Formatting embedded CSS code doesn't require other plugins and uses the parsers 
 
 Formatting embedded ECMAScript code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for ECMAScript code.
 
+#### GLSL
+
+|          Option           |                  Default                  | Description                                                                                        |
+| :-----------------------: | :---------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedGlslIdentifiers` | [`[...]`](./src/embedded/glsl/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as GLSL code |
+
+Formatting embedded GLSL code requires [`prettier-plugin-glsl`](https://github.com/NaridaL/glsl-language-toolkit/tree/main/packages/prettier-plugin-glsl) to be loaded as well.
+
 #### HTML
 
 |          Option           |                  Default                  | Description                                                                                        |
