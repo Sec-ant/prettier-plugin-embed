@@ -144,6 +144,14 @@ Formatting embedded ECMAScript code doesn't require other plugins and uses the p
 
 Formatting embedded GLSL code requires [`prettier-plugin-glsl`](https://github.com/NaridaL/glsl-language-toolkit/tree/main/packages/prettier-plugin-glsl) to be loaded as well.
 
+#### GraphQL
+
+|            Option            |                   Default                    | Description                                                                                           |
+| :--------------------------: | :------------------------------------------: | ----------------------------------------------------------------------------------------------------- |
+| `embeddedGraphqlIdentifiers` | [`[...]`](./src/embedded/graphql/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as GraphQL code |
+
+Formatting embedded GraphQL code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for GraphQL code. If you want to keep the native behavior, set `embeddedGraphqlIdentifiers` to `[]` or other identifiers.
+
 #### HTML
 
 |          Option           |                  Default                  | Description                                                                                        |
