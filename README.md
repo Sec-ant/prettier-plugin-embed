@@ -218,6 +218,16 @@ Formatting embedded Java Properties code requires [`prettier-plugin-properties`]
 
 Formatting embedded Ruby code requires [`@prettier/plugin-ruby`](https://github.com/prettier/plugin-ruby) to be loaded and [its dependencies to be installed](https://github.com/prettier/plugin-ruby#getting-started) as well. And [options](https://github.com/prettier/plugin-ruby#configuration) supported by `@prettier/plugin-ruby` can therefore be used to further control the formatting behavior.
 
+#### Shell
+
+|         Option          |                 Default                 | Description                                                                                         |
+| :---------------------: | :-------------------------------------: | --------------------------------------------------------------------------------------------------- |
+| `embeddedShIdentifiers` | [`[...]`](./src/embedded/sh/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as Shell code |
+
+Formatting embedded Shell code requires [`prettier-plugin-sh`](https://github.com/un-ts/prettier/tree/master/packages/sh#readme) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sh#parser-options) supported by `prettier-plugin-sh` can therefore be used to further control the formatting behavior.
+
+Note that `prettier-plugin-sh` supports different variants of shell syntaxes and they are specified by the [`variant` option](https://github.com/un-ts/prettier/tree/master/packages/sh#parser-options). To map a subset of identifiers to another dialect, please use [`embeddedOverrides`](#embeddedoverrides).
+
 #### SQL
 
 |          Option          |                 Default                  | Description                                                                                       |
