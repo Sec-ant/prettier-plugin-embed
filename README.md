@@ -227,6 +227,76 @@ An example `.json` file is:
 
 Please note that not every option is supported to override. That largely depends on at which phase those options will kick in and take effect. For example, you can't override `tabWidth` in `embeddedOverrides` because this option is used in the [`printDocToString`](https://github.com/prettier/prettier/blob/7aecca5d6473d73f562ca3af874831315f8f2581/src/document/printer.js#L302) phase, where `prettier-plugin-embed` cannot override this option for only a set of specified identifiers. To find the list of unsupported options, please check the interface definition of `EmbeddedOverride` in the [source code](https://github.com/Sec-ant/prettier-plugin-embed/blob/main/src/types.ts).
 
+### Config Examples
+
+#### `prettier-plugin-sql`
+
+Format SQL-in-JS with [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql) ([options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options))
+
+`prettier.config.mjs`
+
+```js
+/** @type {import('prettier').Config} */
+const prettierConfig = {
+  plugins: ['prettier-plugin-embed', 'prettier-plugin-sql'],
+};
+
+/** @type {import('prettier-plugin-embed').PrettierPluginEmbedOptions} */
+const prettierPluginEmbedConfig = {
+  embeddedSqlIdentifiers: ['sql'],
+}
+
+/** @type {import('prettier-plugin-sql').SqlBaseOptions} */
+const prettierPluginSqlConfig = {
+  language: 'postgresql',
+  keywordCase: 'upper',
+}
+
+const config = {
+  ...prettierConfig,
+  ...prettierPluginEmbedConfig,
+  ...prettierPluginSqlConfig,
+};
+
+export default config;
+```
+
+Before formatting:
+
+```ts
+const users = await sql`
+        sELect       users.first_name,
+users.email        ,
+          companies.id 
+as    employer_company_id
+            froM  users
+LefT JOIn
+    employers ON
+      users.id
+  = employers.user_id
+    LefT JOIn
+      companies ON
+employers.company_id = companies.id WHERE users.id = ${userId}
+`;
+```
+
+After formatting:
+
+```ts
+const users = await sql`
+  SELECT
+    users.first_name,
+    users.email,
+    companies.id AS employer_company_id
+  FROM
+    users
+    LEFT JOIN employers ON users.id = employers.user_id
+    LEFT JOIN companies ON employers.company_id = companies.id
+  WHERE
+    users.id = ${userId}
+`;
+```
+
 ### An Overview of the Philosophy
 
 To use this plugin, [`embedded-language-formatting`](https://prettier.io/docs/en/options.html#embedded-language-formatting) option must be set to `auto` (which is the default setting as of now), because this option serves as the main switch for activating embedded language formatting.
