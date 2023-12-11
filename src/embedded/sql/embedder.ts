@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import type { Options } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
@@ -47,7 +48,7 @@ export const embedder: Embedder<Options> = async (
 
   const expressionDocs = printTemplateExpressions(path, print);
 
-  const doc = await textToDoc(trimmedText, {
+  const doc = await textToDoc(dedent(trimmedText), {
     ...options,
     parser: "sql",
   });
