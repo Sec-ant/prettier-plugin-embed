@@ -37,9 +37,14 @@ export const embedder: Embedder<Options> = async (
   const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
   const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
 
+  const trimmedText = text.slice(
+    leadingWhitespaces.length,
+    -trailingWhitespaces.length || undefined,
+  );
+
   const expressionDocs = printTemplateExpressions(path, print);
 
-  const doc = await textToDoc(text, {
+  const doc = await textToDoc(trimmedText, {
     ...options,
     parser: "scss",
   });
