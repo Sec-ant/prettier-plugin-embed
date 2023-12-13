@@ -230,13 +230,15 @@ Note that `prettier-plugin-sh` supports different variants of shell syntaxes and
 
 #### SQL
 
-|          Option          |                 Default                  | Description                                                                                       |
-| :----------------------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
-| `embeddedSqlIdentifiers` | [`[...]`](./src/embedded/sql/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as SQL code |
+|          Option          |                         Default                          | Description                                                                                                                                 |
+| :----------------------: | :------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embeddedSqlIdentifiers` |         [`[...]`](./src/embedded/sql/options.ts)         | Tag or comment identifiers that make their subsequent template literals be identified as SQL code                                           |
+|   `embeddedSqlPlugin`    | [`"prettier-plugin-sql"`](./src/embedded/sql/options.ts) | The plugin used to format the SQL code. Available options are `"prettier-plugin-sql"` and `"prettier-plugin-sql-cst"`.                      |
+|   `embeddedSqlParser`    |       [`"sqlite"`](./src/embedded/sql/options.ts)        | The parser used to parse the SQL code. Available options are `"sqlite"` and `"bigquery"`. This option is only for `prettier-plugin-sql-cst` |
 
-Formatting embedded SQL code requires [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql` can therefore be used to further control the formatting behavior.
+Formatting embedded SQL code requires [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) or [`prettier-plugin-sql-cst`](https://github.com/nene/prettier-plugin-sql-cst) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql`, or [options](https://github.com/nene/prettier-plugin-sql-cst?tab=readme-ov-file#configuration) supported by `prettier-plugin-sql-cst` can therefore be used to further control the formatting behavior.
 
-Note that `prettier-plugin-sql` supports many different SQL dialects and they are specified by the [`language` or `database` option](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options). To map a subset of identifiers to another dialect, please use [`embeddedOverrides`](#embeddedoverrides).
+Note that `prettier-plugin-sql` supports many different SQL dialects and they are specified by the [`language` or `database` option](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options). And `prettier-plugin-sql-cst` also supports other parsers. To map a subset of identifiers to another dialect or parser, please use [`embeddedOverrides`](#embeddedoverrides).
 
 #### TOML
 

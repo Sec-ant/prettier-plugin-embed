@@ -89,6 +89,7 @@
     "prettier-plugin-properties": "^0.3.0",
     "prettier-plugin-sh": "^0.13.1",
     "prettier-plugin-sql": "^0.17.1",
+    "prettier-plugin-sql-cst": "^0.9.1",
     "prettier-plugin-toml": "^2.0.1",
     "semantic-release": "^22.0.10",
     "tsx": "^4.6.2",

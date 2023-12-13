@@ -144,6 +144,10 @@ export function makeIdentifiersOptionName<T extends string>(language: T) {
   return `${language}Identifiers` as const;
 }
 
+export function makePluginOptionName<T extends string>(language: T) {
+  return `${language}Plugin` as const;
+}
+
 export function makeParserOptionName<T extends string>(language: T) {
   return `${language}Parser` as const;
 }
