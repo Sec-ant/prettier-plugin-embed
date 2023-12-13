@@ -65,7 +65,7 @@ export function throwIfPluginIsNotFound(
   if (
     !(
       options.plugins?.some(
-        (p) => (p as { name?: string }).name?.includes(pluginName) ?? false,
+        (p) => (p as { name?: string }).name?.endsWith(pluginName) ?? false,
       ) ?? false
     )
   ) {
