@@ -144,6 +144,14 @@ Formatting embedded ECMAScript code doesn't require other plugins and uses the p
 
 Formatting embedded GLSL code requires [`prettier-plugin-glsl`](https://github.com/NaridaL/glsl-language-toolkit/tree/main/packages/prettier-plugin-glsl) to be loaded as well.
 
+#### GraphQL
+
+|            Option            |                   Default                    | Description                                                                                           |
+| :--------------------------: | :------------------------------------------: | ----------------------------------------------------------------------------------------------------- |
+| `embeddedGraphqlIdentifiers` | [`[...]`](./src/embedded/graphql/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as GraphQL code |
+
+Formatting embedded GraphQL code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for GraphQL code. If you want to keep the native behavior, set `embeddedGraphqlIdentifiers` to `[]` or other identifiers.
+
 #### HTML
 
 |          Option           |                  Default                  | Description                                                                                        |
@@ -151,6 +159,31 @@ Formatting embedded GLSL code requires [`prettier-plugin-glsl`](https://github.c
 | `embeddedHtmlIdentifiers` | [`[...]`](./src/embedded/html/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as HTML code |
 
 Formatting embedded HTML code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for HTML code.
+
+#### INI
+
+|          Option          |                 Default                  | Description                                                                                       |
+| :----------------------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
+| `embeddedIniIdentifiers` | [`[...]`](./src/embedded/ini/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as INI code |
+
+Formatting embedded INI code requires [`prettier-plugin-ini`](https://github.com/kddnewton/prettier-plugin-ini) to be loaded as well. And [options](https://github.com/kddnewton/prettier-plugin-ini#configuration) supported by `prettier-plugin-ini` can therefore be used to further control the formatting behavior.
+
+#### JSON
+
+|          Option           |                  Default                   | Description                                                                                        |
+| :-----------------------: | :----------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedJsonIdentifiers` | [`[...]`](./src/embedded/json/options.ts)  | Tag or comment identifiers that make their subsequent template literals be identified as JSON code |
+|   `embeddedJsonParser`    | [`"json"`](./src/embedded/json/options.ts) | The parser used to parse the JSON code                                                             |
+
+Formatting embedded JSON code doesn't require other plugins and uses the parsers and printers provided by Prettier natively.
+
+#### LaTeX
+
+|           Option           |                  Default                   | Description                                                                                         |
+| :------------------------: | :----------------------------------------: | --------------------------------------------------------------------------------------------------- |
+| `embeddedLatexIdentifiers` | [`[...]`](./src/embedded/latex/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as LaTeX code |
+
+Formatting embedded LaTeX code requires [`prettier-plugin-latex`](https://github.com/siefkenj/prettier-plugin-latex) to be loaded as well.
 
 #### Markdown
 
@@ -168,6 +201,14 @@ Formatting embedded Markdown code doesn't require other plugins and uses the par
 
 Formatting embedded PHP code requires [`@prettier/plugin-php`](https://github.com/prettier/plugin-php) to be loaded as well. And [options](https://github.com/prettier/plugin-php#configuration) supported by `@prettier/plugin-php` can therefore be used to further control the formatting behavior.
 
+#### Properties
+
+|             Option              |                     Default                     | Description                                                                                                   |
+| :-----------------------------: | :---------------------------------------------: | ------------------------------------------------------------------------------------------------------------- |
+| `embeddedPropertiesIdentifiers` | [`[...]`](./src/embedded/properties/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as Java Properties code |
+
+Formatting embedded Java Properties code requires [`prettier-plugin-properties`](https://github.com/eemeli/prettier-plugin-properties) to be loaded as well. And [options](https://github.com/eemeli/prettier-plugin-properties#configuration) supported by `prettier-plugin-properties` can therefore be used to further control the formatting behavior.
+
 #### Ruby
 
 |          Option           |                    Default                    | Description                                                                                                                                        |
@@ -177,15 +218,35 @@ Formatting embedded PHP code requires [`@prettier/plugin-php`](https://github.co
 
 Formatting embedded Ruby code requires [`@prettier/plugin-ruby`](https://github.com/prettier/plugin-ruby) to be loaded and [its dependencies to be installed](https://github.com/prettier/plugin-ruby#getting-started) as well. And [options](https://github.com/prettier/plugin-ruby#configuration) supported by `@prettier/plugin-ruby` can therefore be used to further control the formatting behavior.
 
+#### Shell
+
+|         Option          |                 Default                 | Description                                                                                         |
+| :---------------------: | :-------------------------------------: | --------------------------------------------------------------------------------------------------- |
+| `embeddedShIdentifiers` | [`[...]`](./src/embedded/sh/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as Shell code |
+
+Formatting embedded Shell code requires [`prettier-plugin-sh`](https://github.com/un-ts/prettier/tree/master/packages/sh#readme) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sh#parser-options) supported by `prettier-plugin-sh` can therefore be used to further control the formatting behavior.
+
+Note that `prettier-plugin-sh` supports different variants of shell syntaxes and they are specified by the [`variant` option](https://github.com/un-ts/prettier/tree/master/packages/sh#parser-options). To map a subset of identifiers to another dialect, please use [`embeddedOverrides`](#embeddedoverrides).
+
 #### SQL
 
-|          Option          |                 Default                  | Description                                                                                       |
-| :----------------------: | :--------------------------------------: | ------------------------------------------------------------------------------------------------- |
-| `embeddedSqlIdentifiers` | [`[...]`](./src/embedded/sql/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as SQL code |
+|          Option          |                         Default                          | Description                                                                                                                                 |
+| :----------------------: | :------------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embeddedSqlIdentifiers` |         [`[...]`](./src/embedded/sql/options.ts)         | Tag or comment identifiers that make their subsequent template literals be identified as SQL code                                           |
+|   `embeddedSqlPlugin`    | [`"prettier-plugin-sql"`](./src/embedded/sql/options.ts) | The plugin used to format the SQL code. Available options are `"prettier-plugin-sql"` and `"prettier-plugin-sql-cst"`.                      |
+|   `embeddedSqlParser`    |       [`"sqlite"`](./src/embedded/sql/options.ts)        | The parser used to parse the SQL code. Available options are `"sqlite"` and `"bigquery"`. This option is only for `prettier-plugin-sql-cst` |
 
-Formatting embedded SQL code requires [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql` can therefore be used to further control the formatting behavior.
+Formatting embedded SQL code requires [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) or [`prettier-plugin-sql-cst`](https://github.com/nene/prettier-plugin-sql-cst) to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql`, or [options](https://github.com/nene/prettier-plugin-sql-cst?tab=readme-ov-file#configuration) supported by `prettier-plugin-sql-cst` can therefore be used to further control the formatting behavior.
 
-Note that `prettier-plugin-sql` supports many different SQL dialects and they are specified by the [`language` or `database` option](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options). To map a subset of identifiers to another dialect, please use [`embeddedOverrides`](#embeddedoverrides).
+Note that `prettier-plugin-sql` supports many different SQL dialects and they are specified by the [`language` or `database` option](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options). And `prettier-plugin-sql-cst` also supports other parsers. To map a subset of identifiers to another dialect or parser, please use [`embeddedOverrides`](#embeddedoverrides).
+
+#### TOML
+
+|          Option           |                  Default                  | Description                                                                                        |
+| :-----------------------: | :---------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedTomlIdentifiers` | [`[...]`](./src/embedded/toml/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as TOML code |
+
+Formatting embedded TOML code requires [`prettier-plugin-toml`](https://github.com/un-ts/prettier/tree/master/packages/toml#readme) to be loaded as well. And options supported by `prettier-plugin-toml` can therefore be used to further control the formatting behavior.
 
 #### TS
 
@@ -203,6 +264,14 @@ Formatting embedded TypeScript code doesn't require other plugins and uses the p
 | `embeddedXmlIdentifiers` | [`[...]`](./src/embedded/xml/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as XML code |
 
 Formatting embedded XML code requires [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml) to be loaded as well. And [options](https://github.com/prettier/plugin-xml#configuration) supported by `@prettier/plugin-xml` can therefore be used to further control the formatting behavior.
+
+#### YAML
+
+|          Option           |                  Default                  | Description                                                                                        |
+| :-----------------------: | :---------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedYamlIdentifiers` | [`[...]`](./src/embedded/yaml/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as YAML code |
+
+Formatting embedded YAML code doesn't require other plugins and uses the parsers and printers provided by Prettier natively.
 
 </details>
 

@@ -1,6 +1,5 @@
-import dedent from "dedent";
 import type { Options } from "prettier";
-import { builders, utils } from "prettier/doc";
+import { builders } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
   preparePlaceholder,
@@ -10,8 +9,7 @@ import {
 } from "../utils.js";
 import { embeddedLanguage } from "./embedded-language.js";
 
-const { hardline, group, line, softline, indent } = builders;
-const { mapDoc } = utils;
+const { line, group, indent, softline } = builders;
 
 export const embedder: Embedder<Options> = async (
   textToDoc,
@@ -20,30 +18,12 @@ export const embedder: Embedder<Options> = async (
   options,
   { identifier, embeddedOverrideOptions },
 ) => {
+  throwIfPluginIsNotFound("prettier-plugin-properties", options, identifier);
+
   options = {
     ...options,
     ...embeddedOverrideOptions,
   };
-
-  let plugin: Exclude<typeof options.embeddedSqlPlugin, undefined>;
-
-  switch (options.embeddedSqlPlugin) {
-    case undefined:
-      plugin = "prettier-plugin-sql";
-      break;
-    case "prettier-plugin-sql":
-      plugin = "prettier-plugin-sql";
-      break;
-    case "prettier-plugin-sql-cst":
-      plugin = "prettier-plugin-sql-cst";
-      break;
-    default:
-      options.embeddedSqlPlugin satisfies never;
-      plugin = "prettier-plugin-sql";
-      break;
-  }
-
-  throwIfPluginIsNotFound(plugin, options, identifier);
 
   const { node } = path;
 
@@ -67,45 +47,12 @@ export const embedder: Embedder<Options> = async (
 
   const expressionDocs = printTemplateExpressions(path, print);
 
-  const doc =
-    plugin === "prettier-plugin-sql"
-      ? await textToDoc(dedent(trimmedText), {
-          ...options,
-          parser: "sql",
-        })
-      : await textToDoc(trimmedText, {
-          ...options,
-          parser: options.embeddedSqlParser ?? "sqlite",
-        });
+  const doc = await textToDoc(trimmedText, {
+    ...options,
+    parser: "dot-properties",
+  });
 
-  const contentDoc =
-    plugin === "prettier-plugin-sql"
-      ? mapDoc(doc, (doc) => {
-          if (typeof doc !== "string") {
-            return doc;
-          }
-          const parts = [];
-          const components = doc.split(placeholderRegex);
-          for (let i = 0; i < components.length; i++) {
-            let component = components[i];
-            if (i % 2 == 0) {
-              if (!component) {
-                continue;
-              }
-              component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
-              component
-                .split(/(\n)/)
-                .forEach((c) =>
-                  c === "\n" ? parts.push(hardline) : parts.push(c),
-                );
-            } else {
-              const placeholderIndex = Number(component);
-              parts.push(expressionDocs[placeholderIndex]);
-            }
-          }
-          return parts;
-        })
-      : simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
+  const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
 
   if (options.preserveEmbeddedExteriorWhitespaces?.includes(identifier)) {
     // TODO: should we label the doc with { hug: false } ?
