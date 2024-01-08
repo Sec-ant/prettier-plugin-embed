@@ -7,17 +7,23 @@ Format SQL-in-JS with [`prettier-plugin-sql`](https://github.com/un-ts/prettier/
 `prettier.config.mjs`
 
 ```js
-/** @type {import('prettier').Config} */
+/**
+ * @type {import("prettier").Config}
+ */
 const prettierConfig = {
   plugins: ["prettier-plugin-embed", "prettier-plugin-sql"],
 };
 
-/** @type {import('prettier-plugin-embed').PrettierPluginEmbedOptions} */
+/**
+ * @type {import("prettier-plugin-embed").PrettierPluginEmbedOptions}
+ */
 const prettierPluginEmbedConfig = {
   embeddedSqlIdentifiers: ["sql"],
 };
 
-/** @type {import('prettier-plugin-sql').SqlBaseOptions} */
+/**
+ * @type {import("prettier-plugin-sql").SqlBaseOptions}
+ */
 const prettierPluginSqlConfig = {
   language: "postgresql",
   keywordCase: "upper",

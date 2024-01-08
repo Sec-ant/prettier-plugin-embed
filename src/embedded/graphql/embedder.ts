@@ -6,7 +6,7 @@ import {
   printTemplateExpressions,
   simpleRehydrateDoc,
 } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
 const { line, group, indent, softline } = builders;
 
@@ -78,8 +78,11 @@ export const embedder: Embedder<Options> = async (
   ]);
 };
 
+/**
+ * Register the embedder to the EmbeddedEmbedders
+ */
 declare module "../types.js" {
   interface EmbeddedEmbedders {
-    [embeddedLanguage]: typeof embedder;
+    [language]: typeof embedder;
   }
 }

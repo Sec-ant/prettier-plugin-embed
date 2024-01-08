@@ -1,66 +1,28 @@
-import type { CoreCategoryType, SupportOptions } from "prettier";
+import type { ChoiceSupportOption, SupportOptions } from "prettier";
 import {
   makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
 } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
-const RUBY_PARSERS = ["ruby", "rbs", "haml"] as const;
-export type RubyParser = (typeof RUBY_PARSERS)[number];
-
-/** References
+/**
+ * References
+ *
  * - https://github.com/prettier/plugin-ruby/blob/0a2100ca3b8b53d9491270ece64806d95da181a6/src/plugin.js#L194
  */
-export const RUBY_PARSER_IDENTIFIERS = [
-  "ruby" satisfies RubyParser,
-  "arb",
-  "axlsx",
-  "builder",
-  "eye",
-  "fcgi",
-  "gemfile",
-  "gemspec",
-  "god",
-  "jb",
-  "jbuilder",
-  "mspec",
-  "opal",
-  "pluginspec",
-  "podspec",
-  "rabl",
-  "rake",
-  "rb",
-  "rbi",
-  "rbuild",
-  "rbw",
-  "rbx",
-  "ru",
-  "thor",
-  "watchr",
-] as const;
-export type RubyParserIdentifier = (typeof RUBY_PARSER_IDENTIFIERS)[number];
-
-export const RBS_PARSER_IDENTIFIERS = ["rbs" satisfies RubyParser] as const;
-export type RbsParserIdentifier = (typeof RBS_PARSER_IDENTIFIERS)[number];
-
-export const HAML_PARSER_IDENTIFIERS = ["haml" satisfies RubyParser] as const;
-export type HamlParserIdentifier = (typeof HAML_PARSER_IDENTIFIERS)[number];
-
-const DEFAULT_IDENTIFIERS = [
-  ...RUBY_PARSER_IDENTIFIERS,
-  ...RBS_PARSER_IDENTIFIERS,
-  ...HAML_PARSER_IDENTIFIERS,
-] as const;
+const DEFAULT_IDENTIFIERS = ["ruby"] as const;
 type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 
+const RUBY_PARSERS = ["ruby", "rbs", "haml"] as const;
+export type RubyParser = (typeof RUBY_PARSERS)[number];
+
 const EMBEDDED_LANGUAGE_PARSER = "embeddedRubyParser";
 
-const EMBEDDED_LANGUAGE_IDENTIFIERS =
-  makeIdentifiersOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
 export interface PrettierPluginDepsOptions {
   rubyPlugins?: AutocompleteStringList<
@@ -76,7 +38,7 @@ export interface PrettierPluginDepsOptions {
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
@@ -84,13 +46,17 @@ export const options = {
       'Specify embedded Ruby language identifiers. This requires "@prettier/plugin-ruby".',
   },
   [EMBEDDED_LANGUAGE_PARSER]: {
-    category: "Global",
-    type: "string",
-    array: false,
-    default: undefined,
-    description: "Specify the embedded Ruby language parser.",
-  },
-} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+    category: "Embed",
+    type: "choice",
+    default: "ruby",
+    description:
+      'Specify the embedded Ruby language parser. Default is "ruby".',
+    choices: RUBY_PARSERS.map((parser) => ({
+      value: parser,
+      description: `Use "${parser}".`,
+    })),
+  } satisfies ChoiceSupportOption<RubyParser>,
+} as const satisfies SupportOptions;
 
 type Options = typeof options;
 

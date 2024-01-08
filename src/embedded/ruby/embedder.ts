@@ -7,16 +7,7 @@ import {
   simpleRehydrateDoc,
   throwIfPluginIsNotFound,
 } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
-import {
-  HAML_PARSER_IDENTIFIERS,
-  RBS_PARSER_IDENTIFIERS,
-  RUBY_PARSER_IDENTIFIERS,
-  type HamlParserIdentifier,
-  type RbsParserIdentifier,
-  type RubyParser,
-  type RubyParserIdentifier,
-} from "./options.js";
+import { language } from "./language.js";
 
 const { line, group, indent, softline } = builders;
 
@@ -25,7 +16,7 @@ export const embedder: Embedder<Options> = async (
   print,
   path,
   options,
-  { identifier, identifiers, embeddedOverrideOptions },
+  { identifier, embeddedOverrideOptions },
 ) => {
   throwIfPluginIsNotFound("@prettier/plugin-ruby", options, identifier);
 
@@ -56,11 +47,9 @@ export const embedder: Embedder<Options> = async (
 
   const expressionDocs = printTemplateExpressions(path, print);
 
-  const parser = getParser(options, identifier, identifiers);
-
   const doc = await textToDoc(trimmedText, {
     ...options,
-    parser,
+    parser: options.embeddedRubyParser ?? "ruby",
   });
 
   const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
@@ -92,43 +81,11 @@ export const embedder: Embedder<Options> = async (
   ]);
 };
 
+/**
+ * Register the embedder to the EmbeddedEmbedders
+ */
 declare module "../types.js" {
   interface EmbeddedEmbedders {
-    [embeddedLanguage]: typeof embedder;
+    [language]: typeof embedder;
   }
-}
-
-function getParser(
-  options: Options,
-  identifier: string,
-  identifiers: string[],
-): RubyParser {
-  if (typeof options.embeddedRubyParser === "string") {
-    return options.embeddedRubyParser;
-  }
-  const index = identifiers.indexOf(identifier);
-  for (let i = index; i >= 0; --i) {
-    if (isRubyParserIdentifier(identifier)) {
-      return RUBY_PARSER_IDENTIFIERS[0];
-    }
-    if (isRbsParserIdentifier(identifier)) {
-      return RBS_PARSER_IDENTIFIERS[0];
-    }
-    if (isHamlParserIdentifier(identifier)) {
-      return HAML_PARSER_IDENTIFIERS[0];
-    }
-  }
-  throw new SyntaxError(`Unrecognized ruby identifier: ${identifier}`);
-}
-
-function isRubyParserIdentifier(identifier: string): boolean {
-  return RUBY_PARSER_IDENTIFIERS.includes(identifier as RubyParserIdentifier);
-}
-
-function isRbsParserIdentifier(identifier: string): boolean {
-  return RBS_PARSER_IDENTIFIERS.includes(identifier as RbsParserIdentifier);
-}
-
-function isHamlParserIdentifier(identifier: string): boolean {
-  return HAML_PARSER_IDENTIFIERS.includes(identifier as HamlParserIdentifier);
 }

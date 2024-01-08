@@ -2,7 +2,7 @@ import type { Options } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import { preparePlaceholder, printTemplateExpressions } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
 const { hardline, group, line, softline, indent } = builders;
 const { mapDoc } = utils;
@@ -97,8 +97,11 @@ export const embedder: Embedder<Options> = async (
   ]);
 };
 
+/**
+ * Register the embedder to the EmbeddedEmbedders
+ */
 declare module "../types.js" {
   interface EmbeddedEmbedders {
-    [embeddedLanguage]: typeof embedder;
+    [language]: typeof embedder;
   }
 }

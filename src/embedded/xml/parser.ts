@@ -5,7 +5,7 @@ import type {
   IRecognitionException,
 } from "chevrotain";
 import type { Options, Parser } from "prettier";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
 interface Position {
   line: number;
@@ -198,6 +198,6 @@ function isCstNode(cstElement: CstElement): cstElement is CstNode {
 
 declare module "../types.js" {
   interface EmbeddedParsers {
-    [embeddedLanguage]: Parser;
+    [language]: Parser;
   }
 }

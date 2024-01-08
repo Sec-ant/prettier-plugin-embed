@@ -75,30 +75,30 @@ export function throwIfPluginIsNotFound(
   }
 }
 
-export function insertEmbeddedLanguage(
-  embeddedLanguages: string[],
-  embeddedLanguage: string,
-  firstEmbeddedLanguage: string,
+export function insertLanguage(
+  languages: string[],
+  language: string,
+  firstLanguage: string,
 ) {
-  if (embeddedLanguage === firstEmbeddedLanguage) {
-    embeddedLanguages.unshift(embeddedLanguage);
+  if (language === firstLanguage) {
+    languages.unshift(language);
     return;
   }
   let low = 0;
-  let high = embeddedLanguages.length;
+  let high = languages.length;
   while (low < high) {
     const mid = (low + high) >>> 1;
-    if (embeddedLanguages[mid] === firstEmbeddedLanguage) {
-      embeddedLanguages.push(embeddedLanguage);
+    if (languages[mid] === firstLanguage) {
+      languages.push(language);
       return;
     }
-    if (embeddedLanguages[mid] < embeddedLanguage) {
+    if (languages[mid] < language) {
       low = mid + 1;
     } else {
       high = mid;
     }
   }
-  embeddedLanguages.splice(low, 0, embeddedLanguage);
+  languages.splice(low, 0, language);
 }
 
 export const randomUUID = (() => {
@@ -163,3 +163,10 @@ export type StringListToInterfaceKey<T extends readonly string[]> = {
 };
 
 export type Satisfies<U, T extends U> = T;
+
+// transform union to intersection type
+export type UnionToIntersection<U> = (
+  U extends unknown ? (x: U) => void : never
+) extends (x: infer I) => void
+  ? I
+  : never;

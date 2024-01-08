@@ -1,12 +1,14 @@
-import type { CoreCategoryType, SupportOptions } from "prettier";
+import type { SupportOptions } from "prettier";
 import {
   makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
 } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
-/** References:
+/**
+ * References:
+ *
  * - https://github.com/github-linguist/linguist/blob/7ca3799b8b5f1acde1dd7a8dfb7ae849d3dfb4cd/lib/linguist/languages.yml#L2578
  */
 const DEFAULT_IDENTIFIERS = ["graphql", "gql"] as const;
@@ -15,8 +17,7 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 
-const EMBEDDED_LANGUAGE_IDENTIFIERS =
-  makeIdentifiersOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
 export interface PrettierPluginDepsOptions {
   /* prettier built-in options */
@@ -24,13 +25,13 @@ export interface PrettierPluginDepsOptions {
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description: "Specify embedded GraphQL language identifiers.",
   },
-} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+} as const satisfies SupportOptions;
 
 type Options = typeof options;
 

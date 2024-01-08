@@ -1,13 +1,15 @@
-import type { CoreCategoryType, SupportOptions } from "prettier";
+import type { ChoiceSupportOption, SupportOptions } from "prettier";
 import {
   makeIdentifiersOptionName,
   makeParserOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
 } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
-/** References:
+/**
+ * References:
+ *
  * - https://github.com/github-linguist/linguist/blob/7ca3799b8b5f1acde1dd7a8dfb7ae849d3dfb4cd/lib/linguist/languages.yml#L3141
  */
 const DEFAULT_IDENTIFIERS = ["json", "jsonl"] as const;
@@ -17,14 +19,13 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 >;
 
 // TODO: keep in sync with prettier somehow
-const DEFAULT_JSON_PARSERS = ["json-stringify", "json", "json5"] as const;
+const JSON_PARSERS = ["json", "json-stringify", "json5"] as const;
 
-type JsonParser = (typeof DEFAULT_JSON_PARSERS)[number];
+type JsonParser = (typeof JSON_PARSERS)[number];
 
-const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(language);
 
-const EMBEDDED_LANGUAGE_IDENTIFIERS =
-  makeIdentifiersOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
 export interface PrettierPluginDepsOptions {
   /* prettier built-in options */
@@ -32,20 +33,24 @@ export interface PrettierPluginDepsOptions {
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description: "Specify embedded JSON language identifiers.",
   },
   [EMBEDDED_LANGUAGE_PARSER]: {
-    category: "Global",
-    type: "string",
-    array: false,
-    default: "json" satisfies JsonParser,
-    description: "Specify the embedded JSON language parser.",
-  },
-} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+    category: "Embed",
+    type: "choice",
+    default: "json",
+    description:
+      'Specify the embedded JSON language parser. Default is "json".',
+    choices: JSON_PARSERS.map((parser) => ({
+      value: parser,
+      description: `Use "${parser}".`,
+    })),
+  } satisfies ChoiceSupportOption<JsonParser>,
+} as const satisfies SupportOptions;
 
 type Options = typeof options;
 

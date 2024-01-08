@@ -1,26 +1,25 @@
-import type { CoreCategoryType, SupportOptions } from "prettier";
+import type { SupportOptions } from "prettier";
 import type { EmbeddedDefaultIdentifier } from "../types.js";
 import {
   makeIdentifiersOptionName,
   type AutocompleteStringList,
 } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
 type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
 
-const EMBEDDED_LANGUAGE_IDENTIFIERS =
-  makeIdentifiersOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [] }],
     description:
       "Specify embedded language identifiers that will not be formatted.",
   },
-} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+} as const satisfies SupportOptions;
 
 type Options = typeof options;
 

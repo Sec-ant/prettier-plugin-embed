@@ -1,29 +1,23 @@
-import type { CoreCategoryType, SupportOptions } from "prettier";
+import type { SupportOptions } from "prettier";
 import {
   makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
 } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
-/** References:
+/**
+ * References:
+ *
  * - https://github.com/github-linguist/linguist/blob/7ca3799b8b5f1acde1dd7a8dfb7ae849d3dfb4cd/lib/linguist/languages.yml#L2928
  */
-const DEFAULT_IDENTIFIERS = [
-  "ini",
-  "cfg",
-  "cnf",
-  "dof",
-  "prefs",
-  "pro",
-] as const;
+const DEFAULT_IDENTIFIERS = ["ini", "cfg", "pro"] as const;
 type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 
-const EMBEDDED_LANGUAGE_IDENTIFIERS =
-  makeIdentifiersOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
 export interface PrettierPluginDepsOptions {
   iniSpaceAroundEquals?: boolean;
@@ -31,14 +25,14 @@ export interface PrettierPluginDepsOptions {
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
       'Specify embedded INI language identifiers. This requires "prettier-plugin-ini".',
   },
-} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+} as const satisfies SupportOptions;
 
 type Options = typeof options;
 

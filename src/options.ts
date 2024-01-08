@@ -1,4 +1,4 @@
-import type { CoreCategoryType, SupportOptions } from "prettier";
+import type { SupportOptions } from "prettier";
 import {
   embeddedOptions,
   type AutocompleteStringList,
@@ -19,7 +19,7 @@ const EMBEDDED_OVERRIDES = "embeddedOverrides";
 export const options = {
   ...embeddedOptions,
   [NO_EMBEDDED_IDENTIFICATION_BY_COMMENT]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [] }],
@@ -27,7 +27,7 @@ export const options = {
       'This option turns off "/* identifier */ `...`" comment-based language identification for the specified identifiers.',
   },
   [NO_EMBEDDED_IDENTIFICATION_BY_TAG]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [] }],
@@ -43,7 +43,7 @@ export const options = {
       "This option preserves leading and trailing whitespaces in the formatting results for the specified identifiers.",
   },
   [NO_EMBEDDED_MULTI_LINE_INDENTATION]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [] }],
@@ -51,14 +51,14 @@ export const options = {
       "This option turns off auto indentation in the formatting results for the specified identifiers when they are formatted to span multi lines.",
   },
   [EMBEDDED_OVERRIDES]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: false,
     default: undefined,
     description:
       "This option accepts option overrides for the specified identifiers. It should either be a stringified JSON or an absolute filepath to the option overrides file.",
   },
-} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+} as const satisfies SupportOptions;
 
 export interface PrettierPluginGlobalOptions {
   [NO_EMBEDDED_IDENTIFICATION_BY_COMMENT]?: EmbeddedIdentifiers;

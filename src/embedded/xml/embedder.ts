@@ -7,7 +7,7 @@ import {
   simpleRehydrateDoc,
   throwIfPluginIsNotFound,
 } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
 const { line, group, indent, softline } = builders;
 
@@ -64,7 +64,7 @@ export const embedder: Embedder<Options> = async (
     );
     let printedText = await textToDoc(textFragment, {
       ...options,
-      parser: embeddedLanguage,
+      parser: language,
     });
     const [i1, i2] = options.__embeddedXmlFragmentRecoverIndex ?? [];
     if (i1 === undefined) {
@@ -110,8 +110,11 @@ export const embedder: Embedder<Options> = async (
   ]);
 };
 
+/**
+ * Register the embedder to the EmbeddedEmbedders
+ */
 declare module "../types.js" {
   interface EmbeddedEmbedders {
-    [embeddedLanguage]: typeof embedder;
+    [language]: typeof embedder;
   }
 }

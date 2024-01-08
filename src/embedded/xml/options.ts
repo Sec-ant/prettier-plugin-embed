@@ -1,80 +1,24 @@
-import type { CoreCategoryType, SupportOptions } from "prettier";
+import type { SupportOptions } from "prettier";
 import {
   makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
 } from "../utils.js";
-import { embeddedLanguage } from "./embedded-language.js";
+import { language } from "./language.js";
 
-/** References:
+/**
+ * References:
+ *
  * - https://github.com/microsoft/vscode/blob/de0121cf0e05d1673903551b6dbb2871556bfae9/extensions/xml/package.json#L15
  * - https://github.com/github-linguist/linguist/blob/7ca3799b8b5f1acde1dd7a8dfb7ae849d3dfb4cd/lib/linguist/languages.yml#L7712
  */
-const DEFAULT_IDENTIFIERS = [
-  "xml",
-  "xsd",
-  "ascx",
-  "atom",
-  "axml",
-  "axaml",
-  "bpmn",
-  "cpt",
-  "csl",
-  "csproj",
-  "dita",
-  "ditamap",
-  "dtd",
-  "ent",
-  "mod",
-  "dtml",
-  "fsproj",
-  "fxml",
-  "iml",
-  "isml",
-  "jmx",
-  "launch",
-  "menu",
-  "nuspec",
-  "opml",
-  "owl",
-  "proj",
-  "props",
-  "pt",
-  "publishsettings",
-  "pubxml",
-  "rbxlx",
-  "rbxmx",
-  "rdf",
-  "rng",
-  "rss",
-  "shproj",
-  "storyboard",
-  "svg",
-  "targets",
-  "tld",
-  "tmx",
-  "vbproj",
-  "vcxproj",
-  "wsdl",
-  "wxi",
-  "wxl",
-  "wxs",
-  "xaml",
-  "xbl",
-  "xib",
-  "xlf",
-  "xliff",
-  "xpdl",
-  "xul",
-  "xoml",
-] as const;
+const DEFAULT_IDENTIFIERS = ["xml", "opml", "rss", "svg"] as const;
 type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 
-const EMBEDDED_LANGUAGE_IDENTIFIERS =
-  makeIdentifiersOptionName(embeddedLanguage);
+const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
 export interface PrettierPluginDepsOptions {
   xmlSelfClosingSpace?: boolean;
@@ -85,23 +29,25 @@ export interface PrettierPluginDepsOptions {
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
-    category: "Global",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
       'Specify embedded XML language identifiers. This requires "@prettier/plugin-xml".',
   },
-  /** @internal */
+  /**
+   * @internal
+   */
   __embeddedXmlFragmentRecoverIndex: {
-    category: "Global",
+    category: "Embed",
     type: "int",
     array: true,
     default: [{ value: [] }],
     description:
       "This option is read only and used as a workaround to support xml fragments",
   },
-} satisfies SupportOptions & Record<string, { category: CoreCategoryType }>;
+} as const satisfies SupportOptions;
 
 type Options = typeof options;
 
@@ -110,7 +56,9 @@ declare module "../types.js" {
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
-    /** @internal */
+    /**
+     * @internal
+     */
     __embeddedXmlFragmentRecoverIndex?: [number] | [number, number];
   }
 }
