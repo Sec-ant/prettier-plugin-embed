@@ -27,7 +27,13 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 const SQL_PLUGINS = ["prettier-plugin-sql", "prettier-plugin-sql-cst"] as const;
 type SqlPlugin = (typeof SQL_PLUGINS)[number];
 
-const SQL_CST_PARSERS = ["sqlite", "bigquery"] as const;
+const SQL_CST_PARSERS = [
+  "sqlite",
+  "bigquery",
+  "mysql",
+  "mariadb",
+  "postgresql",
+] as const;
 type SqlCstParser = (typeof SQL_CST_PARSERS)[number];
 
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
