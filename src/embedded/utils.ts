@@ -131,7 +131,7 @@ export function preparePlaceholder(leading = "p", trailing = "") {
   };
   const placeholderRegex = new RegExp(
     `${escapedLeading}${uuid1}(\\d+)${uuid2}${escapedTrailing}`,
-    "g",
+    "ig",
   );
   return {
     createPlaceholder,

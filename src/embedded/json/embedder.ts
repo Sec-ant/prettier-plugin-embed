@@ -84,7 +84,10 @@ function preparePlaceholder() {
   const createPlaceholder = (index: number) => {
     return `'0${uuid1}${index}${uuid2}'`;
   };
-  const placeholderRegex = new RegExp(`["']?0${uuid1}(\\d+)${uuid2}['"]?`, "g");
+  const placeholderRegex = new RegExp(
+    `["']?0${uuid1}(\\d+)${uuid2}['"]?`,
+    "ig",
+  );
   return {
     createPlaceholder,
     placeholderRegex,
