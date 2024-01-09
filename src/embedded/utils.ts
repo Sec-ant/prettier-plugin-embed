@@ -65,7 +65,10 @@ export function throwIfPluginIsNotFound(
   if (
     !(
       options.plugins?.some(
-        (p) => (p as { name?: string }).name?.endsWith(pluginName) ?? false,
+        (p) =>
+          (p as { name?: string }).name?.match(
+            new RegExp("(^|/)" + escapeRegExp(pluginName) + "($|/)"),
+          ) ?? false,
       ) ?? false
     )
   ) {
