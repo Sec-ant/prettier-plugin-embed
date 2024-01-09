@@ -63,16 +63,10 @@ export const options = {
     default: "prettier-plugin-sql",
     description:
       'Specify the Prettier plugin for parsing and formatting SQL. Default is "prettier-plugin-sql"',
-    choices: [
-      {
-        value: "prettier-plugin-sql",
-        description: 'Use "prettier-plugin-sql".',
-      },
-      {
-        value: "prettier-plugin-sql-cst",
-        description: 'Use "prettier-plugin-sql-cst".',
-      },
-    ],
+    choices: SQL_PLUGINS.map((plugin) => ({
+      value: plugin,
+      description: `Use "${plugin}".`,
+    })),
   } satisfies ChoiceSupportOption<SqlPlugin>,
   [EMBEDDED_LANGUAGE_PARSER]: {
     category: "Embed",
@@ -80,16 +74,10 @@ export const options = {
     default: "sqlite",
     description:
       'Specify the embedded SQL language parser. Default is "sqlite". This option is only for "prettier-plugin-sql-cst".',
-    choices: [
-      {
-        value: "sqlite",
-        description: "SQLite parser.",
-      },
-      {
-        value: "bigquery",
-        description: "BigQuery parser.",
-      },
-    ],
+    choices: SQL_CST_PARSERS.map((parser) => ({
+      value: parser,
+      description: `Use "${parser}" parser.`,
+    })),
   } satisfies ChoiceSupportOption<SqlCstParser>,
 } as const satisfies SupportOptions;
 
