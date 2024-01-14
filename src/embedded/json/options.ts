@@ -19,7 +19,7 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 >;
 
 // TODO: keep in sync with prettier somehow
-const JSON_PARSERS = ["json", "json-stringify", "json5"] as const;
+const JSON_PARSERS = ["json", "json5", "jsonc", "json-stringify"] as const;
 
 type JsonParser = (typeof JSON_PARSERS)[number];
 
