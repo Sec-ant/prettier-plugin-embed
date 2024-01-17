@@ -35,7 +35,7 @@ export const options = {
       'This option turns off "identifier`...`" tag-based language identification for the specified identifiers.',
   },
   [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]: {
-    category: "Config",
+    category: "Embed",
     type: "string",
     array: true,
     default: [{ value: [] }],
