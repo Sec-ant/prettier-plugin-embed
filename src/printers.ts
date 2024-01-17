@@ -56,7 +56,7 @@ const embed: Printer["embed"] = function (
       return null;
     }
     const node = path.node as TemplateLiteral;
-    if (node.quasis.length === 1 && node.quasis[0].value.raw.trim() === "") {
+    if (node.quasis.length === 1 && node.quasis[0]?.value.raw.trim() === "") {
       return "``";
     }
     return async (textToDoc, print, path, options) => {

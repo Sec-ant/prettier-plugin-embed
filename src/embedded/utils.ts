@@ -40,7 +40,7 @@ export function simpleRehydrateDoc(
     const parts = [];
     const components = doc.split(placeholderRegex);
     for (let i = 0; i < components.length; i++) {
-      let component = components[i];
+      let component = components[i]!;
       if (i % 2 == 0) {
         if (!component) {
           continue;
@@ -49,7 +49,7 @@ export function simpleRehydrateDoc(
         parts.push(component);
       } else {
         const placeholderIndex = Number(component);
-        parts.push(expressionDocs[placeholderIndex]);
+        parts.push(expressionDocs[placeholderIndex]!);
       }
     }
     return parts;
@@ -95,7 +95,7 @@ export function insertLanguage(
       languages.push(language);
       return;
     }
-    if (languages[mid] < language) {
+    if (languages[mid]! < language) {
       low = mid + 1;
     } else {
       high = mid;

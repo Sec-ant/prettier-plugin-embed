@@ -75,7 +75,7 @@ export const parser: Parser<CstNode> = {
 
     // If there are any lexical errors, throw the first of them as an error.
     if (lexErrors.length > 0) {
-      const lexError = lexErrors[0];
+      const lexError = lexErrors[0]!;
       throw createSyntaxErrorFromLexError(lexError);
     }
 
@@ -169,7 +169,7 @@ function pruneCst(cstNode: CstNode) {
   for (const name in cstNodeChildren) {
     const cstElements = cstNodeChildren[name] ?? [];
     for (let i = cstElements.length - 1; i >= 0; --i) {
-      const cstElement = cstElements[i];
+      const cstElement = cstElements[i]!;
       if (!isCstNode(cstElement)) {
         continue;
       }

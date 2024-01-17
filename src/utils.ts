@@ -179,7 +179,7 @@ export function getIdentifierFromComment(
   if (!nodeComments) {
     return;
   }
-  const lastNodeComment = nodeComments[nodeComments.length - 1];
+  const lastNodeComment = nodeComments[nodeComments.length - 1]!;
   if (
     ![
       "MultiLine", // meriyah

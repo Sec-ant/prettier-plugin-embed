@@ -59,7 +59,7 @@ export const embedder: Embedder<Options> = async (
     const parts = [];
     const components = doc.split(placeholderRegex);
     for (let i = 0; i < components.length; i++) {
-      let component = components[i];
+      let component = components[i]!;
       if (i % 2 == 0) {
         if (!component) {
           continue;
@@ -70,7 +70,7 @@ export const embedder: Embedder<Options> = async (
           .forEach((c) => (c === "\n" ? parts.push(hardline) : parts.push(c)));
       } else {
         const placeholderIndex = Number(component);
-        parts.push(expressionDocs[placeholderIndex]);
+        parts.push(expressionDocs[placeholderIndex]!);
       }
     }
     return parts;
