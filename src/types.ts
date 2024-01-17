@@ -1,4 +1,4 @@
-import type { Comment, Node as EsTreeNode, TemplateLiteral } from "estree";
+import type { TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
 import {
   makeIdentifiersOptionName,
@@ -9,13 +9,28 @@ import {
 } from "./embedded/index.js";
 import type { PrettierPluginGlobalOptions } from "./options.js";
 
-export type PrettierNode = EsTreeNode & {
-  comments?: (Comment & {
+// patch estree types
+declare module "estree" {
+  interface Comment {
     leading: boolean;
     trailing: boolean;
     nodeDescription: string;
-  })[];
-};
+  }
+
+  interface BaseNode {
+    comments?: Comment[];
+  }
+
+  interface File extends BaseNode {
+    type: "File";
+    sourceType: "script" | "module";
+    program: Program;
+  }
+
+  interface NodeMap {
+    File: File;
+  }
+}
 
 export type InternalPrintFun = (
   selector?: string | number | (string | number)[] | AstPath<TemplateLiteral>,
