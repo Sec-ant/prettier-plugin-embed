@@ -1,4 +1,4 @@
-import type { TemplateLiteral } from "estree";
+import type { Node, TemplateLiteral } from "estree";
 import type { AstPath, Options, Plugin, Printer } from "prettier";
 import { builders } from "prettier/doc";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
@@ -7,7 +7,6 @@ import {
   embeddedLanguages,
   makeIdentifiersOptionName,
 } from "./embedded/index.js";
-import type { PrettierNode } from "./types.js";
 import {
   getIdentifierFromComment,
   getIdentifierFromTag,
@@ -21,7 +20,7 @@ const { estree: estreePrinter } = estreePrinters;
 // we override the built-in one with this
 // so that we can add hooks to support other languages
 const embed: Printer["embed"] = function (
-  path: AstPath<PrettierNode>,
+  path: AstPath<Node>,
   options: Options,
 ) {
   const { node } = path;
@@ -38,16 +37,8 @@ const embed: Printer["embed"] = function (
       continue;
     }
     const identifier =
-      getIdentifierFromComment(
-        path,
-        identifiers,
-        options.noEmbeddedIdentificationByComment ?? [],
-      ) ??
-      getIdentifierFromTag(
-        path,
-        identifiers,
-        options.noEmbeddedIdentificationByTag ?? [],
-      );
+      getIdentifierFromComment(path, identifiers, options) ??
+      getIdentifierFromTag(path, identifiers, options);
     if (identifier === undefined) {
       continue;
     }
