@@ -45,5 +45,5 @@ declare module "../types.js" {
 }
 
 declare module "prettier" {
-  export interface Options extends PrettierPluginDepsOptions {}
+  interface Options extends PrettierPluginDepsOptions {}
 }

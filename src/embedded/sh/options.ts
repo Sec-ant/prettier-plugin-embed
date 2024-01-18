@@ -4,6 +4,7 @@ import {
   makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
+  type UnionToIntersection,
 } from "../utils.js";
 import { language } from "./language.js";
 
@@ -20,7 +21,8 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
-export interface PrettierPluginDepsOptions extends Partial<ShParserOptions> {}
+export interface PrettierPluginDepsOptions
+  extends Partial<UnionToIntersection<ShParserOptions>> {}
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
@@ -43,5 +45,5 @@ declare module "../types.js" {
 }
 
 declare module "prettier" {
-  export interface Options extends PrettierPluginDepsOptions {}
+  interface Options extends PrettierPluginDepsOptions {}
 }
