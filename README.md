@@ -154,9 +154,10 @@ Formatting embedded GraphQL code doesn't require other plugins and uses the pars
 
 #### HTML
 
-|          Option           |                  Default                  | Description                                                                                        |
-| :-----------------------: | :---------------------------------------: | -------------------------------------------------------------------------------------------------- |
-| `embeddedHtmlIdentifiers` | [`[...]`](./src/embedded/html/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as HTML code |
+|          Option           |                  Default                   | Description                                                                                        |
+| :-----------------------: | :----------------------------------------: | -------------------------------------------------------------------------------------------------- |
+| `embeddedHtmlIdentifiers` | [`[...]`](./src/embedded/html/options.ts)  | Tag or comment identifiers that make their subsequent template literals be identified as HTML code |
+|   `embeddedHtmlParser`    | [`"html"`](./src/embedded/html/options.ts) | The parser used to parse the HTML code                                                             |
 
 Formatting embedded HTML code doesn't require other plugins and uses the parsers and printers provided by Prettier natively. This can override the native embedded language formatting for HTML code.
 

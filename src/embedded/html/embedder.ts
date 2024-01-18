@@ -43,7 +43,7 @@ export const embedder: Embedder<Options> = async (
 
   const doc = await textToDoc(trimmedText, {
     ...options,
-    parser: "html",
+    parser: options.embeddedHtmlParser ?? "html",
   });
 
   const contentDoc = mapDoc(doc, (doc) => {

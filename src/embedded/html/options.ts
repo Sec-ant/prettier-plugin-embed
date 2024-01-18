@@ -1,6 +1,7 @@
-import type { SupportOptions } from "prettier";
+import type { ChoiceSupportOption, SupportOptions } from "prettier";
 import {
   makeIdentifiersOptionName,
+  makeParserOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
 } from "../utils.js";
@@ -18,7 +19,13 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 
+const HTML_PARSERS = ["html", "vue", "angular", "lwc"] as const;
+
+type HtmlParser = (typeof HTML_PARSERS)[number];
+
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
+
+const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(language);
 
 export interface PrettierPluginDepsOptions {
   /* prettier built-in options */
@@ -32,6 +39,17 @@ export const options = {
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description: "Specify embedded HTML language identifiers.",
   },
+  [EMBEDDED_LANGUAGE_PARSER]: {
+    category: "Embed",
+    type: "choice",
+    default: "html",
+    description:
+      'Specify the embedded HTML language parser. Default is "html".',
+    choices: HTML_PARSERS.map((parser) => ({
+      value: parser,
+      description: `Use "${parser}".`,
+    })),
+  } satisfies ChoiceSupportOption<HtmlParser>,
 } as const satisfies SupportOptions;
 
 type Options = typeof options;
@@ -41,9 +59,10 @@ declare module "../types.js" {
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
+    [EMBEDDED_LANGUAGE_PARSER]?: HtmlParser;
   }
 }
 
 declare module "prettier" {
-  export interface Options extends PrettierPluginDepsOptions {}
+  interface Options extends PrettierPluginDepsOptions {}
 }
