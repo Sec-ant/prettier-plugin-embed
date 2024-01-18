@@ -17,7 +17,7 @@ export const options = {
     array: true,
     default: [{ value: [] }],
     description:
-      "Specify embedded language identifiers that will not be formatted.",
+      "Tag or comment identifiers that prevent their subsequent template literals from being identified as embedded languages and thus from being formatted.",
   },
 } as const satisfies SupportOptions;
 

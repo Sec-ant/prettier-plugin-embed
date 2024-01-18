@@ -30,7 +30,8 @@ export const options = {
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded CSS language identifiers.",
+    description:
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded CSS language.",
   },
 } as const satisfies SupportOptions;
 

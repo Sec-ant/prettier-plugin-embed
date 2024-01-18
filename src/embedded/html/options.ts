@@ -37,17 +37,17 @@ export const options = {
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded HTML language identifiers.",
+    description:
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded HTML language.",
   },
   [EMBEDDED_LANGUAGE_PARSER]: {
     category: "Embed",
     type: "choice",
     default: "html",
-    description:
-      'Specify the embedded HTML language parser. Default is "html".',
+    description: "The parser used to parse the embedded HTML language.",
     choices: HTML_PARSERS.map((parser) => ({
       value: parser,
-      description: `Use "${parser}".`,
+      description: `Use the "${parser}" parser.`,
     })),
   } satisfies ChoiceSupportOption<HtmlParser>,
 } as const satisfies SupportOptions;

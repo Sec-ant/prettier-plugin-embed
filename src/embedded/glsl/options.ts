@@ -31,7 +31,7 @@ export const options = {
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      'Specify embedded GLSL language identifiers. This requires "prettier-plugin-glsl".',
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded GLSL language. This option requires the `prettier-plugin-glsl` plugin.",
   },
 } as const satisfies SupportOptions;
 

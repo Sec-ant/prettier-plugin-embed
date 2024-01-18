@@ -43,17 +43,17 @@ export const options = {
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      'Specify embedded Ruby language identifiers. This requires "@prettier/plugin-ruby".',
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded Ruby language. This option requires the `@prettier/plugin-ruby` plugin.",
   },
   [EMBEDDED_LANGUAGE_PARSER]: {
     category: "Embed",
     type: "choice",
     default: "ruby",
     description:
-      'Specify the embedded Ruby language parser. Default is "ruby".',
+      "The parser used to parse the embedded Ruby language. This option requires the `@prettier/plugin-ruby` plugin.",
     choices: RUBY_PARSERS.map((parser) => ({
       value: parser,
-      description: `Use "${parser}".`,
+      description: `Use the "${parser}" parser.`,
     })),
   } satisfies ChoiceSupportOption<RubyParser>,
 } as const satisfies SupportOptions;

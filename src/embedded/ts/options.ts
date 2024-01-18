@@ -38,17 +38,17 @@ export const options = {
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded TS language parsers.",
+    description:
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded TypeScript language.",
   },
   [EMBEDDED_LANGUAGE_PARSER]: {
     category: "Embed",
     type: "choice",
     default: "typescript",
-    description:
-      'Specify the embedded TS language parser. Default is "typescript".',
+    description: "The parser used to parse the embedded TypeScript language.",
     choices: TS_PARSERS.map((parser) => ({
       value: parser,
-      description: `Use "${parser}".`,
+      description: `Use the "${parser}" parser.`,
     })),
   } satisfies ChoiceSupportOption<TsParser>,
 } as const satisfies SupportOptions;

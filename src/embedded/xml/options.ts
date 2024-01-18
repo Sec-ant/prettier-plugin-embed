@@ -34,7 +34,7 @@ export const options = {
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      'Specify embedded XML language identifiers. This requires "@prettier/plugin-xml".',
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded XML language. This option requires the `@prettier/plugin-xml` plugin.",
   },
   /**
    * @internal
@@ -45,7 +45,7 @@ export const options = {
     array: true,
     default: [{ value: [] }],
     description:
-      "This option is read only and used as a workaround to support xml fragments",
+      "This option is read only and is used internally as a workaround to support xml fragments",
   },
 } as const satisfies SupportOptions;
 

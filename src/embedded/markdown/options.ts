@@ -30,7 +30,8 @@ export const options = {
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded Markdown language identifiers.",
+    description:
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded Markdown language.",
   },
 } as const satisfies SupportOptions;
 

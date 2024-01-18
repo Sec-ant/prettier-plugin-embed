@@ -30,7 +30,8 @@ export const options = {
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded Shell language identifiers.",
+    description:
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded Shell language. This option requires the `prettier-plugin-sh` plugin.",
   },
 } as const satisfies SupportOptions;
 

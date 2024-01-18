@@ -29,7 +29,8 @@ export const options = {
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded GraphQL language identifiers.",
+    description:
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded GraphQL language.",
   },
 } as const satisfies SupportOptions;
 

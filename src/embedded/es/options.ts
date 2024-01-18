@@ -54,16 +54,18 @@ export const options = {
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded ES language identifiers.",
+    description:
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded ECMAScript/JavaScript language.",
   },
   [EMBEDDED_LANGUAGE_PARSER]: {
     category: "Embed",
     type: "choice",
     default: "babel",
-    description: 'Specify the embedded ES language parser. Default is "babel".',
+    description:
+      "The parser used to parse the embedded ECMASCript/JavaScript language.",
     choices: ES_PARSERS.map((parser) => ({
       value: parser,
-      description: `Use "${parser}".`,
+      description: `Use the "${parser}" parser.`,
     })),
   } satisfies ChoiceSupportOption<EsParser>,
 } as const satisfies SupportOptions;

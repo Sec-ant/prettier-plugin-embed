@@ -24,7 +24,7 @@ export const options = {
     array: true,
     default: [{ value: [] }],
     description:
-      'This option turns off "/* identifier */ `...`" comment-based language identification for the specified identifiers.',
+      "Turns off `` /* identifier */ `...` `` comment-based embedded language identification for the specified identifiers.",
   },
   [NO_EMBEDDED_IDENTIFICATION_BY_TAG]: {
     category: "Embed",
@@ -32,7 +32,7 @@ export const options = {
     array: true,
     default: [{ value: [] }],
     description:
-      'This option turns off "identifier`...`" tag-based language identification for the specified identifiers.',
+      "Turns off `` identifier`...` `` tag-based embedded language identification for the specified identifiers.",
   },
   [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]: {
     category: "Embed",
@@ -40,7 +40,7 @@ export const options = {
     array: true,
     default: [{ value: [] }],
     description:
-      "This option preserves leading and trailing whitespaces in the formatting results for the specified identifiers.",
+      "Preserves leading and trailing whitespaces in the formatting results for the specified identifiers.",
   },
   [NO_EMBEDDED_MULTI_LINE_INDENTATION]: {
     category: "Embed",
@@ -48,7 +48,7 @@ export const options = {
     array: true,
     default: [{ value: [] }],
     description:
-      "This option turns off auto indentation in the formatting results for the specified identifiers when they are formatted to span multi lines.",
+      "Turns off auto indentation in the formatting results for the specified identifiers when they are formatted to span multi lines.",
   },
   [EMBEDDED_OVERRIDES]: {
     category: "Embed",
@@ -56,7 +56,7 @@ export const options = {
     array: false,
     default: undefined,
     description:
-      "This option accepts option overrides for the specified identifiers. It should either be a stringified JSON or an absolute filepath to the option overrides file.",
+      "Option overrides for the specified identifiers. It should either be a stringified JSON or an absolute filepath to the option overrides file.",
   },
 } as const satisfies SupportOptions;
 

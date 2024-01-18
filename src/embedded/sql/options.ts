@@ -55,17 +55,17 @@ export const options = {
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      'Specify embedded SQL language identifiers. This requires "prettier-plugin-sql" or "prettier-plugin-sql-cst".',
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded SQL language. This option requires the `prettier-plugin-sql` plugin or the `prettier-plugin-sql-cst` plugin.",
   },
   [EMBEDDED_LANGUAGE_PLUGIN]: {
     category: "Embed",
     type: "choice",
     default: "prettier-plugin-sql",
     description:
-      'Specify the Prettier plugin for parsing and formatting SQL. Default is "prettier-plugin-sql"',
+      "The plugin used to format the embedded SQL language. This option requires the `prettier-plugin-sql` plugin or the `prettier-plugin-sql-cst` plugin.",
     choices: SQL_PLUGINS.map((plugin) => ({
       value: plugin,
-      description: `Use "${plugin}".`,
+      description: `Use the "${plugin}" plugin.`,
     })),
   } satisfies ChoiceSupportOption<SqlPlugin>,
   [EMBEDDED_LANGUAGE_PARSER]: {
@@ -73,10 +73,10 @@ export const options = {
     type: "choice",
     default: "sqlite",
     description:
-      'Specify the embedded SQL language parser. Default is "sqlite". This option is only for "prettier-plugin-sql-cst".',
+      "Specify the embedded SQL language parser. This option is only needed with the `prettier-plugin-sql-cst` plugin.",
     choices: SQL_CST_PARSERS.map((parser) => ({
       value: parser,
-      description: `Use "${parser}" parser.`,
+      description: `Use the "${parser}" parser.`,
     })),
   } satisfies ChoiceSupportOption<SqlCstParser>,
 } as const satisfies SupportOptions;

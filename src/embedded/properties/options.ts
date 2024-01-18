@@ -31,7 +31,7 @@ export const options = {
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      'Specify embedded Java Properties language identifiers. This requires "prettier-plugin-properties".',
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded Properties language. This option requires the `prettier-plugin-properties` plugin.",
   },
 } as const satisfies SupportOptions;
 

@@ -39,7 +39,7 @@ export const options = {
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      'Specify embedded LaTeX language identifiers. This requires "prettier-plugin-latex".',
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded LaTeX language. This option requires the `prettier-plugin-latex` plugin.",
   },
 } as const satisfies SupportOptions;
 

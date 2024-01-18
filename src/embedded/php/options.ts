@@ -48,7 +48,7 @@ export const options = {
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      'Specify embedded PHP language identifiers. This requires "@prettier/plugin-php".',
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded PHP language. This option requires the `@prettier/plugin-php` plugin.",
   },
 } as const satisfies SupportOptions;
 

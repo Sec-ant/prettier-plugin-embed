@@ -37,17 +37,17 @@ export const options = {
     type: "string",
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
-    description: "Specify embedded JSON language identifiers.",
+    description:
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded JSON language.",
   },
   [EMBEDDED_LANGUAGE_PARSER]: {
     category: "Embed",
     type: "choice",
     default: "json",
-    description:
-      'Specify the embedded JSON language parser. Default is "json".',
+    description: "The parser used to parse the embedded JSON language.",
     choices: JSON_PARSERS.map((parser) => ({
       value: parser,
-      description: `Use "${parser}".`,
+      description: `Use the "${parser}" parser.`,
     })),
   } satisfies ChoiceSupportOption<JsonParser>,
 } as const satisfies SupportOptions;

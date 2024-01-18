@@ -31,7 +31,7 @@ export const options = {
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      'Specify embedded TOML language identifiers. This requires "prettier-plugin-toml".',
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded TOML language. This option requires the `prettier-plugin-toml` plugin.",
   },
 } as const satisfies SupportOptions;
 

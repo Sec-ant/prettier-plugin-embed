@@ -30,7 +30,7 @@ export const options = {
     array: true,
     default: [{ value: [...DEFAULT_IDENTIFIERS] }],
     description:
-      'Specify embedded INI language identifiers. This requires "prettier-plugin-ini".',
+      "Tag or comment identifiers that make their subsequent template literals be identified as embedded INI language. This option requires the `prettier-plugin-ini` plugin.",
   },
 } as const satisfies SupportOptions;
 
