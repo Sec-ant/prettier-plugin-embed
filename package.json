@@ -2,7 +2,7 @@
   "name": "prettier-plugin-embed",
   "description": "A configurable Prettier plugin to format embedded languages in js/ts files.",
   "private": false,
-  "version": "0.4.5",
+  "version": "0.4.6",
   "type": "module",
   "files": [
     "./dist"
@@ -22,7 +22,7 @@
   "homepage": "https://github.com/Sec-ant/prettier-plugin-embed",
   "bugs": {
     "url": "https://github.com/Sec-ant/prettier-plugin-embed/issues",
-    "email": "zzwu@zju.edu.cn"
+    "email": "zezhengwu@proton.me"
   },
   "keywords": [
     "prettier",
