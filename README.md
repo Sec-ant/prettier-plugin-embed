@@ -226,13 +226,18 @@ Formatting embedded LaTeX language requires the [`prettier-plugin-latex`](https:
 
 #### Markdown
 
-|            Option             |    Type    |                          Default                           | Description                                                                                                          |
-| :---------------------------: | :--------: | :--------------------------------------------------------: | -------------------------------------------------------------------------------------------------------------------- |
-| `embeddedMarkdownIdentifiers` | `string[]` | [`["md", "markdown"]`](./src/embedded/markdown/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded Markdown language. |
+|            Option             |                                  Type                                   |                          Default                           | Description                                                                                                          |
+| :---------------------------: | :---------------------------------------------------------------------: | :--------------------------------------------------------: | -------------------------------------------------------------------------------------------------------------------- |
+| `embeddedMarkdownIdentifiers` |                               `string[]`                                | [`["md", "markdown"]`](./src/embedded/markdown/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded Markdown language. |
+|   `embeddedMarkdownParser`    | [`"markdown"  \| "mdx"\| "remark"`](./src/embedded/markdown/options.ts) |     [`"markdown"`](./src/embedded/markdown/options.ts)     | The parser used to parse the embedded Markdown language.                                                             |
 
 Formatting embedded Markdown language doesn't require other plugins and uses the parsers and printers provided by Prettier natively.
 
 This can override the native formatting for embedded Markdown language. If you want to keep the native behavior, set `embeddedMarkdownIdentifiers` to `[]` or other identifiers.
+
+If you want to specify different parsers for different identifiers, check [`embeddedOverrides`](#embeddedoverrides).
+
+The `remark` parser is [an alias of the `markdown` parser](https://github.com/prettier/prettier/blob/ed23dacc9e655c3876971b30859497b17ff2cf9f/src/language-markdown/parser-markdown.js#L57).
 
 #### PHP
 

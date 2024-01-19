@@ -46,7 +46,7 @@ export const embedder: Embedder<Options> = async (
 
   const doc = await textToDoc(trimmedText, {
     ...options,
-    parser: "markdown",
+    parser: options.embeddedMarkdownParser ?? "markdown",
     __inJsTemplate: true,
   });
 

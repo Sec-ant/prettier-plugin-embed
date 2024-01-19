@@ -1,6 +1,7 @@
-import type { SupportOptions } from "prettier";
+import type { ChoiceSupportOption, SupportOptions } from "prettier";
 import {
   makeIdentifiersOptionName,
+  makeParserOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
 } from "../utils.js";
@@ -18,7 +19,13 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
 
+const MARKDOWN_PARSERS = ["markdown", "mdx", "remark"] as const;
+
+type MarkdownParser = (typeof MARKDOWN_PARSERS)[number];
+
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
+
+const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(language);
 
 export interface PrettierPluginDepsOptions {
   __inJsTemplate?: boolean;
@@ -33,6 +40,16 @@ export const options = {
     description:
       "Tag or comment identifiers that make their subsequent template literals be identified as embedded Markdown language.",
   },
+  [EMBEDDED_LANGUAGE_PARSER]: {
+    category: "Embed",
+    type: "choice",
+    default: "markdown",
+    description: "The parser used to parse the embedded Markdown language.",
+    choices: MARKDOWN_PARSERS.map((parser) => ({
+      value: parser,
+      description: `Use the "${parser}" parser.`,
+    })),
+  } satisfies ChoiceSupportOption<MarkdownParser>,
 } as const satisfies SupportOptions;
 
 type Options = typeof options;
@@ -42,6 +59,7 @@ declare module "../types.js" {
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
   interface PrettierPluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
+    [EMBEDDED_LANGUAGE_PARSER]?: MarkdownParser;
   }
 }
 
