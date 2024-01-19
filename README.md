@@ -140,17 +140,20 @@ Click Here to Toggle
 | :-----------------------: | :--------: | :------------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `embeddedNoopIdentifiers` | `string[]` | [`[]`](./src/embedded/noop/options.ts) | Tag or comment identifiers that prevent their subsequent template literals from being identified as embedded languages and thus from being formatted. |
 
-This option doesn't require other plugins and can override the native embedded language formatting. It serves as a way to turn off embedded language formatting for specific language identifiers.
+This option doesn't require other plugins and can override the native embedded language formatting. It serves as a way to turn off embedded language formatting for the specified language identifiers.
 
 #### CSS
 
-|          Option          |    Type    |                  Default                   | Description                                                                                                     |
-| :----------------------: | :--------: | :----------------------------------------: | --------------------------------------------------------------------------------------------------------------- |
-| `embeddedCssIdentifiers` | `string[]` | [`["css"]`](./src/embedded/css/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded CSS language. |
+|          Option          |                             Type                             |                  Default                   | Description                                                                                                     |
+| :----------------------: | :----------------------------------------------------------: | :----------------------------------------: | --------------------------------------------------------------------------------------------------------------- |
+| `embeddedCssIdentifiers` |                          `string[]`                          | [`["css"]`](./src/embedded/css/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded CSS language. |
+|   `embeddedCssParser`    | [`"css"  \| "less"\| "scss"`](./src/embedded/css/options.ts) | [`"scss"`](./src/embedded/css/options.ts)  | The parser used to parse the embedded CSS language.                                                             |
 
 Formatting embedded CSS language doesn't require other plugins and uses the parsers and printers provided by Prettier natively.
 
 This can override the native formatting bahavior for embedded CSS language. If you want to keep the native behavior, set `embeddedCssIdentifiers` to `[]` or other identifiers.
+
+If you want to specify different parsers for different identifiers, check [`embeddedOverrides`](#embeddedoverrides).
 
 #### ES (ECMAScript/JavaScript)
 

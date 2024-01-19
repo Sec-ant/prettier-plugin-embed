@@ -46,7 +46,7 @@ export const embedder: Embedder<Options> = async (
 
   const doc = await textToDoc(trimmedText, {
     ...options,
-    parser: "scss",
+    parser: options.embeddedCssParser ?? "scss",
   });
 
   const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
