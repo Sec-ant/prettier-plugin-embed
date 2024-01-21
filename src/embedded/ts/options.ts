@@ -22,7 +22,7 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 // TODO: keep in sync with prettier somehow
 const TS_PARSERS = ["typescript", "babel-ts"] as const;
 
-type TsParser = (typeof TS_PARSERS)[number];
+export type TsParser = (typeof TS_PARSERS)[number];
 
 const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(language);
 
