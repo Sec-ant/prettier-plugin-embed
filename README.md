@@ -125,6 +125,7 @@ Supported embedded languages are:
 - [PHP](#php)
 - [Prisma](#prisma)
 - [Properties](#properties)
+- [Pug](#pug)
 - [Ruby](#ruby)
 - [Sh (Shell)](#sh-shell)
 - [SQL](#sql)
@@ -292,6 +293,14 @@ Formatting embedded Prisma language requires the [`prettier-plugin-prisma`](http
 | `embeddedPropertiesIdentifiers` | `string[]` | [`["properties"]`](./src/embedded/properties/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded Properties language. This option requires the `prettier-plugin-properties` plugin. |
 
 Formatting embedded Properties language requires the [`prettier-plugin-properties`](https://github.com/eemeli/prettier-plugin-properties) plugin to be loaded as well. And [options](https://github.com/eemeli/prettier-plugin-properties#configuration) supported by `prettier-plugin-properties` can therefore be used to further control the formatting behavior.
+
+#### Pug
+
+|          Option          |    Type    |                      Default                       | Description                                                                                                                                                             |
+| :----------------------: | :--------: | :------------------------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embeddedPugIdentifiers` | `string[]` | [`["pug", "jade"]`](./src/embedded/pug/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded Pug language. This option requires the `@prettier/plugin-pug` plugin. |
+
+Formatting embedded Shell language requires the [`@prettier/plugin-pug`](https://github.com/prettier/plugin-pug) plugin to be loaded as well. And [options](https://github.com/prettier/plugin-pug?tab=readme-ov-file#configuration) supported by `@prettier/plugin-pug` can therefore be used to further control the formatting behavior.
 
 #### Ruby
 
