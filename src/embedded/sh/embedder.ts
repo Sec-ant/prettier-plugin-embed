@@ -1,7 +1,11 @@
 import type { Options } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
-import { preparePlaceholder, printTemplateExpressions } from "../utils.js";
+import {
+  preparePlaceholder,
+  printTemplateExpressions,
+  throwIfPluginIsNotFound,
+} from "../utils.js";
 import { language } from "./language.js";
 
 const { hardline, group, line, softline, indent } = builders;
@@ -14,6 +18,8 @@ export const embedder: Embedder<Options> = async (
   options,
   { identifier, embeddedOverrideOptions },
 ) => {
+  throwIfPluginIsNotFound("prettier-plugin-sh", options, identifier);
+
   options = {
     ...options,
     ...embeddedOverrideOptions,
