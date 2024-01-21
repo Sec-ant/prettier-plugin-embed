@@ -117,6 +117,7 @@ Supported embedded languages are:
 - [HTML](#html)
 - [INI](#ini)
 - [JSON](#json)
+- [JSONata](#jsonata)
 - [LaTeX](#latex)
 - [Markdown](#markdown)
 - [NGINX](#nginx)
@@ -217,6 +218,14 @@ Formatting embedded INI language requires the [`prettier-plugin-ini`](https://gi
 Formatting embedded JSON language doesn't require other plugins and uses the parsers and printers provided by Prettier natively.
 
 If you want to specify different parsers for different identifiers, check [`embeddedOverrides`](#embeddedoverrides).
+
+#### JSONata
+
+|            Option            |    Type    |                      Default                       | Description                                                                                                                                                                           |
+| :--------------------------: | :--------: | :------------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embeddedJsonataIdentifiers` | `string[]` | [`["jsonata"]`](./src/embedded/jsonata/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded JSONata language. This option requires the `@stedi/prettier-plugin-jsonata` plugin. |
+
+Formatting embedded JSONata language requires the [`@stedi/prettier-plugin-jsonata`](https://github.com/Stedi/prettier-plugin-jsonata) plugin to be loaded as well.
 
 #### LaTeX
 
