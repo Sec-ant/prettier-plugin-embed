@@ -66,6 +66,7 @@
     "@commitlint/cli": "^18.4.4",
     "@commitlint/config-conventional": "^18.4.4",
     "@prettier/plugin-php": "^0.22.1",
+    "@prettier/plugin-pug": "^3.0.0",
     "@prettier/plugin-ruby": "^4.0.4",
     "@prettier/plugin-xml": "^3.2.2",
     "@stedi/prettier-plugin-jsonata": "^2.1.1",
