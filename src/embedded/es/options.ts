@@ -38,7 +38,7 @@ const ES_PARSERS = [
   "meriyah",
 ] as const;
 
-type EsParser = (typeof ES_PARSERS)[number];
+export type EsParser = (typeof ES_PARSERS)[number];
 
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 

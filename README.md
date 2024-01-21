@@ -119,6 +119,7 @@ Supported embedded languages are:
 - [JSON](#json)
 - [LaTeX](#latex)
 - [Markdown](#markdown)
+- [Pegjs](#pegjs)
 - [PHP](#php)
 - [Properties](#properties)
 - [Ruby](#ruby)
@@ -238,6 +239,16 @@ This can override the native formatting for embedded Markdown language. If you w
 If you want to specify different parsers for different identifiers, check [`embeddedOverrides`](#embeddedoverrides).
 
 The `remark` parser is [an alias of the `markdown` parser](https://github.com/prettier/prettier/blob/ed23dacc9e655c3876971b30859497b17ff2cf9f/src/language-markdown/parser-markdown.js#L57).
+
+#### Pegjs
+
+|           Option           |    Type    |                            Default                             | Description                                                                                                                                                                |
+| :------------------------: | :--------: | :------------------------------------------------------------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embeddedPegjsIdentifiers` | `string[]` | [`["pegjs", "peggy", "peg"]`](./src/embedded/pegjs/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded Pegjs language. This option requires the `prettier-plugin-pegjs` plugin. |
+
+Formatting embedded Pegjs language requires the [`prettier-plugin-pegjs`](https://github.com/siefkenj/prettier-plugin-pegjs) plugin to be loaded as well. And [options](https://github.com/siefkenj/prettier-plugin-pegjs?tab=readme-ov-file#options) supported by `prettier-plugin-pegjs` can therefore be used to further control the formatting behavior.
+
+Note that `prettier-plugin-pegjs` supports different parsers for the action blocks and they are specified by the [`actionParser` option](https://github.com/siefkenj/prettier-plugin-pegjs?tab=readme-ov-file#options). If you want to specify different action parsers for different identifiers, check [`embeddedOverrides`](#embeddedoverrides).
 
 #### PHP
 
