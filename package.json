@@ -85,7 +85,7 @@
     "prettier-plugin-latex": "^2.0.1",
     "prettier-plugin-organize-imports": "^3.2.4",
     "prettier-plugin-properties": "^0.3.0",
-    "prettier-plugin-sh": "^0.13.1",
+    "prettier-plugin-sh": "^0.14.0",
     "prettier-plugin-sql": "^0.18.0",
     "prettier-plugin-sql-cst": "^0.10.2",
     "prettier-plugin-toml": "^2.0.1",
