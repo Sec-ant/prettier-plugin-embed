@@ -3,7 +3,7 @@ import type { AstPath, Doc, Options } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type { InternalPrintFun } from "../types.js";
 
-const { group, indent, softline, lineSuffixBoundary } = builders;
+const { group, indent, softline, hardline, lineSuffixBoundary } = builders;
 const { mapDoc } = utils;
 
 export function printTemplateExpression(
@@ -32,6 +32,7 @@ export function simpleRehydrateDoc(
   doc: Doc,
   placeholderRegex: RegExp,
   expressionDocs: Doc[],
+  replaceLiteralNewlinesToHardlines = false,
 ) {
   const contentDoc = mapDoc(doc, (doc) => {
     if (typeof doc !== "string") {
@@ -46,7 +47,15 @@ export function simpleRehydrateDoc(
           continue;
         }
         component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
-        parts.push(component);
+        if (replaceLiteralNewlinesToHardlines) {
+          component
+            .split(/(\n)/)
+            .forEach((c) =>
+              c === "\n" ? parts.push(hardline) : parts.push(c),
+            );
+        } else {
+          parts.push(component);
+        }
       } else {
         const placeholderIndex = Number(component);
         parts.push(expressionDocs[placeholderIndex]!);
