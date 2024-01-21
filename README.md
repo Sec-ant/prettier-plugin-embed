@@ -123,6 +123,7 @@ Supported embedded languages are:
 - [NGINX](#nginx)
 - [Pegjs](#pegjs)
 - [PHP](#php)
+- [Prisma](#prisma)
 - [Properties](#properties)
 - [Ruby](#ruby)
 - [Sh (Shell)](#sh-shell)
@@ -275,6 +276,14 @@ Note that `prettier-plugin-pegjs` supports different parsers for the action bloc
 | `embeddedPhpIdentifiers` | `string[]` | [`["php", "php5"]`](./src/embedded/php/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded PHP language. This option requires the `@prettier/plugin-php` plugin. |
 
 Formatting embedded PHP language requires the [`@prettier/plugin-php`](https://github.com/prettier/plugin-php) plugin to be loaded as well. And [options](https://github.com/prettier/plugin-php#configuration) supported by `@prettier/plugin-php` can therefore be used to further control the formatting behavior.
+
+#### Prisma
+
+|           Option            |    Type    |                     Default                      | Description                                                                                                                                                                  |
+| :-------------------------: | :--------: | :----------------------------------------------: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embeddedPrismaIdentifiers` | `string[]` | [`["prisma"]`](./src/embedded/prisma/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded Prisma language. This option requires the `prettier-plugin-prisma` plugin. |
+
+Formatting embedded Prisma language requires the [`prettier-plugin-prisma`](https://github.com/avocadowastaken/prettier-plugin-prisma) plugin to be loaded as well.
 
 #### Properties
 
