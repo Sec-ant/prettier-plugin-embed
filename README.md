@@ -119,6 +119,7 @@ Supported embedded languages are:
 - [JSON](#json)
 - [LaTeX](#latex)
 - [Markdown](#markdown)
+- [NGINX](#nginx)
 - [Pegjs](#pegjs)
 - [PHP](#php)
 - [Properties](#properties)
@@ -239,6 +240,14 @@ This can override the native formatting for embedded Markdown language. If you w
 If you want to specify different parsers for different identifiers, check [`embeddedOverrides`](#embeddedoverrides).
 
 The `remark` parser is [an alias of the `markdown` parser](https://github.com/prettier/prettier/blob/ed23dacc9e655c3876971b30859497b17ff2cf9f/src/language-markdown/parser-markdown.js#L57).
+
+#### NGINX
+
+|           Option           |    Type    |                    Default                     | Description                                                                                                                                                                |
+| :------------------------: | :--------: | :--------------------------------------------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `embeddedNginxIdentifiers` | `string[]` | [`["nginx"]`](./src/embedded/nginx/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded NGINX language. This option requires the `prettier-plugin-nginx` plugin. |
+
+Formatting embedded Pegjs language requires the [`prettier-plugin-nginx`](https://github.com/jxddk/prettier-plugin-nginx) plugin to be loaded as well. And [options](https://github.com/jxddk/prettier-plugin-nginx?tab=readme-ov-file#configuration) supported by `prettier-plugin-nginx` can therefore be used to further control the formatting behavior.
 
 #### Pegjs
 
