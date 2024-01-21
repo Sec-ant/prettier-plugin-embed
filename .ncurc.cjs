@@ -2,7 +2,7 @@ module.exports = {
   upgrade: true,
   reject: [
     /^@?prettier(?:\/|$)/,
-    /^prettier-plugin-/,
+    /(?:^|@.+?\/)prettier-plugin-/,
     "@xml-tools/parser",
     "chevrotain",
   ],
