@@ -10,4 +10,5 @@ export type {
 export {
   makeIdentifiersOptionName,
   type AutocompleteStringList,
+  type NormalizeOptions,
 } from "./utils.js";

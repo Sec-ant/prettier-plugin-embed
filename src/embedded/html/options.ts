@@ -27,10 +27,6 @@ const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
 const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(language);
 
-export interface PrettierPluginDepsOptions {
-  /* prettier built-in options */
-}
-
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
     category: "Embed",
@@ -61,8 +57,4 @@ declare module "../types.js" {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
     [EMBEDDED_LANGUAGE_PARSER]?: HtmlParser;
   }
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginDepsOptions {}
 }

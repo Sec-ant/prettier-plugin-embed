@@ -1,6 +1,4 @@
 import type { SupportOptions } from "prettier";
-import type { EsParser } from "../es/options.js";
-import type { TsParser } from "../ts/options.js";
 import {
   type AutocompleteStringList,
   type StringListToInterfaceKey,
@@ -15,10 +13,6 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 >;
 
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
-
-export interface PrettierPluginDepsOptions {
-  actionParser?: EsParser | TsParser;
-}
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
@@ -39,8 +33,4 @@ declare module "../types.js" {
   interface PrettierPluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
   }
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginDepsOptions {}
 }

@@ -24,18 +24,6 @@ const EMBEDDED_LANGUAGE_PARSER = "embeddedRubyParser";
 
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
-export interface PrettierPluginDepsOptions {
-  rubyPlugins?: AutocompleteStringList<
-    [
-      "plugin/single_quotes",
-      "plugin/trailing_comma",
-      "plugin/disable_auto_ternary",
-    ]
-  >;
-  rubySingleQuote?: boolean;
-  rubyExecutablePath?: string;
-}
-
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
     category: "Embed",
@@ -67,8 +55,4 @@ declare module "../types.js" {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
     [EMBEDDED_LANGUAGE_PARSER]?: RubyParser;
   }
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginDepsOptions {}
 }

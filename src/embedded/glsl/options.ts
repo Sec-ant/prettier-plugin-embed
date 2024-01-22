@@ -20,10 +20,6 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
-export interface PrettierPluginDepsOptions {
-  /* no additional options */
-}
-
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
     category: "Embed",
@@ -43,8 +39,4 @@ declare module "../types.js" {
   interface PrettierPluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
   }
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginDepsOptions {}
 }

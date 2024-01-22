@@ -2,7 +2,6 @@ import type { SupportOptions } from "prettier";
 import {
   type AutocompleteStringList,
   type EmbeddedDefaultIdentifier,
-  type PrettierPluginEmbedOptions,
   embeddedOptions,
 } from "./embedded/index.js";
 
@@ -70,8 +69,4 @@ export interface PrettierPluginGlobalOptions {
 
 declare module "./embedded/types.js" {
   interface PrettierPluginEmbedOptions extends PrettierPluginGlobalOptions {}
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginEmbedOptions {}
 }

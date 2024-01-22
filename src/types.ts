@@ -7,8 +7,8 @@ import type {
   PrettierPluginEmbedOptions,
   makeIdentifiersOptionName,
 } from "./embedded/index.js";
+import type { NormalizeOptions } from "./embedded/index.js";
 import type { PrettierPluginGlobalOptions } from "./options.js";
-import type { RemoveIndex } from "./utils.js";
 
 // patch estree types
 declare module "estree" {
@@ -55,7 +55,7 @@ export interface EmbeddedOverride {
   identifiers: AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
   options: Omit<
     // native prettier options
-    Omit<RemoveIndex<Options>, keyof PrettierPluginEmbedOptions> &
+    Omit<NormalizeOptions<Options>, keyof PrettierPluginEmbedOptions> &
       // prettier-plugin-embed options
       // except for "embedded<Language>Identifiers"
       // and global options

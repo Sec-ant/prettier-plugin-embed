@@ -1,6 +1,7 @@
 import type { Comment, Expression, TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
 import { builders, utils } from "prettier/doc";
+import type { OmitIndexSignature } from "type-fest";
 import type { InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, hardline, lineSuffixBoundary } = builders;
@@ -182,3 +183,7 @@ export type UnionToIntersection<U> = (
 ) extends (x: infer I) => void
   ? I
   : never;
+
+export type NormalizeOptions<T> = Partial<
+  UnionToIntersection<OmitIndexSignature<T>>
+>;

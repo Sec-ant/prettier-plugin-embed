@@ -20,13 +20,6 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
-export interface PrettierPluginDepsOptions {
-  xmlSelfClosingSpace?: boolean;
-  xmlWhitespaceSensitivity?: "strict" | "preserve" | "ignore";
-  xmlSortAttributesByKey?: boolean;
-  xmlQuoteAttributes?: "preserve" | "single" | "double";
-}
-
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
     category: "Embed",
@@ -61,8 +54,4 @@ declare module "../types.js" {
      */
     __embeddedXmlFragmentRecoverIndex?: [number] | [number, number];
   }
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginDepsOptions {}
 }
