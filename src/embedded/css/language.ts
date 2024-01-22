@@ -5,6 +5,6 @@ export const language = "embeddedCss";
  */
 declare module "../types.js" {
   interface EmbeddedLanguagesHolder {
-    [language]: void;
+    [language]: undefined;
   }
 }

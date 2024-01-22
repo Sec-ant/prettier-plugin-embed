@@ -1,10 +1,10 @@
 import type { SupportOptions } from "prettier";
 import type { PrettierTaploOptions } from "prettier-plugin-toml";
 import {
-  makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
   type UnionToIntersection,
+  makeIdentifiersOptionName,
 } from "../utils.js";
 import { language } from "./language.js";
 

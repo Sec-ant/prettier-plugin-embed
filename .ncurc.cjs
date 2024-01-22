@@ -5,5 +5,6 @@ module.exports = {
     /(?:^|@.+?\/)prettier-plugin-/,
     "@xml-tools/parser",
     "chevrotain",
+    "@biomejs/biome",
   ],
 };

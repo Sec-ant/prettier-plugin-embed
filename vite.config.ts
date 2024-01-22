@@ -1,7 +1,8 @@
 /// <reference types="vitest" />
-import { transform } from "esbuild";
+
 import { readFile } from "node:fs/promises";
 import { builtinModules } from "node:module";
+import { transform } from "esbuild";
 import { defineConfig } from "vite";
 import { reject } from "./.ncurc.cjs";
 

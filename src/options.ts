@@ -1,9 +1,9 @@
 import type { SupportOptions } from "prettier";
 import {
-  embeddedOptions,
   type AutocompleteStringList,
   type EmbeddedDefaultIdentifier,
   type PrettierPluginEmbedOptions,
+  embeddedOptions,
 } from "./embedded/index.js";
 
 type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier[]>;

@@ -42,17 +42,15 @@ export function simpleRehydrateDoc(
     const components = doc.split(placeholderRegex);
     for (let i = 0; i < components.length; i++) {
       let component = components[i]!;
-      if (i % 2 == 0) {
+      if (i % 2 === 0) {
         if (!component) {
           continue;
         }
         component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
         if (replaceLiteralNewlinesToHardlines) {
-          component
-            .split(/(\n)/)
-            .forEach((c) =>
-              c === "\n" ? parts.push(hardline) : parts.push(c),
-            );
+          for (const c of component.split(/(\n)/)) {
+            c === "\n" ? parts.push(hardline) : parts.push(c);
+          }
         } else {
           parts.push(component);
         }
@@ -76,7 +74,7 @@ export function throwIfPluginIsNotFound(
       options.plugins?.some(
         (p) =>
           (p as { name?: string }).name?.match(
-            new RegExp("(^|/)" + escapeRegExp(pluginName) + "($|/)"),
+            new RegExp(`(^|/)${escapeRegExp(pluginName)}($|/)`),
           ) ?? false,
       ) ?? false
     )
@@ -171,14 +169,16 @@ export type AutocompleteStringList<T extends readonly string[]> =
   | string[];
 
 export type StringListToInterfaceKey<T extends readonly string[]> = {
-  [key in T[number]]: void;
+  [key in T[number]]: undefined;
 };
 
 export type Satisfies<U, T extends U> = T;
 
 // transform union to intersection type
 export type UnionToIntersection<U> = (
-  U extends unknown ? (x: U) => void : never
+  U extends unknown
+    ? (x: U) => void
+    : never
 ) extends (x: infer I) => void
   ? I
   : never;

@@ -2,9 +2,9 @@ import type { SupportOptions } from "prettier";
 import type { EsParser } from "../es/options.js";
 import type { TsParser } from "../ts/options.js";
 import {
-  makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
+  makeIdentifiersOptionName,
 } from "../utils.js";
 import { language } from "./language.js";
 

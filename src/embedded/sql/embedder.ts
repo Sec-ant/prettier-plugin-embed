@@ -19,14 +19,14 @@ export const embedder: Embedder<Options> = async (
   options,
   { identifier, embeddedOverrideOptions },
 ) => {
-  options = {
+  const resolvedOptions = {
     ...options,
     ...embeddedOverrideOptions,
   };
 
-  const plugin = options.embeddedSqlPlugin ?? "prettier-plugin-sql";
+  const plugin = resolvedOptions.embeddedSqlPlugin ?? "prettier-plugin-sql";
 
-  throwIfPluginIsNotFound(plugin, options, identifier);
+  throwIfPluginIsNotFound(plugin, resolvedOptions, identifier);
 
   const { node } = path;
 
@@ -54,13 +54,13 @@ export const embedder: Embedder<Options> = async (
 
   if (plugin === "prettier-plugin-sql-cst") {
     const doc = await textToDoc(trimmedText, {
-      ...options,
-      parser: options.embeddedSqlParser ?? "sqlite",
+      ...resolvedOptions,
+      parser: resolvedOptions.embeddedSqlParser ?? "sqlite",
     });
     contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
   } else {
     const doc = await textToDoc(dedent(trimmedText), {
-      ...options,
+      ...resolvedOptions,
       parser: "sql",
     });
     contentDoc = simpleRehydrateDoc(
@@ -71,13 +71,15 @@ export const embedder: Embedder<Options> = async (
     );
   }
 
-  if (options.preserveEmbeddedExteriorWhitespaces?.includes(identifier)) {
+  if (
+    resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(identifier)
+  ) {
     // TODO: should we label the doc with { hug: false } ?
     // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
     return group([
       "`",
       leadingWhitespaces,
-      options.noEmbeddedMultiLineIndentation?.includes(identifier)
+      resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
         ? [group(contentDoc)]
         : indent([group(contentDoc)]),
       trailingWhitespaces,
@@ -90,7 +92,7 @@ export const embedder: Embedder<Options> = async (
 
   return group([
     "`",
-    options.noEmbeddedMultiLineIndentation?.includes(identifier)
+    resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
       ? [leadingLineBreak, group(contentDoc)]
       : indent([leadingLineBreak, group(contentDoc)]),
     trailingLineBreak,

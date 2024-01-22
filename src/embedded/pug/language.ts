@@ -5,6 +5,6 @@ export const language = "embeddedPug";
  */
 declare module "../types.js" {
   interface EmbeddedLanguagesHolder {
-    [language]: void;
+    [language]: undefined;
   }
 }

@@ -17,7 +17,7 @@ export const embedder: Embedder<Options> = async (
   options,
   { identifier, embeddedOverrideOptions },
 ) => {
-  options = {
+  const resolvedOptions = {
     ...options,
     ...embeddedOverrideOptions,
   };
@@ -45,8 +45,8 @@ export const embedder: Embedder<Options> = async (
   const expressionDocs = printTemplateExpressions(path, print);
 
   const doc = await textToDoc(trimmedText, {
-    ...options,
-    parser: options.embeddedTsParser ?? "typescript",
+    ...resolvedOptions,
+    parser: resolvedOptions.embeddedTsParser ?? "typescript",
     // set filepath to undefined to enable jsx auto detection:
     // https://github.com/prettier/prettier/blob/427a84d24203e2d54160cde153a1e6a6390fe65a/src/language-js/parse/typescript.js#L49-L53
     filepath: undefined,
@@ -54,13 +54,15 @@ export const embedder: Embedder<Options> = async (
 
   const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
 
-  if (options.preserveEmbeddedExteriorWhitespaces?.includes(identifier)) {
+  if (
+    resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(identifier)
+  ) {
     // TODO: should we label the doc with { hug: false } ?
     // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
     return group([
       "`",
       leadingWhitespaces,
-      options.noEmbeddedMultiLineIndentation?.includes(identifier)
+      resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
         ? [group(contentDoc)]
         : indent([group(contentDoc)]),
       trailingWhitespaces,
@@ -73,7 +75,7 @@ export const embedder: Embedder<Options> = async (
 
   return group([
     "`",
-    options.noEmbeddedMultiLineIndentation?.includes(identifier)
+    resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
       ? [leadingLineBreak, group(contentDoc)]
       : indent([leadingLineBreak, group(contentDoc)]),
     trailingLineBreak,

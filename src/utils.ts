@@ -1,14 +1,14 @@
-import type { Node } from "estree";
-import memoize from "micro-memoize";
 import { readFile } from "node:fs/promises";
 import { dirname, extname, isAbsolute, resolve } from "node:path";
 import { Worker } from "node:worker_threads";
+import type { Node } from "estree";
+import memoize from "micro-memoize";
 import {
-  resolveConfigFile,
   type AstPath,
   type Options,
   type Parser,
   type ParserOptions,
+  resolveConfigFile,
 } from "prettier";
 import { parsers } from "./parsers.js";
 import type { EmbeddedOverrides } from "./types.js";
@@ -23,7 +23,7 @@ async function importJson(absolutePath: string) {
 }
 
 const importJsModuleWorkerDataUrl = /* @__PURE__ */ new URL(
-  "data:text/javascript," + encodeURIComponent(IMPORT_JS_MODULE_WORKER),
+  `data:text/javascript,${encodeURIComponent(IMPORT_JS_MODULE_WORKER)}`,
 );
 
 async function importJsModule(absolutePath: string) {
@@ -96,7 +96,7 @@ const resolveEmbeddedOverrides = async (
     return;
   }
   // js module file
-  else if (
+  if (
     extensionName === ".mjs" ||
     extensionName === ".cjs" ||
     extensionName === ".js"
@@ -110,7 +110,7 @@ const resolveEmbeddedOverrides = async (
     return;
   }
   // typescript module file
-  else if (
+  if (
     extensionName === ".mts" ||
     extensionName === ".cts" ||
     extensionName === ".ts"
@@ -124,7 +124,7 @@ const resolveEmbeddedOverrides = async (
     return;
   }
   // no ext, fallback to json
-  else if (extensionName === "") {
+  if (extensionName === "") {
     const absolutePath = await absolutePathPromise;
     const parsedEmbeddedOverrides = await importJson(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
@@ -163,7 +163,7 @@ export const resolveEmbeddedOverrideOptions = async (
       return options;
     }
   } catch {
-    console.error(`Error parsing embedded override options.`);
+    console.error("Error parsing embedded override options.");
   }
   return undefined;
 };
@@ -332,7 +332,7 @@ function compareArrays(
 ) {
   const len = value1.length;
 
-  if (len != value2.length) {
+  if (len !== value2.length) {
     return false;
   }
 

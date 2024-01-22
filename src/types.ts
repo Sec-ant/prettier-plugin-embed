@@ -1,11 +1,11 @@
 import type { TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
 import {
-  makeIdentifiersOptionName,
   type AutocompleteStringList,
   type EmbeddedDefaultIdentifier,
   type EmbeddedLanguage,
   type PrettierPluginEmbedOptions,
+  makeIdentifiersOptionName,
 } from "./embedded/index.js";
 import type { PrettierPluginGlobalOptions } from "./options.js";
 import { RemoveIndex } from "./utils.js";

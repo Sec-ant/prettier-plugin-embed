@@ -5,6 +5,6 @@ export const language = "embeddedJson";
  */
 declare module "../types.js" {
   interface EmbeddedLanguagesHolder {
-    [language]: void;
+    [language]: undefined;
   }
 }

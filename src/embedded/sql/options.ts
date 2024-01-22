@@ -2,12 +2,12 @@ import type { ChoiceSupportOption, SupportOptions } from "prettier";
 import type { SqlBaseOptions as PrettierPluginSqlOptions } from "prettier-plugin-sql";
 import type { SqlPluginOptions as PrettierPluginSqlCstRequiredOptions } from "prettier-plugin-sql-cst";
 import {
-  makeIdentifiersOptionName,
-  makeParserOptionName,
-  makePluginOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
   type UnionToIntersection,
+  makeIdentifiersOptionName,
+  makeParserOptionName,
+  makePluginOptionName,
 } from "../utils.js";
 import { language } from "./language.js";
 

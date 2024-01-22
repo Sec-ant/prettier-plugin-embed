@@ -5,6 +5,6 @@ export const language = "embeddedPegjs";
  */
 declare module "../types.js" {
   interface EmbeddedLanguagesHolder {
-    [language]: void;
+    [language]: undefined;
   }
 }

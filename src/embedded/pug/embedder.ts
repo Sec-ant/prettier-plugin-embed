@@ -20,7 +20,7 @@ export const embedder: Embedder<Options> = async (
 ) => {
   throwIfPluginIsNotFound("@prettier/plugin-pug", options, identifier);
 
-  options = {
+  const resolvedOptions = {
     ...options,
     ...embeddedOverrideOptions,
   };
@@ -48,7 +48,7 @@ export const embedder: Embedder<Options> = async (
   const expressionDocs = printTemplateExpressions(path, print);
 
   const doc = await textToDoc(trimmedText, {
-    ...options,
+    ...resolvedOptions,
     parser: "pug",
   });
 
@@ -59,13 +59,15 @@ export const embedder: Embedder<Options> = async (
     true,
   );
 
-  if (options.preserveEmbeddedExteriorWhitespaces?.includes(identifier)) {
+  if (
+    resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(identifier)
+  ) {
     // TODO: should we label the doc with { hug: false } ?
     // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
     return group([
       "`",
       leadingWhitespaces,
-      options.noEmbeddedMultiLineIndentation?.includes(identifier)
+      resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
         ? [group(contentDoc)]
         : indent([group(contentDoc)]),
       trailingWhitespaces,
@@ -78,7 +80,7 @@ export const embedder: Embedder<Options> = async (
 
   return group([
     "`",
-    options.noEmbeddedMultiLineIndentation?.includes(identifier)
+    resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
       ? [leadingLineBreak, group(contentDoc)]
       : indent([leadingLineBreak, group(contentDoc)]),
     trailingLineBreak,

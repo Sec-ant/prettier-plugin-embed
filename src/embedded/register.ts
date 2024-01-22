@@ -26,9 +26,9 @@ const embedded = import.meta.glob<EmbeddedExports>("./*/index.{ts,js}", {
 });
 
 // TODO: check duplicate names or options before assign or merge
-Object.values(embedded).forEach(({ language, parser, embedder, options }) => {
+for (const { language, parser, embedder, options } of Object.values(embedded)) {
   insertLanguage(embeddedLanguages, language, embeddedNoop);
   parser && (embeddedParsers[language] = parser);
   embedder && (embeddedEmbedders[language] = embedder);
   Object.assign(embeddedOptions, options);
-});
+}

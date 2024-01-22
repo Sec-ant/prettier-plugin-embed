@@ -1,4 +1,6 @@
 {
-  "*.ts": ["eslint"],
-  "*.{ts,js,md,json}": ["prettier --write"]
+  "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
+    "biome check --apply --no-errors-on-unmatched --files-ignore-unknown=true"
+  ],
+  "*.md": ["prettier --write --no-config"]
 }

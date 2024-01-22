@@ -19,10 +19,7 @@ const { estree: estreePrinter } = estreePrinters;
 // https://prettier.io/docs/en/plugins.html#optional-embed
 // we override the built-in one with this
 // so that we can add hooks to support other languages
-const embed: Printer["embed"] = function (
-  path: AstPath<Node>,
-  options: Options,
-) {
+const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
   const { node } = path;
   // a quick check
   if (

@@ -1,9 +1,9 @@
 import type { ChoiceSupportOption, SupportOptions } from "prettier";
 import {
-  makeIdentifiersOptionName,
-  makeParserOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
+  makeIdentifiersOptionName,
+  makeParserOptionName,
 } from "../utils.js";
 import { language } from "./language.js";
 

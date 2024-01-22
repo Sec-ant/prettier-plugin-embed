@@ -1,10 +1,10 @@
 import type { SupportOptions } from "prettier";
 import type { NginxOptions } from "prettier-plugin-nginx";
 import {
-  makeIdentifiersOptionName,
   type AutocompleteStringList,
   type StringListToInterfaceKey,
   type UnionToIntersection,
+  makeIdentifiersOptionName,
 } from "../utils.js";
 import { language } from "./language.js";
 

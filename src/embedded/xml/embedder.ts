@@ -20,7 +20,7 @@ export const embedder: Embedder<Options> = async (
 ) => {
   throwIfPluginIsNotFound("@prettier/plugin-xml", options, identifier);
 
-  options = {
+  const resolvedOptions = {
     ...options,
     ...embeddedOverrideOptions,
   };
@@ -54,19 +54,22 @@ export const embedder: Embedder<Options> = async (
     if (textFragment.length === 0) {
       break;
     }
-    if (sliceIndex > 0 && options.xmlWhitespaceSensitivity !== "strict") {
+    if (
+      sliceIndex > 0 &&
+      resolvedOptions.xmlWhitespaceSensitivity !== "strict"
+    ) {
       doc.push(softline);
     }
     // clear recover index holder
-    options.__embeddedXmlFragmentRecoverIndex?.splice(
+    resolvedOptions.__embeddedXmlFragmentRecoverIndex?.splice(
       0,
-      options.__embeddedXmlFragmentRecoverIndex.length,
+      resolvedOptions.__embeddedXmlFragmentRecoverIndex.length,
     );
     let printedText = await textToDoc(textFragment, {
-      ...options,
+      ...resolvedOptions,
       parser: language,
     });
-    const [i1, i2] = options.__embeddedXmlFragmentRecoverIndex ?? [];
+    const [i1, i2] = resolvedOptions.__embeddedXmlFragmentRecoverIndex ?? [];
     if (i1 === undefined) {
       sliceIndex = undefined;
     } else if (i2 === undefined) {
@@ -81,15 +84,15 @@ export const embedder: Embedder<Options> = async (
   const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
 
   if (
-    options.xmlWhitespaceSensitivity === "strict" ||
-    options.preserveEmbeddedExteriorWhitespaces?.includes(identifier)
+    resolvedOptions.xmlWhitespaceSensitivity === "strict" ||
+    resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(identifier)
   ) {
     // TODO: should we label the doc with { hug: false } ?
     // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
     return group([
       "`",
       leadingWhitespaces,
-      options.noEmbeddedMultiLineIndentation?.includes(identifier)
+      resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
         ? [group(contentDoc)]
         : indent([group(contentDoc)]),
       trailingWhitespaces,
@@ -102,7 +105,7 @@ export const embedder: Embedder<Options> = async (
 
   return group([
     "`",
-    options.noEmbeddedMultiLineIndentation?.includes(identifier)
+    resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
       ? [leadingLineBreak, group(contentDoc)]
       : indent([leadingLineBreak, group(contentDoc)]),
     trailingLineBreak,

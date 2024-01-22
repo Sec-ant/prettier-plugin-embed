@@ -1,6 +1,6 @@
-import fastGlob from "fast-glob";
 import { appendFile, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import fastGlob from "fast-glob";
 
 const registerTypeDeclarationFilePath = fileURLToPath(
   new URL("../dist/embedded/register.d.ts", import.meta.url),

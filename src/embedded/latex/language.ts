@@ -5,6 +5,6 @@ export const language = "embeddedLatex";
  */
 declare module "../types.js" {
   interface EmbeddedLanguagesHolder {
-    [language]: void;
+    [language]: undefined;
   }
 }
