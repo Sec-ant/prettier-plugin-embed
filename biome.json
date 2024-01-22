@@ -1,7 +1,8 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.5.2/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": ["./tests/code/**/*"]
+    "ignore": ["./tests/code/**/*"],
+    "ignoreUnknown": true
   },
   "organizeImports": {
     "enabled": true
@@ -20,6 +21,9 @@
       },
       "style": {
         "noNonNullAssertion": "off"
+      },
+      "nursery": {
+        "useImportType": "error"
       }
     }
   },

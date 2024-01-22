@@ -4,9 +4,7 @@
   "private": false,
   "version": "0.4.8",
   "type": "module",
-  "files": [
-    "./dist"
-  ],
+  "files": ["./dist"],
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "exports": {
@@ -62,10 +60,11 @@
     "prepublishOnly": "npm run build && npm run process-readme",
     "postpublish": "npm run restore-readme",
     "ncu": "npx ncu",
-    "postncu": "npm i"
+    "postncu": "npm i",
+    "bump-biome": "npm i @biomejs/biome@latest --save-exact"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.5.2",
+    "@biomejs/biome": "1.5.3",
     "@commitlint/cli": "^18.4.4",
     "@commitlint/config-conventional": "^18.4.4",
     "@prettier/plugin-php": "^0.22.1",

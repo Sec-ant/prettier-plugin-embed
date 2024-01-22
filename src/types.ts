@@ -1,14 +1,14 @@
 import type { TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
-import {
-  type AutocompleteStringList,
-  type EmbeddedDefaultIdentifier,
-  type EmbeddedLanguage,
-  type PrettierPluginEmbedOptions,
+import type {
+  AutocompleteStringList,
+  EmbeddedDefaultIdentifier,
+  EmbeddedLanguage,
+  PrettierPluginEmbedOptions,
   makeIdentifiersOptionName,
 } from "./embedded/index.js";
 import type { PrettierPluginGlobalOptions } from "./options.js";
-import { RemoveIndex } from "./utils.js";
+import type { RemoveIndex } from "./utils.js";
 
 // patch estree types
 declare module "estree" {

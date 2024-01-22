@@ -1,4 +1,4 @@
-import { type Options } from "prettier";
+import type { Options } from "prettier";
 import { builders } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
