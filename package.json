@@ -42,6 +42,8 @@
     "access": "public"
   },
   "scripts": {
+    "prepare": "husky install",
+    "bump": "bumpp",
     "dev": "vite",
     "lint": "eslint . --ext .ts",
     "type-check": "tsc --noEmit --emitDeclarationOnly false",
@@ -73,10 +75,13 @@
     "@vitest/coverage-istanbul": "^1.2.1",
     "@vitest/ui": "^1.2.1",
     "@xml-tools/parser": "^1.0.11",
+    "bumpp": "^9.3.0",
     "chevrotain": "7.1.1",
     "esbuild": "^0.19.11",
     "eslint": "^8.56.0",
     "fast-glob": "^3.3.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
     "npm-check-updates": "^16.14.12",
     "prettier": "^3.2.4",
     "prettier-plugin-glsl": "^0.1.3",
