@@ -40,8 +40,8 @@
     "access": "public"
   },
   "scripts": {
-    "postinstall": "patch-package",
     "prepare": "husky install",
+    "prebump": "patch-package",
     "bump": "bumpp",
     "dev": "vite",
     "lint": "biome lint .",
