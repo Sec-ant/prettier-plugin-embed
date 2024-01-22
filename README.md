@@ -116,6 +116,7 @@ Supported embedded languages are:
 - [GraphQL](#graphql)
 - [HTML](#html)
 - [INI](#ini)
+- [Java](#java)
 - [JSON](#json)
 - [JSONata](#jsonata)
 - [LaTeX](#latex)
@@ -209,6 +210,14 @@ If you want to specify different parsers for different identifiers, check [`embe
 | `embeddedIniIdentifiers` | `string[]` | [`["ini", "cfg", "pro"]`](./src/embedded/ini/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded INI language. This option requires the `prettier-plugin-ini` plugin. |
 
 Formatting embedded INI language requires the [`prettier-plugin-ini`](https://github.com/kddnewton/prettier-plugin-ini) plugin to be loaded as well. And [options](https://github.com/kddnewton/prettier-plugin-ini#configuration) supported by `prettier-plugin-ini` can therefore be used to further control the formatting behavior.
+
+#### Java
+
+|          Option           |    Type    |                   Default                    | Description                                                                                                                                                              |
+| :-----------------------: | :--------: | :------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `embeddedJavaIdentifiers` | `string[]` | [`["java"]`](./src/embedded/java/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded Java language. This option requires the `prettier-plugin-java` plugin. |
+
+Formatting embedded Java language requires the [`prettier-plugin-java`](https://github.com/jhipster/prettier-java/tree/main/packages/prettier-plugin-java) plugin to be loaded as well. And [options](https://github.com/jhipster/prettier-java/tree/main/packages/prettier-plugin-java#options) supported by `prettier-plugin-java` can therefore be used to further control the formatting behavior.
 
 #### JSON
 
