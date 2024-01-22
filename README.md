@@ -168,7 +168,7 @@ If you want to specify different parsers for different identifiers, check [`embe
 | `embeddedEsIdentifiers` |                                               `string[]`                                                | [`["js", "jsx", "es", "es6", "mjs", "cjs", "pac", "javascript"]`](./src/embedded/es/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded ECMAScript/JavaScript language. |
 |   `embeddedEsParser`    | [`"babel" \| "babel-flow" \| "acorn" \| "espree" \| "flow" \| "meriyah"`](./src/embedded/es/options.ts) |                            [`"babel"`](./src/embedded/es/options.ts)                            | The parser used to parse the embedded ECMASCript/JavaScript language.                                                             |
 
-Formatting embedded ECMAScript language doesn't require other plugins and uses the parsers and printers provided by Prettier natively.
+Formatting embedded ECMAScript/JavaScript language doesn't require other plugins and uses the parsers and printers provided by Prettier natively.
 
 If you want to specify different parsers for different identifiers, check [`embeddedOverrides`](#embeddedoverrides).
 
@@ -267,7 +267,7 @@ The `remark` parser is [an alias of the `markdown` parser](https://github.com/pr
 | :------------------------: | :--------: | :--------------------------------------------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `embeddedNginxIdentifiers` | `string[]` | [`["nginx"]`](./src/embedded/nginx/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded NGINX language. This option requires the `prettier-plugin-nginx` plugin. |
 
-Formatting embedded Pegjs language requires the [`prettier-plugin-nginx`](https://github.com/jxddk/prettier-plugin-nginx) plugin to be loaded as well. And [options](https://github.com/jxddk/prettier-plugin-nginx?tab=readme-ov-file#configuration) supported by `prettier-plugin-nginx` can therefore be used to further control the formatting behavior.
+Formatting embedded NGINX language requires the [`prettier-plugin-nginx`](https://github.com/jxddk/prettier-plugin-nginx) plugin to be loaded as well. And [options](https://github.com/jxddk/prettier-plugin-nginx?tab=readme-ov-file#configuration) supported by `prettier-plugin-nginx` can therefore be used to further control the formatting behavior.
 
 #### Pegjs
 
@@ -309,7 +309,7 @@ Formatting embedded Properties language requires the [`prettier-plugin-propertie
 | :----------------------: | :--------: | :------------------------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `embeddedPugIdentifiers` | `string[]` | [`["pug", "jade"]`](./src/embedded/pug/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded Pug language. This option requires the `@prettier/plugin-pug` plugin. |
 
-Formatting embedded Shell language requires the [`@prettier/plugin-pug`](https://github.com/prettier/plugin-pug) plugin to be loaded as well. And [options](https://github.com/prettier/plugin-pug?tab=readme-ov-file#configuration) supported by `@prettier/plugin-pug` can therefore be used to further control the formatting behavior.
+Formatting embedded Pug language requires the [`@prettier/plugin-pug`](https://github.com/prettier/plugin-pug) plugin to be loaded as well. And [options](https://github.com/prettier/plugin-pug?tab=readme-ov-file#configuration) supported by `@prettier/plugin-pug` can therefore be used to further control the formatting behavior.
 
 #### Ruby
 
@@ -350,7 +350,7 @@ Note that `prettier-plugin-sql` supports many different SQL dialects which are s
 | :-----------------------: | :--------: | :------------------------------------------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `embeddedTomlIdentifiers` | `string[]` | [`["toml"]`](./src/embedded/toml/options.ts) | Tag or comment identifiers that make their subsequent template literals be identified as embedded TOML language. This option requires the `prettier-plugin-toml` plugin. |
 
-Formatting embedded TOML language requires the [`prettier-plugin-toml`](https://github.com/un-ts/prettier/tree/master/packages/toml#readme) plugin to be loaded as well. And options supported by `prettier-plugin-toml` can therefore be used to further control the formatting behavior.
+Formatting embedded TOML language requires the [`prettier-plugin-toml`](https://github.com/un-ts/prettier/tree/master/packages/toml#readme) plugin to be loaded as well. And [options](https://github.com/un-ts/prettier/blob/master/packages/toml/src/options.ts) supported by `prettier-plugin-toml` can therefore be used to further control the formatting behavior.
 
 #### TS (TypeScript)
 
