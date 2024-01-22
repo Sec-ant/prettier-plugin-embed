@@ -111,6 +111,7 @@
   "dependencies": {
     "dedent": "^1.5.1",
     "micro-memoize": "^4.1.2",
-    "package-up": "^5.0.0"
+    "package-up": "^5.0.0",
+    "type-fest": "^4.9.0"
   }
 }

@@ -1,10 +1,7 @@
 import type { ChoiceSupportOption, SupportOptions } from "prettier";
-import type { SqlBaseOptions as PrettierPluginSqlOptions } from "prettier-plugin-sql";
-import type { SqlPluginOptions as PrettierPluginSqlCstRequiredOptions } from "prettier-plugin-sql-cst";
 import {
   type AutocompleteStringList,
   type StringListToInterfaceKey,
-  type UnionToIntersection,
   makeIdentifiersOptionName,
   makeParserOptionName,
   makePluginOptionName,
@@ -41,12 +38,6 @@ const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 const EMBEDDED_LANGUAGE_PLUGIN = makePluginOptionName(language);
 
 const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(language);
-
-type PrettierPluginSqlCstOptions = Partial<PrettierPluginSqlCstRequiredOptions>;
-
-export interface PrettierPluginDepsOptions
-  extends UnionToIntersection<PrettierPluginSqlOptions>,
-    PrettierPluginSqlCstOptions {}
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
@@ -91,8 +82,4 @@ declare module "../types.js" {
     [EMBEDDED_LANGUAGE_PLUGIN]?: SqlPlugin;
     [EMBEDDED_LANGUAGE_PARSER]?: SqlCstParser;
   }
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginDepsOptions {}
 }
