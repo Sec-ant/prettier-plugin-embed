@@ -65,8 +65,7 @@
     "whenFileExists": "overwrite"
   },
   "scripts": {
-    "prepare": "husky install",
-    "prebump": "patch-package",
+    "prepare": "conc \"patch-package\" \"husky install\"",
     "bump": "bumpp",
     "dev": "vite",
     "lint": "biome lint .",
