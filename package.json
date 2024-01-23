@@ -12,6 +12,9 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./plugin-embed": {
+      "types": "./dist/plugin-embed.d.ts"
+    },
     "./embedded/*": {
       "types": "./dist/embedded/*.d.ts"
     },
@@ -20,10 +23,7 @@
     "./embedded/*/options": null,
     "./embedded/*/embedder": null,
     "./embedded/*/parser": null,
-    "./embedded/*/printer": null,
-    "./plugin-embed": {
-      "types": "./dist/plugin-embed.d.ts"
-    }
+    "./embedded/*/printer": null
   },
   "repository": {
     "type": "git",
