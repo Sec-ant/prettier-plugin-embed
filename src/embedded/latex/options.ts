@@ -21,7 +21,7 @@ const DEFAULT_IDENTIFIERS = [
   "toc",
   "sty",
 ] as const;
-type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
+type Identifiers = AutocompleteStringList<(typeof DEFAULT_IDENTIFIERS)[number]>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
@@ -44,7 +44,7 @@ type Options = typeof options;
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
-  interface PrettierPluginEmbedOptions {
+  interface PluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
   }
 }

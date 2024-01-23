@@ -25,4 +25,4 @@ export type EmbeddedLanguage = Satisfies<
 export interface EmbeddedDefaultIdentifiersHolder {}
 export type EmbeddedDefaultIdentifier = keyof EmbeddedDefaultIdentifiersHolder;
 
-export interface PrettierPluginEmbedOptions {}
+export interface PluginEmbedOptions {}

@@ -5,7 +5,7 @@ export type {
   EmbeddedLanguage,
   EmbeddedOptions,
   EmbeddedParsers,
-  PrettierPluginEmbedOptions,
+  PluginEmbedOptions,
 } from "./types.js";
 export {
   makeIdentifiersOptionName,

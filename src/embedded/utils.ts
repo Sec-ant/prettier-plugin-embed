@@ -1,7 +1,7 @@
 import type { Comment, Expression, TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
 import { builders, utils } from "prettier/doc";
-import type { OmitIndexSignature } from "type-fest";
+import type { LiteralUnion, OmitIndexSignature } from "type-fest";
 import type { InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, hardline, lineSuffixBoundary } = builders;
@@ -163,11 +163,10 @@ export function makeParserOptionName<T extends string>(language: T) {
   return `${language}Parser` as const;
 }
 
-// this weird generic can provide autocomplete prompts of type T[number] to users
-// while also accepts any string
-export type AutocompleteStringList<T extends readonly string[]> =
-  | (T[number][] & string[])
-  | string[];
+export type AutocompleteStringList<T extends string> = LiteralUnion<
+  T,
+  string
+>[];
 
 export type StringListToInterfaceKey<T extends readonly string[]> = {
   [key in T[number]]: undefined;

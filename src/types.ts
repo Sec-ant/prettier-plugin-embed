@@ -4,34 +4,11 @@ import type {
   AutocompleteStringList,
   EmbeddedDefaultIdentifier,
   EmbeddedLanguage,
-  PrettierPluginEmbedOptions,
+  PluginEmbedOptions,
   makeIdentifiersOptionName,
 } from "./embedded/index.js";
 import type { NormalizeOptions } from "./embedded/index.js";
-import type { PrettierPluginGlobalOptions } from "./options.js";
-
-// patch estree types
-declare module "estree" {
-  interface Comment {
-    leading: boolean;
-    trailing: boolean;
-    nodeDescription: string;
-  }
-
-  interface BaseNode {
-    comments?: Comment[];
-  }
-
-  interface File extends BaseNode {
-    type: "File";
-    sourceType: "script" | "module";
-    program: Program;
-  }
-
-  interface NodeMap {
-    File: File;
-  }
-}
+import type { PluginEmbedLanguageAgnosticOptions } from "./options.js";
 
 export type InternalPrintFun = (
   selector?: string | number | (string | number)[] | AstPath<TemplateLiteral>,
@@ -52,17 +29,17 @@ export type Embedder<T extends Options = Options> = (
 ) => Promise<Doc>;
 
 export interface EmbeddedOverride {
-  identifiers: AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
+  identifiers: AutocompleteStringList<EmbeddedDefaultIdentifier>;
   options: Omit<
     // native prettier options
-    Omit<NormalizeOptions<Options>, keyof PrettierPluginEmbedOptions> &
+    Omit<NormalizeOptions<Options>, keyof PluginEmbedOptions> &
       // prettier-plugin-embed options
       // except for "embedded<Language>Identifiers"
       // and global options
       // (they should be set globally, not in overrides)
       Omit<
-        PrettierPluginEmbedOptions,
-        | keyof PrettierPluginGlobalOptions
+        PluginEmbedOptions,
+        | keyof PluginEmbedLanguageAgnosticOptions
         | ReturnType<typeof makeIdentifiersOptionName<EmbeddedLanguage>>
       >,
     // these options are used in `printDocToString`,
