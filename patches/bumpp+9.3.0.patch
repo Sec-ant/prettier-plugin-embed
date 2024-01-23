@@ -1,10 +1,10 @@
-diff --git a/node_modules/bumpp/dist/chunk-ZY4OVS4D.mjs b/node_modules/bumpp/dist/chunk-YUHUYJBY.mjs
-similarity index 99%
-rename from node_modules/bumpp/dist/chunk-ZY4OVS4D.mjs
-rename to node_modules/bumpp/dist/chunk-YUHUYJBY.mjs
+diff --git a/node_modules/bumpp/bin/bumpp.js b/node_modules/bumpp/bin/bumpp.js
+old mode 100755
+new mode 100644
+diff --git a/node_modules/bumpp/dist/chunk-ZY4OVS4D.mjs b/node_modules/bumpp/dist/chunk-ZY4OVS4D.mjs
 index 1857e2c..17a5614 100644
 --- a/node_modules/bumpp/dist/chunk-ZY4OVS4D.mjs
-+++ b/node_modules/bumpp/dist/chunk-YUHUYJBY.mjs
++++ b/node_modules/bumpp/dist/chunk-ZY4OVS4D.mjs
 @@ -914,6 +914,10 @@ function writeTextFile(file) {
  function isManifest(obj) {
    return obj && typeof obj === "object" && isOptionalString(obj.name) && isOptionalString(obj.version) && isOptionalString(obj.description);
@@ -51,19 +51,6 @@ index 3c6d276..3e8d9c9 100644
      await writeJsonFile(file);
      modified = true;
    }
-diff --git a/node_modules/bumpp/dist/cli/index.mjs b/node_modules/bumpp/dist/cli/index.mjs
-index fd57a22..d26539b 100644
---- a/node_modules/bumpp/dist/cli/index.mjs
-+++ b/node_modules/bumpp/dist/cli/index.mjs
-@@ -7,7 +7,7 @@ import {
-   log_symbols_default,
-   require_picocolors,
-   versionBump
--} from "../chunk-ZY4OVS4D.mjs";
-+} from "../chunk-YUHUYJBY.mjs";
- 
- // src/cli/index.ts
- import process2 from "process";
 diff --git a/node_modules/bumpp/dist/index.js b/node_modules/bumpp/dist/index.js
 index 785dedd..f8000a0 100644
 --- a/node_modules/bumpp/dist/index.js
@@ -89,16 +76,3 @@ index 785dedd..f8000a0 100644
      await writeJsonFile(file);
      modified = true;
    }
-diff --git a/node_modules/bumpp/dist/index.mjs b/node_modules/bumpp/dist/index.mjs
-index 366a4ef..ac60df9 100644
---- a/node_modules/bumpp/dist/index.mjs
-+++ b/node_modules/bumpp/dist/index.mjs
-@@ -7,7 +7,7 @@ import {
-   loadBumpConfig,
-   versionBump,
-   versionBumpInfo
--} from "./chunk-ZY4OVS4D.mjs";
-+} from "./chunk-YUHUYJBY.mjs";
- 
- // src/index.ts
- var src_default = versionBump;
