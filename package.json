@@ -18,6 +18,10 @@
     "./embedded/*": {
       "types": "./dist/embedded/*.d.ts"
     },
+    "./embedded/index": null,
+    "./embedded/register": null,
+    "./embedded/types": null,
+    "./embedded/utils": null,
     "./embedded/*/index": null,
     "./embedded/*/language": null,
     "./embedded/*/options": null,
