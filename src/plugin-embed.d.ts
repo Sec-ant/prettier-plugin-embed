@@ -1,5 +1,6 @@
-import type { PrettierPluginEmbedOptions } from "./embedded/index.js";
+import "prettier";
 
 declare module "prettier" {
-  interface Options extends PrettierPluginEmbedOptions {}
+  type PluginEmbedOptions = import("./embedded/index.js").PluginEmbedOptions;
+  interface Options extends PluginEmbedOptions {}
 }

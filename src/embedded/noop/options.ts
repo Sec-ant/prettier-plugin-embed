@@ -6,7 +6,7 @@ import {
 } from "../utils.js";
 import { language } from "./language.js";
 
-type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
+type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier>;
 
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
@@ -25,7 +25,7 @@ type Options = typeof options;
 
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
-  interface PrettierPluginEmbedOptions {
+  interface PluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: EmbeddedIdentifiers;
   }
 }

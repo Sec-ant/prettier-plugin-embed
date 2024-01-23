@@ -12,7 +12,7 @@ import { language } from "./language.js";
  * - https://github.com/github-linguist/linguist/blob/7ca3799b8b5f1acde1dd7a8dfb7ae849d3dfb4cd/lib/linguist/languages.yml#L3283
  */
 const DEFAULT_IDENTIFIERS = ["properties"] as const;
-type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
+type Identifiers = AutocompleteStringList<(typeof DEFAULT_IDENTIFIERS)[number]>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
@@ -35,7 +35,7 @@ type Options = typeof options;
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
-  interface PrettierPluginEmbedOptions {
+  interface PluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
   }
 }

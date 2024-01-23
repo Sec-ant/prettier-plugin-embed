@@ -15,7 +15,7 @@ const prettierConfig = {
 };
 
 /**
- * @type {import("prettier-plugin-embed").PrettierPluginEmbedOptions}
+ * @type {import("prettier-plugin-embed").PluginEmbedOptions}
  */
 const prettierPluginEmbedConfig = {
   embeddedSqlIdentifiers: ["sql"],
