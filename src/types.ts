@@ -56,5 +56,3 @@ export interface EmbeddedOverride {
     | `__${string}`
   >;
 }
-
-export type EmbeddedOverrides = EmbeddedOverride[];

@@ -11,7 +11,7 @@ import {
   resolveConfigFile,
 } from "prettier";
 import { parsers } from "./parsers.js";
-import type { EmbeddedOverrides } from "./types.js";
+import type { EmbeddedOverride } from "./types.js";
 
 async function importJson(absolutePath: string) {
   try {
@@ -27,7 +27,7 @@ const importJsModuleWorkerDataUrl = /* @__PURE__ */ new URL(
 );
 
 async function importJsModule(absolutePath: string) {
-  return new Promise<EmbeddedOverrides | undefined>((resolve) => {
+  return new Promise<EmbeddedOverride[] | undefined>((resolve) => {
     const worker = new Worker(importJsModuleWorkerDataUrl, {
       workerData: {
         absolutePath,
@@ -35,7 +35,7 @@ async function importJsModule(absolutePath: string) {
     });
 
     worker.once("message", (result) => {
-      resolve(result as EmbeddedOverrides | undefined);
+      resolve(result as EmbeddedOverride[] | undefined);
     });
 
     worker.once("error", (error) => {
@@ -90,7 +90,7 @@ const resolveEmbeddedOverrides = async (
     const absolutePath = await absolutePathPromise;
     const parsedEmbeddedOverrides = await importJson(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
-      return parsedEmbeddedOverrides as EmbeddedOverrides;
+      return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
     console.error(`Failed to parse the json file: ${absolutePath}`);
     return;
@@ -104,7 +104,7 @@ const resolveEmbeddedOverrides = async (
     const absolutePath = await absolutePathPromise;
     const parsedEmbeddedOverrides = await importJsModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
-      return parsedEmbeddedOverrides as EmbeddedOverrides;
+      return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
     console.error(`Failed to parse the js module file: ${absolutePath}`);
     return;
@@ -118,7 +118,7 @@ const resolveEmbeddedOverrides = async (
     const absolutePath = await absolutePathPromise;
     const parsedEmbeddedOverrides = await importTsModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
-      return parsedEmbeddedOverrides as EmbeddedOverrides;
+      return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
     console.error(`Failed to parse the ts module file: ${absolutePath}`);
     return;
@@ -128,12 +128,12 @@ const resolveEmbeddedOverrides = async (
     const absolutePath = await absolutePathPromise;
     const parsedEmbeddedOverrides = await importJson(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
-      return parsedEmbeddedOverrides as EmbeddedOverrides;
+      return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
   }
   // fallback to stringified json
   try {
-    return JSON.parse(embeddedOverridesString) as EmbeddedOverrides;
+    return JSON.parse(embeddedOverridesString) as EmbeddedOverride[];
   } catch {
     console.error("Failed to parse embeddedOverrides as a json object");
   }
