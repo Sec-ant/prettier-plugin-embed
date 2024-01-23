@@ -1,6 +1,6 @@
 import "prettier";
+import type { PluginRubyOptions } from "./plugin-ruby-types.js";
 
 declare module "prettier" {
-  type PluginRubyOptions = import("./plugin-ruby-types.js").Options;
   interface Options extends PluginRubyOptions {}
 }

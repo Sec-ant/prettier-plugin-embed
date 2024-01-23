@@ -11,6 +11,18 @@
     ".": {
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./embedded/*": {
+      "types": "./dist/embedded/*.d.ts"
+    },
+    "./embedded/*/index": null,
+    "./embedded/*/language": null,
+    "./embedded/*/options": null,
+    "./embedded/*/embedder": null,
+    "./embedded/*/parser": null,
+    "./embedded/*/printer": null,
+    "./plugin-embed": {
+      "types": "./dist/plugin-embed.d.ts"
     }
   },
   "repository": {
@@ -39,6 +51,19 @@
   "publishConfig": {
     "access": "public"
   },
+  "copyFiles": [
+    {
+      "from": "src/embedded/*/plugin-*.d.ts",
+      "to": "dist/embedded"
+    },
+    {
+      "from": "src/plugin-embed.d.ts",
+      "to": "dist/plugin-embed.d.ts"
+    }
+  ],
+  "copyFileSettings": {
+    "whenFileExists": "overwrite"
+  },
   "scripts": {
     "prepare": "husky install",
     "prebump": "patch-package",
@@ -51,7 +76,9 @@
     "prebuild": "npm run check && npm run type-check",
     "build": "vite build",
     "add-glob-import-types": "tsx ./scripts/add-glob-import-types.ts",
-    "postbuild": "tsc --project ./tsconfig.production.json && npm run add-glob-import-types",
+    "nocheck-chevrotain-types": "tsx ./scripts/nocheck-chevrotain-types.ts",
+    "copy": "copy-files-from-to",
+    "postbuild": "tsc --project ./tsconfig.production.json && conc \"npm:add-glob-import-types\" \"npm:nocheck-chevrotain-types\" \"npm:copy\"",
     "prebuild:ci": "npm run type-check",
     "build:ci": "vite build",
     "postbuild:ci": "npm run postbuild",
@@ -75,13 +102,14 @@
     "@prettier/plugin-ruby": "^4.0.4",
     "@prettier/plugin-xml": "^3.2.2",
     "@stedi/prettier-plugin-jsonata": "^2.1.1",
-    "@types/estree": "^1.0.5",
     "@types/node": "^20.11.5",
     "@vitest/coverage-istanbul": "^1.2.1",
     "@vitest/ui": "^1.2.1",
     "@xml-tools/parser": "^1.0.11",
     "bumpp": "^9.3.0",
     "chevrotain": "7.1.1",
+    "concurrently": "^8.2.2",
+    "copy-files-from-to": "^3.9.1",
     "esbuild": "^0.19.11",
     "fast-glob": "^3.3.2",
     "husky": "^8.0.3",
@@ -109,6 +137,7 @@
     "vitest": "^1.2.1"
   },
   "dependencies": {
+    "@types/estree": "^1.0.5",
     "dedent": "^1.5.1",
     "micro-memoize": "^4.1.2",
     "package-up": "^5.0.0",

@@ -1,4 +1,5 @@
 import type { SqlPluginOptions } from "prettier-plugin-sql-cst";
-import type { NormalizeOptions } from "../utils.js";
+import type { OmitIndexSignature } from "type-fest";
 
-export interface Options extends NormalizeOptions<SqlPluginOptions> {}
+export interface PluginSqlCstOptions
+  extends Partial<OmitIndexSignature<SqlPluginOptions>> {}

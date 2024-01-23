@@ -1,6 +1,6 @@
 import "prettier";
+import type { PluginIniOptions } from "./plugin-ini-types.js";
 
 declare module "prettier" {
-  type PluginIniOptions = import("./plugin-ini-types.js").Options;
-  interface Options extends PluginIniOptions {}
+  export interface Options extends PluginIniOptions {}
 }

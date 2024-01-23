@@ -1,4 +1,5 @@
 import type { PrettierTaploOptions } from "prettier-plugin-toml";
-import type { NormalizeOptions } from "../utils.js";
+import type { OmitIndexSignature } from "type-fest";
 
-export interface Options extends NormalizeOptions<PrettierTaploOptions> {}
+export interface PluginTomlOptions
+  extends Partial<OmitIndexSignature<PrettierTaploOptions>> {}

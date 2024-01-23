@@ -1,7 +1,7 @@
 /**
  * Location: node_modules/@prettier/plugin-pug/src/printer.ts
  */
-export interface Options {
+export interface PluginPugOptions {
   pugPrintWidth?: number;
   pugSingleQuote?: boolean;
   pugTabWidth?: number;

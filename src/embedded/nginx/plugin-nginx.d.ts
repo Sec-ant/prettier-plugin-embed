@@ -1,6 +1,6 @@
 import "prettier";
+import type { PluginNginxOptions } from "./plugin-nginx-types.js";
 
 declare module "prettier" {
-  type PluginNginxOptions = import("./plugin-nginx-types.js").NginxOptions;
   interface Options extends PluginNginxOptions {}
 }

@@ -1,6 +1,6 @@
 import "prettier";
+import type { PluginSqlCstOptions } from "./plugin-sql-cst-types.js";
 
 declare module "prettier" {
-  type PluginSqlCstOptions = import("./plugin-sql-cst-types.js").Options;
   interface Options extends PluginSqlCstOptions {}
 }

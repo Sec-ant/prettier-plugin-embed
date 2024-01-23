@@ -1,6 +1,6 @@
 import "prettier";
+import type { PluginPegjsOptions } from "./plugin-pegjs-types.js";
 
 declare module "prettier" {
-  type PluginPegjsOptions = import("./plugin-pegjs-types.js").Options;
   interface Options extends PluginPegjsOptions {}
 }

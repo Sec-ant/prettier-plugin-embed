@@ -1,4 +1,5 @@
 import type { ShParserOptions } from "prettier-plugin-sh";
-import type { NormalizeOptions } from "../utils.js";
+import type { OmitIndexSignature } from "type-fest";
 
-export interface Options extends NormalizeOptions<ShParserOptions> {}
+export interface PluginShOptions
+  extends Partial<OmitIndexSignature<ShParserOptions>> {}

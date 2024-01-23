@@ -1,4 +1,5 @@
 import type { NginxOptions } from "prettier-plugin-nginx";
-import type { NormalizeOptions } from "../utils.js";
+import type { OmitIndexSignature } from "type-fest";
 
-export interface Options extends NormalizeOptions<NginxOptions> {}
+export interface PluginNginxOptions
+  extends Partial<OmitIndexSignature<NginxOptions>> {}

@@ -1,4 +1,4 @@
-export interface Options {
+export interface PluginPropertiesOptions {
   escapeNonLatin1?: boolean;
   keySeparator?: " " | ":" | "=" | ": " | "= " | " : " | " = ";
 }

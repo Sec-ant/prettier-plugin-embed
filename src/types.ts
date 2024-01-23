@@ -1,5 +1,6 @@
 import type { TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
+import type { OmitIndexSignature } from "type-fest";
 import type {
   AutocompleteStringList,
   EmbeddedDefaultIdentifier,
@@ -7,7 +8,6 @@ import type {
   PluginEmbedOptions,
   makeIdentifiersOptionName,
 } from "./embedded/index.js";
-import type { NormalizeOptions } from "./embedded/index.js";
 import type { PluginEmbedLanguageAgnosticOptions } from "./options.js";
 
 export type InternalPrintFun = (
@@ -32,7 +32,7 @@ export interface EmbeddedOverride {
   identifiers: AutocompleteStringList<EmbeddedDefaultIdentifier>;
   options: Omit<
     // native prettier options
-    Omit<NormalizeOptions<Options>, keyof PluginEmbedOptions> &
+    Omit<OmitIndexSignature<Options>, keyof PluginEmbedOptions> &
       // prettier-plugin-embed options
       // except for "embedded<Language>Identifiers"
       // and global options
