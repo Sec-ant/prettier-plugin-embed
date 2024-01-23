@@ -1,4 +1,4 @@
-export interface Options {
+export interface PluginXmlOptions {
   xmlSelfClosingSpace?: boolean;
   xmlWhitespaceSensitivity?: "strict" | "preserve" | "ignore";
   xmlSortAttributesByKey?: boolean;

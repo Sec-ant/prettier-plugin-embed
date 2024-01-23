@@ -1,3 +1,3 @@
-export interface Options {
+export interface PluginMarkdownOptions {
   __inJsTemplate?: boolean;
 }

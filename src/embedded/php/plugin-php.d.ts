@@ -1,6 +1,6 @@
 import "prettier";
+import type { PluginPhpOptions } from "./plugin-php-types.js";
 
 declare module "prettier" {
-  type PluginPhpOptions = import("./plugin-php-types.js").Options;
   interface Options extends PluginPhpOptions {}
 }

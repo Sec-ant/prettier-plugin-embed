@@ -1,4 +1,9 @@
 import type { SqlBaseOptions } from "prettier-plugin-sql";
-import type { NormalizeOptions } from "../utils.js";
+import type { OmitIndexSignature } from "type-fest";
 
-export interface Options extends NormalizeOptions<SqlBaseOptions> {}
+type NormalizedSqlBaseOptions = {
+  [k in keyof SqlBaseOptions]: SqlBaseOptions[k];
+};
+
+export interface PluginSqlOptions
+  extends Partial<OmitIndexSignature<NormalizedSqlBaseOptions>> {}

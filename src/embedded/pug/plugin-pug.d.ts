@@ -1,6 +1,6 @@
 import "prettier";
+import type { PluginPugOptions } from "./plugin-pug-types.js";
 
 declare module "prettier" {
-  type PluginPugOptions = import("./plugin-pug-types.js").Options;
   interface Options extends PluginPugOptions {}
 }

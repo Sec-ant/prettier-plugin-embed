@@ -1,6 +1,6 @@
 import type { AutocompleteStringList } from "../utils.js";
 
-export interface Options {
+export interface PluginRubyOptions {
   rubyPlugins?: AutocompleteStringList<
     | "plugin/single_quotes"
     | "plugin/trailing_comma"

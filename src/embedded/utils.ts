@@ -1,7 +1,7 @@
 import type { Comment, Expression, TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
 import { builders, utils } from "prettier/doc";
-import type { LiteralUnion, OmitIndexSignature } from "type-fest";
+import type { LiteralUnion } from "type-fest";
 import type { InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, hardline, lineSuffixBoundary } = builders;
@@ -173,16 +173,3 @@ export type StringListToInterfaceKey<T extends readonly string[]> = {
 };
 
 export type Satisfies<U, T extends U> = T;
-
-// transform union to intersection type
-export type UnionToIntersection<U> = (
-  U extends unknown
-    ? (x: U) => void
-    : never
-) extends (x: infer I) => void
-  ? I
-  : never;
-
-export type NormalizeOptions<T> = Partial<
-  UnionToIntersection<OmitIndexSignature<T>>
->;

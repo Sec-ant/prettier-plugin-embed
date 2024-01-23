@@ -1,4 +1,4 @@
-export interface Options {
+export interface PluginPhpOptions {
   phpVersion?:
     | "5.0"
     | "5.1"

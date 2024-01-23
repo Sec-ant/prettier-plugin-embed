@@ -2,7 +2,7 @@
  * Location:
  * https://github.com/jhipster/prettier-java/blob/983a09d890ae832565ceda1a28b3074e061e3cea/packages/prettier-plugin-java/src/options.js
  */
-export interface Options {
+export interface PluginJavaOptions {
   entrypoint?:
     | "arrayInitializer"
     | "variableInitializerList"

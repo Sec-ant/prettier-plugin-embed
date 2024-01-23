@@ -1,6 +1,6 @@
 import "prettier";
+import type { PluginShOptions } from "./plugin-sh-types.js";
 
 declare module "prettier" {
-  type PluginShOptions = import("./plugin-sh-types.js").Options;
   interface Options extends PluginShOptions {}
 }

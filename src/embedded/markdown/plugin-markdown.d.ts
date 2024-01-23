@@ -1,6 +1,6 @@
 import "prettier";
+import type { PluginMarkdownOptions } from "./plugin-markdown-types.js";
 
 declare module "prettier" {
-  type PluginMarkdownOptions = import("./plugin-markdown-types.js").Options;
   interface Options extends PluginMarkdownOptions {}
 }
