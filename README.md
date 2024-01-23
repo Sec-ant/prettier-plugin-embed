@@ -1,7 +1,7 @@
 <div align="center">
 
-![prettier-plugin-embed-light](./asset/prettier-plugin-embed-wide-light.svg#gh-light-mode-only)
-![prettier-plugin-embed-dark](./asset/prettier-plugin-embed-wide-dark.svg#gh-dark-mode-only)
+![prettier-plugin-embed-wide-logo](./asset/prettier-plugin-embed-wide-light.svg#gh-light-mode-only)
+![prettier-plugin-embed-wide-logo](./asset/prettier-plugin-embed-wide-dark.svg#gh-dark-mode-only)
 
 # Prettier Plugin Embed
 
@@ -421,6 +421,71 @@ An example `.json` file is:
 > [!CAUTION]
 >
 > Please note that not every option is supported to override. That largely depends on at which phase those options will kick in and take effect. For example, you can't override `tabWidth` in `embeddedOverrides` because this option is used in the [`printDocToString`](https://github.com/prettier/prettier/blob/7aecca5d6473d73f562ca3af874831315f8f2581/src/document/printer.js#L302) phase, where `prettier-plugin-embed` cannot override this option for only a set of specified identifiers. To find the list of unsupported options, please check the interface definition of `EmbeddedOverride` in the [source code](https://github.com/Sec-ant/prettier-plugin-embed/blob/main/src/types.ts).
+
+### Typed Options
+
+There're several ways to use the typed options provided by this plugin. Taking the embedded SQL language as an example:
+
+- **Augment the `Options` type from `Prettier` to use plugin-specific options**
+
+  Register options from `prettier-plugin-embed` (this plugin):
+
+  ```ts
+  /// <reference types="prettier-plugin-embed/plugin-embed" />
+  ```
+
+  Register options from `prettier-plugin-sql`:
+
+  ```ts
+  /// <reference types="prettier-plugin-embed/embedded/sql/plugin-sql" />
+  ```
+
+  Other embedded languages share the same pattern:
+
+  ```ts
+  /// <reference types="prettier-plugin-embed/embedded/<language>/<(no prettier or scope) plugin name>" />
+  ```
+
+- **Import plugin-specific options**
+
+  Import options from `prettier-plugin-embed` (this plugin):
+
+  ```ts
+  import type { PluginEmbedOptions } from "prettier-plugin-embed";
+  ```
+
+  Import options from `prettier-plugin-sql`:
+
+  ```ts
+  import type { PluginSqlOptions } from "prettier-plugin-embed/embedded/sql/plugin-sql-types";
+  ```
+
+  **NOTE:** You can also import the types from the `prettier-plugin-sql` plugin directly. However, not all of the plugins provide types, or provide them in a predictable way, so this plugin exports them in a more unified manner.
+
+  Other embedded languages share the same pattern:
+
+  ```ts
+  import type { Plugin<Language>Options } from "prettier-plugin-embed/embedded/<language>/<(no prettier or scope) plugin name>-types";
+  ```
+
+- **Use `JSDoc` in JavaScript files**
+
+  ```js
+  /**
+   * @type {import("prettier-plugin-embed").PluginEmbedOptions}
+   */
+  const pluginEmbedOptions = {
+    embeddedSqlIdentifiers: ["sql"],
+  };
+
+  /**
+   * @type {import("prettier-plugin-embed/embedded/sql/plugin-sql-types").PluginSqlOptions}
+   */
+  const pluginSqlOptions = {
+    language: "postgresql",
+    keywordCase: "upper",
+  };
+  ```
 
 ## Contributing
 
