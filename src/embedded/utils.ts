@@ -1,7 +1,11 @@
 import type { Comment, Expression, TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
 import { builders, utils } from "prettier/doc";
-import type { LiteralUnion } from "type-fest";
+import type {
+  LiteralUnion,
+  OmitIndexSignature,
+  UnionToIntersection,
+} from "type-fest";
 import type { InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, hardline, lineSuffixBoundary } = builders;
@@ -173,3 +177,9 @@ export type StringListToInterfaceKey<T extends readonly string[]> = {
 };
 
 export type Satisfies<U, T extends U> = T;
+
+export type NormalizeOptions<T> = OmitIndexSignature<{
+  [k in keyof UnionToIntersection<T>]?: k extends keyof T
+    ? T[k]
+    : UnionToIntersection<T>[k];
+}>;
