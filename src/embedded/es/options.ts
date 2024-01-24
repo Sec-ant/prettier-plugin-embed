@@ -23,7 +23,8 @@ const DEFAULT_IDENTIFIERS = [
   "pac",
   "javascript",
 ] as const;
-type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
+
+type Identifiers = AutocompleteStringList<(typeof DEFAULT_IDENTIFIERS)[number]>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
@@ -43,10 +44,6 @@ export type EsParser = (typeof ES_PARSERS)[number];
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 
 const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(language);
-
-export interface PrettierPluginDepsOptions {
-  /* prettier built-in options */
-}
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
@@ -75,12 +72,8 @@ type Options = typeof options;
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
-  interface PrettierPluginEmbedOptions {
+  interface PluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
     [EMBEDDED_LANGUAGE_PARSER]?: EsParser;
   }
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginDepsOptions {}
 }

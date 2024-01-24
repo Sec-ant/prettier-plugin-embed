@@ -1,6 +1,11 @@
 import type { Comment, Expression, TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
 import { builders, utils } from "prettier/doc";
+import type {
+  LiteralUnion,
+  OmitIndexSignature,
+  UnionToIntersection,
+} from "type-fest";
 import type { InternalPrintFun } from "../types.js";
 
 const { group, indent, softline, hardline, lineSuffixBoundary } = builders;
@@ -162,11 +167,10 @@ export function makeParserOptionName<T extends string>(language: T) {
   return `${language}Parser` as const;
 }
 
-// this weird generic can provide autocomplete prompts of type T[number] to users
-// while also accepts any string
-export type AutocompleteStringList<T extends readonly string[]> =
-  | (T[number][] & string[])
-  | string[];
+export type AutocompleteStringList<T extends string> = LiteralUnion<
+  T,
+  string
+>[];
 
 export type StringListToInterfaceKey<T extends readonly string[]> = {
   [key in T[number]]: undefined;
@@ -174,11 +178,8 @@ export type StringListToInterfaceKey<T extends readonly string[]> = {
 
 export type Satisfies<U, T extends U> = T;
 
-// transform union to intersection type
-export type UnionToIntersection<U> = (
-  U extends unknown
-    ? (x: U) => void
-    : never
-) extends (x: infer I) => void
-  ? I
-  : never;
+export type NormalizeOptions<T> = OmitIndexSignature<{
+  [k in keyof UnionToIntersection<T>]?: k extends keyof T
+    ? T[k]
+    : UnionToIntersection<T>[k];
+}>;

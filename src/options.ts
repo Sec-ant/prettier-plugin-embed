@@ -2,11 +2,10 @@ import type { SupportOptions } from "prettier";
 import {
   type AutocompleteStringList,
   type EmbeddedDefaultIdentifier,
-  type PrettierPluginEmbedOptions,
   embeddedOptions,
 } from "./embedded/index.js";
 
-type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier[]>;
+type EmbeddedIdentifiers = AutocompleteStringList<EmbeddedDefaultIdentifier>;
 
 const NO_EMBEDDED_IDENTIFICATION_BY_COMMENT =
   "noEmbeddedIdentificationByComment";
@@ -60,7 +59,7 @@ export const options = {
   },
 } as const satisfies SupportOptions;
 
-export interface PrettierPluginGlobalOptions {
+export interface PluginEmbedLanguageAgnosticOptions {
   [NO_EMBEDDED_IDENTIFICATION_BY_COMMENT]?: EmbeddedIdentifiers;
   [NO_EMBEDDED_IDENTIFICATION_BY_TAG]?: EmbeddedIdentifiers;
   [PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES]?: EmbeddedIdentifiers;
@@ -69,9 +68,5 @@ export interface PrettierPluginGlobalOptions {
 }
 
 declare module "./embedded/types.js" {
-  interface PrettierPluginEmbedOptions extends PrettierPluginGlobalOptions {}
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginEmbedOptions {}
+  interface PluginEmbedOptions extends PluginEmbedLanguageAgnosticOptions {}
 }

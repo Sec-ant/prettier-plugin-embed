@@ -1,10 +1,7 @@
 import type { ChoiceSupportOption, SupportOptions } from "prettier";
-import type { SqlBaseOptions as PrettierPluginSqlOptions } from "prettier-plugin-sql";
-import type { SqlPluginOptions as PrettierPluginSqlCstRequiredOptions } from "prettier-plugin-sql-cst";
 import {
   type AutocompleteStringList,
   type StringListToInterfaceKey,
-  type UnionToIntersection,
   makeIdentifiersOptionName,
   makeParserOptionName,
   makePluginOptionName,
@@ -19,7 +16,7 @@ import { language } from "./language.js";
  */
 const DEFAULT_IDENTIFIERS = ["sql"] as const;
 
-type Identifiers = AutocompleteStringList<typeof DEFAULT_IDENTIFIERS>;
+type Identifiers = AutocompleteStringList<(typeof DEFAULT_IDENTIFIERS)[number]>;
 type DefaultIdentifiersHolder = StringListToInterfaceKey<
   typeof DEFAULT_IDENTIFIERS
 >;
@@ -41,12 +38,6 @@ const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
 const EMBEDDED_LANGUAGE_PLUGIN = makePluginOptionName(language);
 
 const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(language);
-
-type PrettierPluginSqlCstOptions = Partial<PrettierPluginSqlCstRequiredOptions>;
-
-export interface PrettierPluginDepsOptions
-  extends UnionToIntersection<PrettierPluginSqlOptions>,
-    PrettierPluginSqlCstOptions {}
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
@@ -86,13 +77,9 @@ type Options = typeof options;
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
   interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
-  interface PrettierPluginEmbedOptions {
+  interface PluginEmbedOptions {
     [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
     [EMBEDDED_LANGUAGE_PLUGIN]?: SqlPlugin;
     [EMBEDDED_LANGUAGE_PARSER]?: SqlCstParser;
   }
-}
-
-declare module "prettier" {
-  interface Options extends PrettierPluginDepsOptions {}
 }

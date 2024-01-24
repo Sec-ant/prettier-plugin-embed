@@ -1,0 +1,15 @@
+{
+  "copyFiles": [
+    {
+      "from": "src/embedded/*/plugin-*.d.ts",
+      "to": "dist/embedded"
+    },
+    {
+      "from": "src/plugin-embed.d.ts",
+      "to": "dist/plugin-embed.d.ts"
+    }
+  ],
+  "copyFileSettings": {
+    "whenFileExists": "overwrite"
+  }
+}
