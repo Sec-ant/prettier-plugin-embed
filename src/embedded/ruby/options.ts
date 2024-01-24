@@ -3,6 +3,7 @@ import {
   type AutocompleteStringList,
   type StringListToInterfaceKey,
   makeIdentifiersOptionName,
+  makeParserOptionName,
 } from "../utils.js";
 import { language } from "./language.js";
 
@@ -20,9 +21,8 @@ type DefaultIdentifiersHolder = StringListToInterfaceKey<
 const RUBY_PARSERS = ["ruby", "rbs", "haml"] as const;
 export type RubyParser = (typeof RUBY_PARSERS)[number];
 
-const EMBEDDED_LANGUAGE_PARSER = "embeddedRubyParser";
-
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
+const EMBEDDED_LANGUAGE_PARSER = makeParserOptionName(language);
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
