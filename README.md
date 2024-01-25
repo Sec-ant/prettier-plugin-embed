@@ -520,7 +520,7 @@ This option is provided for users to override certain options based on identifie
 
 The resolved value should be an array of objects. Each object in the array must have 2 fields: `identifiers` and `options`. The `options` are considerred overrides that will be applied to the global `options` of prettier for those `idenfitiers` only. It's like the [`overrides`](https://prettier.io/docs/en/configuration.html#configuration-overrides) of `prettier`, but it is identifier-based instead of file-based.
 
-In a json file, the root is the array of objects. In a JavaScript file, the array of objects should be a default export, or a named export with the name `embeddedOverrides`.
+In a json file, the root is the array of objects. In a JavaScript/TypeScript file, the array of objects should be a default export, or a named export with the name `embeddedOverrides`.
 
 An example `.json`/`.jsonc` file is:
 
