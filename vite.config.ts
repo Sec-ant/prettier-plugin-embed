@@ -33,6 +33,17 @@ export default defineConfig({
         )
       ).code.trim(),
     ),
+    IMPORT_TS_MODULE_WORKER: JSON.stringify(
+      (
+        await transform(
+          await readFile("./scripts/import-ts-module-worker.ts"),
+          {
+            loader: "ts",
+            minify: true,
+          },
+        )
+      ).code.trim(),
+    ),
   },
   test: {
     passWithNoTests: true,
