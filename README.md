@@ -393,13 +393,17 @@ Formatting embedded YAML language doesn't require other plugins and uses the par
 
 #### `embeddedOverrides`
 
-This option is provided for users to override certain options based on identifiers. Due to the lack of support for using objects in prettier plugin options (https://github.com/prettier/prettier/issues/14671), it accepts a **stringified** json string, or a file path with an extension of `.json` or `.js` or `.cjs` or `.mjs` as its value. If no extension is provided, it will be treated as a `.json` file. For relative paths, it will automatically figure out the prettier config location and use that as the base path.
+This option is provided for users to override certain options based on identifiers. Due to the lack of support for using objects in prettier plugin options (https://github.com/prettier/prettier/issues/14671), it accepts a **stringified** json string, or a file path with an extension of `.json`, `.jsonc`, `.js`, `.cjs`, `.mjs`, `.ts`, `.cts` or `.mts` as its value. If no extension is provided, it will be treated as a `.json`/`.jsonc` file. For relative paths, it will automatically figure out the prettier config location and use that as the base path.
+
+> [!NOTE]
+>
+> The support for using `.ts`, `.mts` or `.cts` files for `embeddedOverrides` requires a minimal `node` version of [18.19.0](https://nodejs.org/en/blog/release/v18.19.0#esm-and-customization-hook-changes), and [`tsx`](https://github.com/privatenumber/tsx) as a dependency in your project.
 
 The resolved value should be an array of objects. Each object in the array must have 2 fields: `identifiers` and `options`. The `options` are considerred overrides that will be applied to the global `options` of prettier for those `idenfitiers` only. It's like the [`overrides`](https://prettier.io/docs/en/configuration.html#configuration-overrides) of `prettier`, but it is identifier-based instead of file-based.
 
 In a json file, the root is the array of objects. In a JavaScript file, the array of objects should be a default export, or a named export with the name `embeddedOverrides`.
 
-An example `.json` file is:
+An example `.json`/`.jsonc` file is:
 
 ```json
 [

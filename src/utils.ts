@@ -1,6 +1,3 @@
-import { readFile } from "node:fs/promises";
-import { dirname, extname, isAbsolute, resolve } from "node:path";
-import { Worker } from "node:worker_threads";
 import type { Node } from "estree";
 import memoize from "micro-memoize";
 import {
@@ -10,13 +7,15 @@ import {
   type ParserOptions,
   resolveConfigFile,
 } from "prettier";
+import JSONC from "tiny-jsonc";
 import { parsers } from "./parsers.js";
 import type { EmbeddedOverride } from "./types.js";
 
-async function importJson(absolutePath: string) {
+async function importJsonc(absolutePath: string) {
   try {
+    const { readFile } = await import("node:fs/promises");
     const content = await readFile(absolutePath, { encoding: "utf-8" });
-    return JSON.parse(content);
+    return JSONC.parse(content);
   } catch {
     /* void */
   }
@@ -26,7 +25,13 @@ const importJsModuleWorkerDataUrl = /* @__PURE__ */ new URL(
   `data:text/javascript,${encodeURIComponent(IMPORT_JS_MODULE_WORKER)}`,
 );
 
+const importTsModuleWorkerDataUrl = /* @__PURE__ */ new URL(
+  `data:text/javascript,${encodeURIComponent(IMPORT_TS_MODULE_WORKER)}`,
+);
+
 async function importJsModule(absolutePath: string) {
+  const { Worker } = await import("node:worker_threads");
+
   return new Promise<EmbeddedOverride[] | undefined>((resolve) => {
     const worker = new Worker(importJsModuleWorkerDataUrl, {
       workerData: {
@@ -45,23 +50,31 @@ async function importJsModule(absolutePath: string) {
   });
 }
 
-/**
- * Import typescript module
- *
- * @param absolutePath
- * @returns
- */
 async function importTsModule(absolutePath: string) {
-  // TODO: Just a placeholder, doesn't work at the moment
-  absolutePath;
-  console.error(
-    "Ts module type embeddedOverrides has not been implemented yet.",
-  );
-  return undefined;
+  const { Worker } = await import("node:worker_threads");
+
+  return new Promise<EmbeddedOverride[] | undefined>((resolve) => {
+    const worker = new Worker(importTsModuleWorkerDataUrl, {
+      workerData: {
+        absolutePath,
+        importMetaUrl: import.meta.url,
+      },
+    });
+
+    worker.once("message", (result) => {
+      resolve(result as EmbeddedOverride[] | undefined);
+    });
+
+    worker.once("error", (error) => {
+      console.error(error);
+      resolve(undefined);
+    });
+  });
 }
 
 const resolveEmbeddedOverridesFileAbsolutePath = memoize(
   async (embeddedOverridesFilePath: string, sourceFilePath?: string) => {
+    const { isAbsolute, dirname, resolve } = await import("node:path");
     if (isAbsolute(embeddedOverridesFilePath)) {
       return embeddedOverridesFilePath;
     }
@@ -84,11 +97,24 @@ const resolveEmbeddedOverrides = async (
     embeddedOverridesString,
     sourceFilePath,
   );
-  const extensionName = extname(embeddedOverridesString);
-  // json file
-  if (extensionName === ".json") {
+  let extensionName: string;
+  try {
+    extensionName = (await import("node:path")).extname(
+      embeddedOverridesString,
+    );
+  } catch {
+    // node modules not available, fallback to stringified jsonc
+    try {
+      return JSONC.parse(embeddedOverridesString) as EmbeddedOverride[];
+    } catch {
+      console.error("Failed to parse embeddedOverrides as a json object");
+      return;
+    }
+  }
+  // jsonc file
+  if (extensionName === ".json" || extensionName === ".jsonc") {
     const absolutePath = await absolutePathPromise;
-    const parsedEmbeddedOverrides = await importJson(absolutePath);
+    const parsedEmbeddedOverrides = await importJsonc(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
@@ -123,20 +149,21 @@ const resolveEmbeddedOverrides = async (
     console.error(`Failed to parse the ts module file: ${absolutePath}`);
     return;
   }
-  // no ext, fallback to json
+  // no ext, fallback to jsonc
   if (extensionName === "") {
     const absolutePath = await absolutePathPromise;
-    const parsedEmbeddedOverrides = await importJson(absolutePath);
+    const parsedEmbeddedOverrides = await importJsonc(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
   }
-  // fallback to stringified json
+  // fallback to stringified jsonc
   try {
-    return JSON.parse(embeddedOverridesString) as EmbeddedOverride[];
+    return JSONC.parse(embeddedOverridesString) as EmbeddedOverride[];
   } catch {
     console.error("Failed to parse embeddedOverrides as a json object");
   }
+
   return;
 };
 
