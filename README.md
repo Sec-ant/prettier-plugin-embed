@@ -298,7 +298,7 @@ Formatting embedded LaTeX language requires the [`prettier-plugin-latex`](https:
 
 ##### `embeddedMarkdownParser`
 
-- **Type**: [`"markdown"  | "mdx"| "remark"`](./src/embedded/markdown/options.ts)
+- **Type**: [`"markdown" | "mdx" | "remark"`](./src/embedded/markdown/options.ts)
 - **Default**: [`"markdown"`](./src/embedded/markdown/options.ts)
 - **Description**: The parser used to parse the embedded Markdown language.
 
@@ -516,7 +516,7 @@ This option is provided for users to override certain options based on identifie
 
 > [!NOTE]
 >
-> The support for using `.ts`, `.mts` or `.cts` files for `embeddedOverrides` requires a minimal `node` version of [18.19.0](https://nodejs.org/en/blog/release/v18.19.0#esm-and-customization-hook-changes), and [`tsx`](https://github.com/privatenumber/tsx) as a dependency in your project.
+> The support for using `.ts`, `.mts` or `.cts` files for `embeddedOverrides` requires a minimal `node` version of [18.19.0](https://nodejs.org/en/blog/release/v18.19.0#esm-and-customization-hook-changes), and [`tsx`](https://github.com/privatenumber/tsx) as a dependency in your project. And it currently doesn't work with the Prettier VSCode extension.
 
 The resolved value should be an array of objects. Each object in the array must have 2 fields: `identifiers` and `options`. The `options` are considerred overrides that will be applied to the global `options` of prettier for those `idenfitiers` only. It's like the [`overrides`](https://prettier.io/docs/en/configuration.html#configuration-overrides) of `prettier`, but it is identifier-based instead of file-based.
 
