@@ -1,5 +1,6 @@
 import type { TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
+import type { printer } from "prettier/doc";
 import type { OmitIndexSignature } from "type-fest";
 import type {
   AutocompleteStringList,
@@ -45,10 +46,8 @@ export interface EmbeddedOverride {
     // these options are used in `printDocToString`,
     // we cannot override them because plugins can only affect ast and doc generation at most
     // check: https://github.com/prettier/prettier/blob/7aecca5d6473d73f562ca3af874831315f8f2581/src/document/printer.js
-    | "printWidth"
+    | keyof printer.Options
     | "endOfLine"
-    | "useTabs"
-    | "tabWidth"
     // some other options we don't want to expose to the users or don't make sense to override
     | "parser"
     | "filepath"
