@@ -1,4 +1,5 @@
 import type { Options, Parser, SupportOption } from "prettier";
+import type { LiteralUnion } from "type-fest";
 import type { Embedder } from "../types.js";
 import type { Satisfies } from "./utils.js";
 
@@ -22,7 +23,12 @@ export type EmbeddedLanguage = Satisfies<
   keyof EmbeddedLanguagesHolder
 >;
 
-export interface EmbeddedDefaultIdentifiersHolder {}
-export type EmbeddedDefaultIdentifier = keyof EmbeddedDefaultIdentifiersHolder;
+export interface EmbeddedDefaultCommentsHolder {}
+export type EmbeddedDefaultComment = keyof EmbeddedDefaultCommentsHolder;
+export type EmbeddedComment = LiteralUnion<EmbeddedDefaultComment, string>;
+
+export interface EmbeddedDefaultTagsHolder {}
+export type EmbeddedDefaultTag = keyof EmbeddedDefaultTagsHolder;
+export type EmbeddedTag = LiteralUnion<EmbeddedDefaultTag, string>;
 
 export interface PluginEmbedOptions {}

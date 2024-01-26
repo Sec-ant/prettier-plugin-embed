@@ -1,19 +1,27 @@
 import type { Node, TemplateLiteral } from "estree";
-import type { AstPath, Options, Plugin, Printer } from "prettier";
-import { builders } from "prettier/doc";
+import type {
+  AstPath,
+  Options,
+  Parser,
+  ParserOptions,
+  Plugin,
+  Printer,
+} from "prettier";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
+import { embeddedLanguages } from "./embedded/index.js";
+import { parsers } from "./parsers.js";
 import {
-  embeddedEmbedders,
-  embeddedLanguages,
-  makeIdentifiersOptionName,
-} from "./embedded/index.js";
-import {
-  getIdentifierFromComment,
-  getIdentifierFromTag,
-  resolveEmbeddedOverrideOptions,
+  assumeAs,
+  compareTagExpressionToTagString,
+  createCommentsInOptionsGenerator,
+  createEmbeddedDoc,
+  createTagsInOptionsGenerator,
+  parseCommentFromTemplateLiteralAstPath,
+  parseTagFromTemplateLiteralAstPath,
 } from "./utils.js";
 
 const { estree: estreePrinter } = estreePrinters;
+const { embed: builtInEmbed } = estreePrinter;
 
 // the embed method in plugin printers
 // https://prettier.io/docs/en/plugins.html#optional-embed
@@ -21,56 +29,114 @@ const { estree: estreePrinter } = estreePrinters;
 // so that we can add hooks to support other languages
 const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
   const { node } = path;
-  // a quick check
+  // skip all non-template-literal nodes
   if (
     node.type !== "TemplateLiteral" ||
     node.quasis.some(({ value: { cooked } }) => cooked === null)
   ) {
     return null;
   }
-  for (const embeddedLanguage of embeddedLanguages) {
-    const identifiers = options[makeIdentifiersOptionName(embeddedLanguage)];
-    if (!identifiers) {
-      continue;
-    }
-    const identifier =
-      getIdentifierFromComment(path, identifiers, options) ??
-      getIdentifierFromTag(path, identifiers, options);
-    if (identifier === undefined) {
-      continue;
-    }
-    const embeddedEmbedder = embeddedEmbedders[embeddedLanguage];
-    if (!embeddedEmbedder) {
-      return null;
-    }
-    const node = path.node as TemplateLiteral;
-    if (node.quasis.length === 1 && node.quasis[0]?.value.raw.trim() === "") {
-      return "``";
-    }
-    return async (textToDoc, print, path, options) => {
-      const embeddedOverrideOptions = await resolveEmbeddedOverrideOptions(
-        options.embeddedOverrides,
-        identifier,
-        options.filepath,
-      );
-      try {
-        const doc = await embeddedEmbedder(textToDoc, print, path, options, {
-          identifier,
-          identifiers,
-          embeddedOverrideOptions,
-        });
-        return builders.label(
-          { embed: true, ...(doc as builders.Label).label },
-          doc,
-        );
-      } catch (e) {
-        console.error(e);
-        throw e;
+
+  assumeAs<{ node: TemplateLiteral }>(path);
+
+  // check if the template literal node has a leading block comment,
+  // if it does, the inner value of the block comment is returned,
+  // if it does not, `undefined` is returned.
+  const comment = parseCommentFromTemplateLiteralAstPath(path);
+
+  // template literal node has a leading comment block
+  if (typeof comment === "string") {
+    const commentsInOptionsGenerator = createCommentsInOptionsGenerator(
+      options,
+      comment,
+    );
+
+    for (const embeddedLanguage of embeddedLanguages) {
+      let hit = false;
+
+      for (const commentInOptions of commentsInOptionsGenerator(
+        embeddedLanguage,
+      )) {
+        if (comment === commentInOptions) {
+          hit = true;
+          break;
+        }
       }
-    };
+
+      if (!hit) {
+        continue;
+      }
+
+      return createEmbeddedDoc(embeddedLanguage, comment, "comment", options);
+    }
+
+    // unknown comment block
+    // fallback to built-in behavior
+    return builtInEmbed?.(path, options) ?? null;
   }
-  // fall back
-  return estreePrinter.embed?.(path, options) ?? null;
+
+  // check if the template literal node has a tag,
+  // if it does and the tag is a simple identifier, the identifier name is returned as a string
+  // if it does but the tag is a complex expression, the expression is returned as an expression node
+  // if it does not, `undefined` is returned.
+  const tag = parseTagFromTemplateLiteralAstPath(path);
+
+  // template literal node has a simple identifier tag
+  if (typeof tag === "string") {
+    const tagsInOptionsGenerator = createTagsInOptionsGenerator(options, tag);
+
+    for (const embeddedLanguage of embeddedLanguages) {
+      let hit = false;
+
+      for (const tagInOptions of tagsInOptionsGenerator(embeddedLanguage)) {
+        if (tag === tagInOptions) {
+          hit = true;
+          break;
+        }
+      }
+
+      if (!hit) {
+        continue;
+      }
+
+      return createEmbeddedDoc(embeddedLanguage, tag, "tag", options);
+    }
+
+    // unknown tag
+    // fallback to built-in behavior
+    return builtInEmbed?.(path, options) ?? null;
+  }
+
+  // template literal node has a complex expression tag
+  if (tag !== undefined) {
+    const parse = (text: string) =>
+      (parsers[options.parser as keyof typeof parsers] as Parser<Node>).parse(
+        text,
+        options as ParserOptions<Node>,
+      );
+
+    const tagsInOptionsGenerator = createTagsInOptionsGenerator(options);
+
+    for (const embeddedLanguage of embeddedLanguages) {
+      let stringFormTag: string | undefined = undefined;
+
+      for (const tagInOptions of tagsInOptionsGenerator(embeddedLanguage)) {
+        if (compareTagExpressionToTagString(tag, tagInOptions, parse)) {
+          stringFormTag = tagInOptions;
+          break;
+        }
+      }
+
+      if (stringFormTag === undefined) {
+        continue;
+      }
+
+      return createEmbeddedDoc(embeddedLanguage, stringFormTag, "tag", options);
+    }
+  }
+
+  // fallback to built-in behavior
+  return builtInEmbed?.(path, options) ?? null;
 };
 
 // extends estree printer to parse embedded lanaguges in js/ts files
