@@ -2,32 +2,52 @@ import type { SupportOptions } from "prettier";
 import {
   type AutocompleteStringList,
   type StringListToInterfaceKey,
+  makeCommentsOptionName,
   makeIdentifiersOptionName,
+  makeTagsOptionName,
 } from "../utils.js";
 import { language } from "./language.js";
 
-/**
- * References:
- *
- * - https://github.com/microsoft/vscode/blob/de0121cf0e05d1673903551b6dbb2871556bfae9/extensions/xml/package.json#L15
- * - https://github.com/github-linguist/linguist/blob/7ca3799b8b5f1acde1dd7a8dfb7ae849d3dfb4cd/lib/linguist/languages.yml#L7712
- */
-const DEFAULT_IDENTIFIERS = ["xml", "opml", "rss", "svg"] as const;
-type Identifiers = AutocompleteStringList<(typeof DEFAULT_IDENTIFIERS)[number]>;
-type DefaultIdentifiersHolder = StringListToInterfaceKey<
-  typeof DEFAULT_IDENTIFIERS
->;
+const DEFAULT_COMMENTS_OR_TAGS = ["xml", "opml", "rss", "svg"] as const;
+
+const DEFAULT_COMMENTS = DEFAULT_COMMENTS_OR_TAGS;
+type Comments = AutocompleteStringList<(typeof DEFAULT_COMMENTS)[number]>;
+type DefaultCommentsHolder = StringListToInterfaceKey<typeof DEFAULT_COMMENTS>;
+
+const DEFAULT_TAGS = DEFAULT_COMMENTS_OR_TAGS;
+type Tags = AutocompleteStringList<(typeof DEFAULT_TAGS)[number]>;
+type DefaultTagsHolder = StringListToInterfaceKey<typeof DEFAULT_TAGS>;
 
 const EMBEDDED_LANGUAGE_IDENTIFIERS = makeIdentifiersOptionName(language);
+
+const EMBEDDED_LANGUAGE_COMMENTS = makeCommentsOptionName(language);
+const EMBEDDED_LANGUAGE_TAGS = makeTagsOptionName(language);
 
 export const options = {
   [EMBEDDED_LANGUAGE_IDENTIFIERS]: {
     category: "Embed",
     type: "string",
     array: true,
-    default: [{ value: [...DEFAULT_IDENTIFIERS] }],
+    default: [{ value: [...DEFAULT_COMMENTS_OR_TAGS] }],
     description:
       "Tag or comment identifiers that make their subsequent template literals be identified as embedded XML language. This option requires the `@prettier/plugin-xml` plugin.",
+    deprecated: `Please use \`${EMBEDDED_LANGUAGE_COMMENTS}\` or \`${EMBEDDED_LANGUAGE_TAGS}\`.`,
+  },
+  [EMBEDDED_LANGUAGE_COMMENTS]: {
+    category: "Embed",
+    type: "string",
+    array: true,
+    default: [{ value: [] }],
+    description:
+      "Block comments that make their subsequent template literals be identified as embedded XML language. This option requires the `@prettier/plugin-xml` plugin.",
+  },
+  [EMBEDDED_LANGUAGE_TAGS]: {
+    category: "Embed",
+    type: "string",
+    array: true,
+    default: [{ value: [] }],
+    description:
+      "Tags that make their subsequent template literals be identified as embedded XML language. This option requires the `@prettier/plugin-xml` plugin.",
   },
   /**
    * @internal
@@ -46,9 +66,15 @@ type Options = typeof options;
 
 declare module "../types.js" {
   interface EmbeddedOptions extends Options {}
-  interface EmbeddedDefaultIdentifiersHolder extends DefaultIdentifiersHolder {}
+  interface EmbeddedDefaultCommentsHolder extends DefaultCommentsHolder {}
+  interface EmbeddedDefaultTagsHolder extends DefaultTagsHolder {}
   interface PluginEmbedOptions {
-    [EMBEDDED_LANGUAGE_IDENTIFIERS]?: Identifiers;
+    /**
+     * @deprecated Please use `embeddedXmlComments` or `embeddedXmlTags`.
+     */
+    [EMBEDDED_LANGUAGE_IDENTIFIERS]?: (Comments[number] | Tags[number])[];
+    [EMBEDDED_LANGUAGE_COMMENTS]?: Comments;
+    [EMBEDDED_LANGUAGE_TAGS]?: Tags;
     /**
      * @internal
      */

@@ -1,15 +1,25 @@
-import type { Node } from "estree";
+import type { Expression, Node, TemplateLiteral } from "estree";
 import memoize from "micro-memoize";
 import {
   type AstPath,
   type Options,
-  type Parser,
-  type ParserOptions,
+  type Printer,
   resolveConfigFile,
 } from "prettier";
+import { builders } from "prettier/doc.js";
 import JSONC from "tiny-jsonc";
-import { parsers } from "./parsers.js";
+import {
+  type EmbeddedComment,
+  type EmbeddedLanguage,
+  type EmbeddedTag,
+  embeddedEmbedders,
+  makeCommentsOptionName,
+  makeIdentifiersOptionName,
+  makeTagsOptionName,
+} from "./embedded/index.js";
 import type { EmbeddedOverride } from "./types.js";
+
+const { label } = builders;
 
 async function importJsonc(absolutePath: string) {
   try {
@@ -73,12 +83,12 @@ async function importTsModule(absolutePath: string) {
 }
 
 const resolveEmbeddedOverridesFileAbsolutePath = memoize(
-  async (embeddedOverridesFilePath: string, sourceFilePath?: string) => {
+  async (embeddedOverridesFilePath: string, filepath?: string) => {
     const { isAbsolute, dirname, resolve } = await import("node:path");
     if (isAbsolute(embeddedOverridesFilePath)) {
       return embeddedOverridesFilePath;
     }
-    const configFilePath = await resolveConfigFile(sourceFilePath);
+    const configFilePath = await resolveConfigFile(filepath);
     let configDir: string;
     if (typeof configFilePath !== "string") {
       configDir = process.env.PWD ?? process.cwd();
@@ -93,10 +103,6 @@ const resolveEmbeddedOverrides = async (
   embeddedOverridesString: string,
   sourceFilePath?: string,
 ) => {
-  const absolutePathPromise = resolveEmbeddedOverridesFileAbsolutePath(
-    embeddedOverridesString,
-    sourceFilePath,
-  );
   let extensionName: string;
   try {
     extensionName = (await import("node:path")).extname(
@@ -111,6 +117,10 @@ const resolveEmbeddedOverrides = async (
       return;
     }
   }
+  const absolutePathPromise = resolveEmbeddedOverridesFileAbsolutePath(
+    embeddedOverridesString,
+    sourceFilePath,
+  );
   // jsonc file
   if (extensionName === ".json" || extensionName === ".jsonc") {
     const absolutePath = await absolutePathPromise;
@@ -167,48 +177,112 @@ const resolveEmbeddedOverrides = async (
   return;
 };
 
-export const resolveEmbeddedOverrideOptions = async (
+export async function resolveEmbeddedOverrideOptions(
   embeddedOverridesString: string | undefined,
-  identifier: string,
-  sourceFilePath?: string,
-) => {
+  {
+    commentOrTag,
+    kind,
+    filepath,
+  }: {
+    commentOrTag: EmbeddedComment | EmbeddedTag;
+    kind: "comment" | "tag";
+    filepath?: string;
+  },
+) {
+  // no embeddedOverrides string, return
   if (embeddedOverridesString === undefined) {
     return;
   }
-  const parsedEmbeddedOverrides = await resolveEmbeddedOverrides(
+
+  const embeddedOverrides = await resolveEmbeddedOverrides(
     embeddedOverridesString,
-    sourceFilePath,
+    filepath,
   );
-  if (parsedEmbeddedOverrides === undefined) {
+
+  if (embeddedOverrides === undefined) {
     return;
   }
-  try {
-    for (const { identifiers, options } of parsedEmbeddedOverrides) {
-      if (!identifiers.includes(identifier)) {
-        continue;
-      }
+
+  for (const {
+    [`${kind}s` as const]: commentsOrTags,
+    identifiers,
+    options,
+  } of embeddedOverrides) {
+    const commentsOrTagsList = commentsOrTags ?? [];
+    if (
+      (commentsOrTagsList.length === 0 &&
+        identifiers?.includes(commentOrTag)) ||
+      commentsOrTagsList.includes(commentOrTag)
+    ) {
       return options;
     }
-  } catch {
-    console.error("Error parsing embedded override options.");
   }
-  return undefined;
-};
+}
 
-// TODO: use esquery for further customization?
+export const compareTagExpressionToTagString = (() => {
+  const ignoreSet = new Set([
+    "start",
+    "end",
+    "loc",
+    "range",
+    "filename",
+    "typeAnnotation",
+    "decorators",
+  ]);
+  return (
+    tagExpression: Expression,
+    tagString: string,
+    parse: (text: string) => Node | Promise<Node>,
+  ) => {
+    let tagStringTopLevelNode: Node;
+    try {
+      const node = parse(`${tagString}\`\``);
+      if (node instanceof Promise) {
+        throw new TypeError("Async parse function hasn't been supported yet.");
+      }
+      tagStringTopLevelNode = node;
+    } catch {
+      return false;
+    }
 
-// function to get identifier from template literal comments
-export function getIdentifierFromComment(
-  { node, parent }: AstPath<Node>,
-  comments: string[],
-  options: Options,
-): string | undefined {
-  if (comments.length === 0) {
-    return;
-  }
-  if (node.type !== "TemplateLiteral") {
-    return;
-  }
+    // babel family parsers have a File type parent node
+    // so we strip it first
+    if (tagStringTopLevelNode.type === "File") {
+      tagStringTopLevelNode = tagStringTopLevelNode.program;
+    }
+
+    if (
+      !(
+        tagStringTopLevelNode.type === "Program" &&
+        tagStringTopLevelNode.body[0]?.type === "ExpressionStatement"
+      )
+    ) {
+      return false;
+    }
+
+    const tagStringNode = tagStringTopLevelNode.body[0]?.expression;
+    if (tagStringNode?.type !== "TaggedTemplateExpression") {
+      return false;
+    }
+
+    if (
+      compareObjects(
+        tagExpression as unknown as Record<string, unknown>,
+        tagStringNode.tag as unknown as Record<string, unknown>,
+        ignoreSet,
+      )
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+})();
+
+export function parseCommentFromTemplateLiteralAstPath({
+  node,
+  parent,
+}: AstPath<Node> & { node: TemplateLiteral }) {
   const nodeComments = node.comments ?? parent?.comments;
   if (!nodeComments) {
     return;
@@ -224,129 +298,173 @@ export function getIdentifierFromComment(
   ) {
     return;
   }
-  const noIdentificationList = options.noEmbeddedIdentificationByComment ?? [];
-  for (const comment of comments) {
-    if (noIdentificationList.includes(comment)) {
-      continue;
-    }
-    if (` ${comment} ` === lastNodeComment.value) {
-      return comment;
-    }
+  const commentValue = lastNodeComment.value;
+  if (
+    commentValue.length > 1 &&
+    commentValue.startsWith(" ") &&
+    commentValue.endsWith(" ")
+  ) {
+    return commentValue.slice(1, -1);
   }
-  return;
 }
 
-// function to get identifier from template literal tags
-export function getIdentifierFromTag(
-  { node, parent }: AstPath<Node>,
-  tags: string[],
-  options: Options,
-): string | undefined {
-  if (
-    tags.length === 0 ||
-    node.type !== "TemplateLiteral" ||
-    parent?.type !== "TaggedTemplateExpression"
-  ) {
+export function parseTagFromTemplateLiteralAstPath({
+  parent,
+}: AstPath<Node> & { node: TemplateLiteral }) {
+  if (parent?.type !== "TaggedTemplateExpression") {
     return;
   }
-  assumeAs<keyof typeof parsers>(options.parser);
-  const isKnownParser = options.parser in parsers;
-  const noIdentificationList = options.noEmbeddedIdentificationByTag ?? [];
-  const ignoreSet = new Set([
-    "start",
-    "end",
-    "loc",
-    "range",
-    "filename",
-    "typeAnnotation",
-    "decorators",
-  ]);
-  for (const tag of tags) {
-    if (noIdentificationList.includes(tag)) {
-      continue;
-    }
-    // simple "identifiers"
-    if (isLegitJsIdentifier(tag)) {
-      if (parent.tag.type === "Identifier" && parent.tag.name === tag) {
-        return tag;
+  if (parent.tag.type === "Identifier") {
+    return parent.tag.name;
+  }
+  return parent.tag;
+}
+
+export function createCommentsInOptionsGenerator(
+  options: Options,
+  comment: string,
+) {
+  // lazy-evaluated
+  const isCommentNotExcluded = (() => {
+    let result: boolean | undefined = undefined;
+    return () => {
+      if (result === undefined) {
+        result = !(
+          options.noEmbeddedIdentificationByComment?.includes(comment) ?? false
+        );
       }
+      return result;
+    };
+  })();
+  return function* (embeddedLanguage: EmbeddedLanguage) {
+    const commentsInOptions =
+      options[makeCommentsOptionName(embeddedLanguage)] ?? [];
+
+    // fallback to identifiers if no comments in options
+    if (commentsInOptions.length === 0 && isCommentNotExcluded()) {
+      yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
+    } else {
+      yield* commentsInOptions;
     }
-    // complex "identifiers"
-    else {
-      if (!isKnownParser) {
-        return;
-      }
-      let referenceTopLevelNode: Node;
-      try {
-        const nodeOrPromise = (parsers[options.parser] as Parser<Node>).parse(
-          `${tag}\`\``,
-          options as ParserOptions<Node>,
-        ) as Node | Promise<Node>;
-        if (nodeOrPromise instanceof Promise) {
-          throw new TypeError(
-            "Async parse function hasn't been supported yet.",
+  };
+}
+
+export function createTagsInOptionsGenerator(options: Options, tag?: string) {
+  if (typeof tag === "string") {
+    // lazy-evaluated
+    const isTagNotExcluded = (() => {
+      let result: boolean | undefined = undefined;
+      return () => {
+        if (result === undefined) {
+          result = !(
+            options.noEmbeddedIdentificationByTag?.includes(tag) ?? false
           );
         }
-        referenceTopLevelNode = nodeOrPromise;
-      } catch {
-        continue;
+        return result;
+      };
+    })();
+    return function* (embeddedLanguage: EmbeddedLanguage) {
+      const tagsInOptions = options[makeTagsOptionName(embeddedLanguage)] ?? [];
+
+      // fallback to identifiers if no tags in options
+      if (tagsInOptions.length === 0 && isTagNotExcluded()) {
+        yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
+      } else {
+        yield* tagsInOptions;
       }
-      // babel family parsers have a File type parent node
-      if (referenceTopLevelNode.type === "File") {
-        referenceTopLevelNode = referenceTopLevelNode.program;
-      }
-      if (
-        !(
-          referenceTopLevelNode.type === "Program" &&
-          referenceTopLevelNode.body[0]?.type === "ExpressionStatement"
-        )
-      ) {
-        continue;
-      }
-      const referenceNode = referenceTopLevelNode.body[0]?.expression;
-      if (referenceNode?.type !== "TaggedTemplateExpression") {
-        continue;
-      }
-      assumeAs<Record<string, unknown>>(parent.tag);
-      assumeAs<Record<string, unknown>>(referenceNode.tag);
-      if (compareObjects(parent.tag, referenceNode.tag, ignoreSet)) {
-        return tag;
-      }
-    }
+    };
   }
-  return;
+  return function* (embeddedLanguage: EmbeddedLanguage) {
+    const tagsInOptions = options[makeTagsOptionName(embeddedLanguage)] ?? [];
+
+    // fallback to identifiers if no tags in options
+    if (tagsInOptions.length === 0) {
+      const { noEmbeddedIdentificationByTag } = options;
+      for (const identifier of options[
+        makeIdentifiersOptionName(embeddedLanguage)
+      ] ?? []) {
+        if (!noEmbeddedIdentificationByTag?.includes(identifier)) {
+          yield identifier;
+        }
+      }
+    } else {
+      yield* tagsInOptions;
+    }
+  };
+}
+
+export function createEmbeddedDoc(
+  embeddedLanguage: EmbeddedLanguage,
+  commentOrTag: EmbeddedComment | EmbeddedTag,
+  kind: "comment" | "tag",
+  options: Options,
+): ReturnType<Exclude<Printer["embed"], undefined>> {
+  // the noop "language" doesn't have an embedder,
+  // this makes it doesn't touch the embedded code
+  const embeddedEmbedder = embeddedEmbedders[embeddedLanguage];
+  if (!embeddedEmbedder) {
+    return null;
+  }
+
+  const embeddedOverrideOptionsPromise = resolveEmbeddedOverrideOptions(
+    options.embeddedOverrides,
+    {
+      commentOrTag,
+      kind,
+      filepath: options.filepath,
+    },
+  );
+
+  // otherwise we return the embedder function
+  return async (...args) => {
+    try {
+      const doc = await embeddedEmbedder(...args, {
+        commentOrTag,
+        kind,
+        embeddedOverrideOptions: await embeddedOverrideOptionsPromise,
+      });
+      return label(
+        {
+          embed: true,
+          ...(doc as builders.Label).label,
+        },
+        doc,
+      );
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  };
 }
 
 // this function will be stripped at runtime
-function assumeAs<T>(_: unknown): asserts _ is T {
+export function assumeAs<T>(_: unknown): asserts _ is T {
   /* void */
 }
 
-function isLegitJsIdentifier(identifier: string) {
-  return /^[_$a-zA-Z\xA0-\uFFFF][_$a-zA-Z0-9\xA0-\uFFFF]*$/.test(identifier);
-}
-
-// TODO: compare function type hazards, put them into a js file and use JSDoc?
 // this is a simplified version of: https://github.com/angus-c/just/blob/master/packages/collection-compare/index.mjs
 function compare(
   value1: unknown,
   value2: unknown,
-  ignoreSet = new Set<string | number | symbol>(),
+  ignoreSet?: Set<string | number | symbol>,
 ) {
   if (Object.is(value1, value2)) {
     return true;
   }
 
+  if (value1 === null || value2 === null) {
+    return false;
+  }
+
   if (Array.isArray(value1)) {
-    return compareArrays(value1, value2 as unknown[], ignoreSet);
+    assumeAs<unknown[]>(value2);
+    return compareArrays(value1, value2, ignoreSet);
   }
 
   if (typeof value1 === "object") {
-    return compareObjects(
-      value1 as Record<string | number | symbol, unknown>,
-      value2 as Record<string | number | symbol, unknown>,
-      ignoreSet,
-    );
+    assumeAs<Record<string | number | symbol, unknown>>(value1);
+    assumeAs<Record<string | number | symbol, unknown>>(value2);
+    return compareObjects(value1, value2, ignoreSet);
   }
 
   return false;
@@ -355,7 +473,7 @@ function compare(
 function compareArrays(
   value1: unknown[],
   value2: unknown[],
-  ignoreSet = new Set<string | number | symbol>(),
+  ignoreSet?: Set<string | number | symbol>,
 ) {
   const len = value1.length;
 
@@ -372,12 +490,13 @@ function compareArrays(
   return true;
 }
 
-function compareObjects<
-  T1 extends Record<string, unknown>,
-  T2 extends Record<string, unknown>,
->(value1: T1, value2: T2, ignoreSet = new Set<keyof T1 | keyof T2>()) {
+export function compareObjects<
+  T1 extends Record<string | number | symbol, unknown>,
+  T2 extends Record<string | number | symbol, unknown>,
+>(value1: T1, value2: T2, ignoreSet?: Set<keyof T1 | keyof T2>) {
   for (const key1 of Object.keys(value1)) {
-    if (ignoreSet.has(key1)) {
+    if (ignoreSet?.has(key1)) {
+      // skip keys in ignore set
       continue;
     }
     if (

@@ -15,7 +15,7 @@ export const embedder: Embedder<Options> = async (
   print,
   path,
   options,
-  { identifier, embeddedOverrideOptions },
+  { commentOrTag, embeddedOverrideOptions },
 ) => {
   const resolvedOptions = {
     ...options,
@@ -55,14 +55,14 @@ export const embedder: Embedder<Options> = async (
   const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
 
   if (
-    resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(identifier)
+    resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(commentOrTag)
   ) {
     // TODO: should we label the doc with { hug: false } ?
     // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
     return group([
       "`",
       leadingWhitespaces,
-      resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
+      resolvedOptions.noEmbeddedMultiLineIndentation?.includes(commentOrTag)
         ? [group(contentDoc)]
         : indent([group(contentDoc)]),
       trailingWhitespaces,
@@ -75,7 +75,7 @@ export const embedder: Embedder<Options> = async (
 
   return group([
     "`",
-    resolvedOptions.noEmbeddedMultiLineIndentation?.includes(identifier)
+    resolvedOptions.noEmbeddedMultiLineIndentation?.includes(commentOrTag)
       ? [leadingLineBreak, group(contentDoc)]
       : indent([leadingLineBreak, group(contentDoc)]),
     trailingLineBreak,

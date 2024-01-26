@@ -72,7 +72,7 @@ export function simpleRehydrateDoc(
 export function throwIfPluginIsNotFound(
   pluginName: string,
   options: Options,
-  identifier: string,
+  commentOrTag: string,
 ) {
   if (
     !(
@@ -85,7 +85,7 @@ export function throwIfPluginIsNotFound(
     )
   ) {
     throw new Error(
-      `Cannot format embedded language identified by "${identifier}", because plugin "${pluginName}" is not loaded.`,
+      `Cannot format embedded language identified by "${commentOrTag}", because plugin "${pluginName}" is not loaded.`,
     );
   }
 }
@@ -157,6 +157,14 @@ export function escapeRegExp(text: string) {
 
 export function makeIdentifiersOptionName<T extends string>(language: T) {
   return `${language}Identifiers` as const;
+}
+
+export function makeCommentsOptionName<T extends string>(language: T) {
+  return `${language}Comments` as const;
+}
+
+export function makeTagsOptionName<T extends string>(language: T) {
+  return `${language}Tags` as const;
 }
 
 export function makePluginOptionName<T extends string>(language: T) {
