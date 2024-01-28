@@ -1,5 +1,13 @@
 # prettier-plugin-embed
 
+## 0.4.12
+
+### Patch Changes
+
+- 67d0726: Fix a regression of formatting template literals with only whitespaces:
+
+  - Template literals with only whitespaces should be formatted to ` `` `.
+
 ## 0.4.11
 
 ### Patch Changes
