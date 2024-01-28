@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      NPM_CONFIG_PROVENANCE: true
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
