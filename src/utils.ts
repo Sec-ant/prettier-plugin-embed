@@ -394,6 +394,7 @@ export function createTagsInOptionsGenerator(options: Options, tag?: string) {
 }
 
 export function createEmbeddedDoc(
+  node: TemplateLiteral,
   embeddedLanguage: EmbeddedLanguage,
   commentOrTag: EmbeddedComment | EmbeddedTag,
   kind: "comment" | "tag",
@@ -404,6 +405,11 @@ export function createEmbeddedDoc(
   const embeddedEmbedder = embeddedEmbedders[embeddedLanguage];
   if (!embeddedEmbedder) {
     return null;
+  }
+
+  // template literals with only whitespaces should be formatted to ``
+  if (node.quasis.length === 1 && node.quasis[0]?.value.raw.trim() === "") {
+    return "``";
   }
 
   const embeddedOverrideOptionsPromise = resolveEmbeddedOverrideOptions(

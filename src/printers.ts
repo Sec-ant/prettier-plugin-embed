@@ -67,7 +67,13 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
         continue;
       }
 
-      return createEmbeddedDoc(embeddedLanguage, comment, "comment", options);
+      return createEmbeddedDoc(
+        node,
+        embeddedLanguage,
+        comment,
+        "comment",
+        options,
+      );
     }
 
     // unknown comment block
@@ -99,7 +105,7 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
         continue;
       }
 
-      return createEmbeddedDoc(embeddedLanguage, tag, "tag", options);
+      return createEmbeddedDoc(node, embeddedLanguage, tag, "tag", options);
     }
 
     // unknown tag
@@ -131,7 +137,13 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
         continue;
       }
 
-      return createEmbeddedDoc(embeddedLanguage, stringFormTag, "tag", options);
+      return createEmbeddedDoc(
+        node,
+        embeddedLanguage,
+        stringFormTag,
+        "tag",
+        options,
+      );
     }
   }
 
