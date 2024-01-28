@@ -59,6 +59,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
+          version: npm run bump
           publish: npx changeset publish
           commit: "chore(release): v${{steps.package-version.outputs.current-version}}"
         env:
