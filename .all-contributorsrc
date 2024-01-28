@@ -1,4 +1,22 @@
 {
   "projectName": "prettier-plugin-embed",
-  "projectOwner": "Sec-ant"
+  "projectOwner": "Sec-ant",
+  "files": [
+    "README.md"
+  ],
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributorsPerLine": 7,
+  "contributors": [
+    {
+      "login": "karlhorky",
+      "name": "Karl Horky",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1935696?v=4",
+      "profile": "https://upleveled.io",
+      "contributions": [
+        "code",
+        "doc"
+      ]
+    }
+  ]
 }
