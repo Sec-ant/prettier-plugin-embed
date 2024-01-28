@@ -1,5 +1,6 @@
 module.exports = {
   upgrade: true,
+  filterVersion: /^[~^]/,
   reject: [
     /^@?prettier(?:\/|$)/,
     /(?:^|@.+?\/)prettier-plugin-/,
