@@ -1,6 +1,6 @@
 {
-  "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
+  "*.{js,ts,cjs,mjs,cts,mts,d.cts,d.mts,jsx,tsx,json,jsonc}": [
     "biome check --apply --no-errors-on-unmatched --files-ignore-unknown=true"
   ],
-  "*.md": ["prettier --write --no-config"]
+  "*.{md,yml,yaml,css,html}": ["prettier --write"]
 }
