@@ -6,7 +6,7 @@ import {
   type Printer,
   resolveConfigFile,
 } from "prettier";
-import { builders } from "prettier/doc.js";
+import { builders } from "prettier/doc";
 import JSONC from "tiny-jsonc";
 import {
   type EmbeddedComment,
