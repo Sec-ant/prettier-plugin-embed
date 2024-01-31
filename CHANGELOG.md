@@ -1,5 +1,11 @@
 # prettier-plugin-embed
 
+## 0.4.13
+
+### Patch Changes
+
+- b14447a: Fix a regression introduced in v0.4.11 caused by a wrong import specifier.
+
 ## 0.4.12
 
 ### Patch Changes
