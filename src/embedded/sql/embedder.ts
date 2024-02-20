@@ -6,7 +6,6 @@ import {
   preparePlaceholder,
   printTemplateExpressions,
   simpleRehydrateDoc,
-  throwIfPluginIsNotFound,
 } from "../utils.js";
 import { language } from "./language.js";
 
@@ -25,8 +24,6 @@ export const embedder: Embedder<Options> = async (
   };
 
   const plugin = resolvedOptions.embeddedSqlPlugin ?? "prettier-plugin-sql";
-
-  throwIfPluginIsNotFound(plugin, resolvedOptions, commentOrTag);
 
   const { node } = path;
 

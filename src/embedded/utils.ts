@@ -1,5 +1,5 @@
 import type { Comment, Expression, TemplateLiteral } from "estree";
-import type { AstPath, Doc, Options } from "prettier";
+import type { AstPath, Doc } from "prettier";
 import { builders, utils } from "prettier/doc";
 import type {
   LiteralUnion,
@@ -67,27 +67,6 @@ export function simpleRehydrateDoc(
     return parts;
   });
   return contentDoc;
-}
-
-export function throwIfPluginIsNotFound(
-  pluginName: string,
-  options: Options,
-  commentOrTag: string,
-) {
-  if (
-    !(
-      options.plugins?.some(
-        (p) =>
-          (p as { name?: string }).name?.match(
-            new RegExp(`(^|/)${escapeRegExp(pluginName)}($|/)`),
-          ) ?? false,
-      ) ?? false
-    )
-  ) {
-    throw new Error(
-      `Cannot format embedded language identified by "${commentOrTag}", because plugin "${pluginName}" is not loaded.`,
-    );
-  }
 }
 
 export function insertLanguage(

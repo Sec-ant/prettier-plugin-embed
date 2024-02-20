@@ -5,7 +5,6 @@ import {
   preparePlaceholder,
   printTemplateExpressions,
   simpleRehydrateDoc,
-  throwIfPluginIsNotFound,
 } from "../utils.js";
 import { language } from "./language.js";
 
@@ -18,12 +17,6 @@ export const embedder: Embedder<Options> = async (
   options,
   { commentOrTag, embeddedOverrideOptions },
 ) => {
-  throwIfPluginIsNotFound(
-    "@stedi/prettier-plugin-jsonata",
-    options,
-    commentOrTag,
-  );
-
   const resolvedOptions = {
     ...options,
     ...embeddedOverrideOptions,
