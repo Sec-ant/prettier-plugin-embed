@@ -24,7 +24,10 @@ export const embedder: Embedder<Options> = async (
 
   const { node } = path;
 
-  const { createPlaceholder, placeholderRegex } = preparePlaceholder("@p");
+  // https://github.com/prettier/prettier/blob/3bfabd012873e5022f341aca75566966d91870f1/src/language-css/utils/index.js#L206-L208
+  const { createPlaceholder, placeholderRegex } = preparePlaceholder(
+    "@prettier-placeholder",
+  );
 
   const text = node.quasis
     .map((quasi, index, { length }) =>
@@ -49,7 +52,13 @@ export const embedder: Embedder<Options> = async (
     parser: resolvedOptions.embeddedCssParser ?? "scss",
   });
 
-  const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
+  const contentDoc = simpleRehydrateDoc(
+    doc,
+    placeholderRegex,
+    expressionDocs,
+    // https://github.com/prettier/prettier/blob/3bfabd012873e5022f341aca75566966d91870f1/src/language-js/embed/css.js#L52
+    true,
+  );
 
   if (
     resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(commentOrTag)
