@@ -1,7 +1,7 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "stripInternal": true
   },
-  "extends": ["./tsconfig.json"],
   "include": ["./src"]
 }

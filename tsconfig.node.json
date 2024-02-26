@@ -1,8 +1,7 @@
 {
-  "extends": ["./tsconfig.json"],
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
-    "types": ["node"],
     "resolveJsonModule": true,
     "allowJs": true
   },
