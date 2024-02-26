@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import type { Options } from "prettier";
 import { builders } from "prettier/doc";
 import type { Embedder } from "../../types.js";
@@ -44,13 +45,13 @@ export const embedder: Embedder<Options> = async (
 
   const expressionDocs = printTemplateExpressions(path, print);
 
-  const doc = await textToDoc(trimmedText, {
+  const doc = await textToDoc(dedent(trimmedText), {
     ...resolvedOptions,
     parser: resolvedOptions.embeddedMarkdownParser ?? "markdown",
     __inJsTemplate: true,
   });
 
-  const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
+  const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs, true);
 
   if (
     resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(commentOrTag)
