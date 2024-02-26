@@ -1,7 +1,9 @@
 {
   "projectName": "prettier-plugin-embed",
   "projectOwner": "Sec-ant",
-  "files": ["README.md"],
+  "files": [
+    "README.md"
+  ],
   "commitType": "docs",
   "commitConvention": "angular",
   "contributorsPerLine": 7,
@@ -11,7 +13,19 @@
       "name": "Karl Horky",
       "avatar_url": "https://avatars.githubusercontent.com/u/1935696?v=4",
       "profile": "https://upleveled.io",
-      "contributions": ["code", "doc"]
+      "contributions": [
+        "code",
+        "doc"
+      ]
+    },
+    {
+      "login": "kelvinsjk",
+      "name": "Kelvin Soh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/64682375?v=4",
+      "profile": "https://math-atlas.vercel.app",
+      "contributions": [
+        "code"
+      ]
     }
   ]
 }
