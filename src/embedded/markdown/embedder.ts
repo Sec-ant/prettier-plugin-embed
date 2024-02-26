@@ -1,3 +1,4 @@
+import dedent from "dedent";
 import type { Options } from "prettier";
 import { builders } from "prettier/doc";
 import type { Embedder } from "../../types.js";
@@ -44,13 +45,26 @@ export const embedder: Embedder<Options> = async (
 
   const expressionDocs = printTemplateExpressions(path, print);
 
-  const doc = await textToDoc(trimmedText, {
-    ...resolvedOptions,
-    parser: resolvedOptions.embeddedMarkdownParser ?? "markdown",
-    __inJsTemplate: true,
-  });
+  const doc = await textToDoc(
+    // use `dedent` to fix unstable embedded markdown indentation with the `useTabs` option
+    // https://github.com/Sec-ant/prettier-plugin-embed/pull/91#issuecomment-1963760555
+    // https://github.com/prettier/prettier/blob/1079517b32e5bb145afa7acba448af51f8a7b6e6/src/language-js/embed/markdown.js#L15-L19
+    dedent(trimmedText),
+    {
+      ...resolvedOptions,
+      parser: resolvedOptions.embeddedMarkdownParser ?? "markdown",
+      // this will change the code fence delimiter from ``` to ~~~
+      // https://github.com/prettier/prettier/blob/1079517b32e5bb145afa7acba448af51f8a7b6e6/src/language-markdown/embed.js#L15
+      __inJsTemplate: true,
+    },
+  );
 
-  const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
+  const contentDoc = simpleRehydrateDoc(
+    doc,
+    placeholderRegex,
+    expressionDocs,
+    true,
+  );
 
   if (
     resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(commentOrTag)
