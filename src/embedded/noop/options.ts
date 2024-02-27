@@ -2,6 +2,7 @@ import type { SupportOptions } from "prettier";
 import type { EmbeddedDefaultComment, EmbeddedDefaultTag } from "../types.js";
 import {
   type AutocompleteStringList,
+  fallbackIndicator,
   makeCommentsOptionName,
   makeIdentifiersOptionName,
   makeTagsOptionName,
@@ -31,7 +32,7 @@ export const options = {
     category: "Embed",
     type: "string",
     array: true,
-    default: [{ value: [] }],
+    default: [{ value: [fallbackIndicator] }],
     description:
       "Block comments that prevent their subsequent template literals from being identified as embedded languages and thus from being formatted.",
   },
@@ -39,7 +40,7 @@ export const options = {
     category: "Embed",
     type: "string",
     array: true,
-    default: [{ value: [] }],
+    default: [{ value: [fallbackIndicator] }],
     description:
       "Tags that prevent their subsequent template literals from being identified as embedded languages and thus from being formatted.",
   },

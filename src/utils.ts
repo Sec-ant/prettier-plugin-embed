@@ -13,6 +13,7 @@ import {
   type EmbeddedLanguage,
   type EmbeddedTag,
   embeddedEmbedders,
+  fallbackIndicator,
   makeCommentsOptionName,
   makeIdentifiersOptionName,
   makeTagsOptionName,
@@ -324,61 +325,56 @@ export function createCommentsInOptionsGenerator(
   options: Options,
   comment: string,
 ) {
-  // lazy-evaluated
-  const isCommentNotExcluded = (() => {
-    let result: boolean | undefined = undefined;
-    return () => {
-      if (result === undefined) {
-        result = !(
-          options.noEmbeddedIdentificationByComment?.includes(comment) ?? false
-        );
-      }
-      return result;
-    };
-  })();
+  const isCommentExcluded =
+    options.noEmbeddedIdentificationByComment?.includes(comment) ?? false;
+  if (isCommentExcluded) {
+    return function* (
+      _: EmbeddedLanguage,
+    ): Generator<string, void, undefined> {};
+  }
   return function* (embeddedLanguage: EmbeddedLanguage) {
-    const commentsInOptions =
-      options[makeCommentsOptionName(embeddedLanguage)] ?? [];
-
-    // fallback to identifiers if no comments in options
-    if (commentsInOptions.length === 0 && isCommentNotExcluded()) {
+    const commentsInOptions = options[
+      makeCommentsOptionName(embeddedLanguage)
+    ] ?? [fallbackIndicator];
+    // fallback to identifiers
+    if (commentsInOptions[0] === fallbackIndicator) {
       yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
     } else {
-      yield* commentsInOptions;
+      yield* commentsInOptions ?? [];
     }
   };
 }
 
 export function createTagsInOptionsGenerator(options: Options, tag?: string) {
+  // simple identifier tag
   if (typeof tag === "string") {
-    // lazy-evaluated
-    const isTagNotExcluded = (() => {
-      let result: boolean | undefined = undefined;
-      return () => {
-        if (result === undefined) {
-          result = !(
-            options.noEmbeddedIdentificationByTag?.includes(tag) ?? false
-          );
-        }
-        return result;
-      };
-    })();
+    const isTagExcluded =
+      options.noEmbeddedIdentificationByTag?.includes(tag) ?? false;
+    if (isTagExcluded) {
+      return function* (
+        _: EmbeddedLanguage,
+      ): Generator<string, void, undefined> {};
+    }
     return function* (embeddedLanguage: EmbeddedLanguage) {
-      const tagsInOptions = options[makeTagsOptionName(embeddedLanguage)] ?? [];
-
-      // fallback to identifiers if no tags in options
-      if (tagsInOptions.length === 0 && isTagNotExcluded()) {
+      const tagsInOptions = options[makeTagsOptionName(embeddedLanguage)] ?? [
+        fallbackIndicator,
+      ];
+      // fallback to identifiers
+      if (tagsInOptions[0] === fallbackIndicator) {
         yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
       } else {
-        yield* tagsInOptions;
+        yield* tagsInOptions ?? [];
       }
     };
   }
+  // complex expression tag
   return function* (embeddedLanguage: EmbeddedLanguage) {
-    const tagsInOptions = options[makeTagsOptionName(embeddedLanguage)] ?? [];
+    const tagsInOptions = options[makeTagsOptionName(embeddedLanguage)] ?? [
+      fallbackIndicator,
+    ];
 
-    // fallback to identifiers if no tags in options
-    if (tagsInOptions.length === 0) {
+    // fallback to identifiers
+    if (tagsInOptions[0] === fallbackIndicator) {
       const { noEmbeddedIdentificationByTag } = options;
       for (const identifier of options[
         makeIdentifiersOptionName(embeddedLanguage)

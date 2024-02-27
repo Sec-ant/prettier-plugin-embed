@@ -2,6 +2,7 @@ import type { SupportOptions } from "prettier";
 import {
   type AutocompleteStringList,
   type StringListToInterfaceKey,
+  fallbackIndicator,
   makeCommentsOptionName,
   makeIdentifiersOptionName,
   makeTagsOptionName,
@@ -46,7 +47,7 @@ export const options = {
     category: "Embed",
     type: "string",
     array: true,
-    default: [{ value: [] }],
+    default: [{ value: [fallbackIndicator] }],
     description:
       "Block comments that make their subsequent template literals be identified as embedded LaTeX language. This option requires the `prettier-plugin-latex` plugin.",
   },
@@ -54,7 +55,7 @@ export const options = {
     category: "Embed",
     type: "string",
     array: true,
-    default: [{ value: [] }],
+    default: [{ value: [fallbackIndicator] }],
     description:
       "Tags that make their subsequent template literals be identified as embedded LaTeX language. This option requires the `prettier-plugin-latex` plugin.",
   },
