@@ -170,3 +170,5 @@ export type NormalizeOptions<T> = OmitIndexSignature<{
     ? T[k]
     : UnionToIntersection<T>[k];
 }>;
+
+export const fallbackIndicator = "9ff2b366e8ca4c97b9aed1a29b5b94ed";

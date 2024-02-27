@@ -14,5 +14,6 @@ export {
   makeIdentifiersOptionName,
   makeCommentsOptionName,
   makeTagsOptionName,
+  fallbackIndicator,
   type AutocompleteStringList,
 } from "./utils.js";

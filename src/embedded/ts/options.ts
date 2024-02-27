@@ -2,6 +2,7 @@ import type { ChoiceSupportOption, SupportOptions } from "prettier";
 import {
   type AutocompleteStringList,
   type StringListToInterfaceKey,
+  fallbackIndicator,
   makeCommentsOptionName,
   makeIdentifiersOptionName,
   makeParserOptionName,
@@ -49,7 +50,7 @@ export const options = {
     category: "Embed",
     type: "string",
     array: true,
-    default: [{ value: [] }],
+    default: [{ value: [fallbackIndicator] }],
     description:
       "Block comments that make their subsequent template literals be identified as embedded TypeScript language.",
   },
@@ -57,7 +58,7 @@ export const options = {
     category: "Embed",
     type: "string",
     array: true,
-    default: [{ value: [] }],
+    default: [{ value: [fallbackIndicator] }],
     description:
       "Tags that make their subsequent template literals be identified as embedded TypeScript language.",
   },
