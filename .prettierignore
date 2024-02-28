@@ -10,3 +10,4 @@
 *.tsx
 *.json
 *.jsonc
+.all-contributorsrc
