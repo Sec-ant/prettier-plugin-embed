@@ -1,5 +1,16 @@
 # prettier-plugin-embed
 
+## 0.4.15
+
+### Patch Changes
+
+- fbb5cae: Fix wrong options fallback behaviors:
+
+  - Empty list of tags and comments shouldn't fallback to identifiers in options.
+
+- 5cadbfa: Fix unstable embedded markdown indentation when using the `useTabs` option: https://github.com/Sec-ant/prettier-plugin-embed/pull/91#issuecomment-1963760555.
+- d132038: Make embedded `css` formatting more align with the built-in behavior.
+
 ## 0.4.14
 
 ### Patch Changes
