@@ -89,8 +89,8 @@
   "devDependencies": {
     "@biomejs/biome": "1.5.3-nightly.69f9031",
     "@changesets/cli": "^2.27.1",
-    "@commitlint/cli": "^18.6.1",
-    "@commitlint/config-conventional": "^18.6.2",
+    "@commitlint/cli": "^19.0.3",
+    "@commitlint/config-conventional": "^19.0.3",
     "@prettier/plugin-php": "^0.22.1",
     "@prettier/plugin-pug": "^3.0.0",
     "@prettier/plugin-ruby": "^4.0.4",
