@@ -48,12 +48,12 @@ function createSyntaxErrorFromParseError(parseError: IRecognitionException) {
   const options: ErrorOptions = {
     loc: {
       start: {
-        line: parseError.token.startLine ?? NaN,
-        column: parseError.token.startColumn ?? NaN,
+        line: parseError.token.startLine ?? Number.NaN,
+        column: parseError.token.startColumn ?? Number.NaN,
       },
       end: {
-        line: parseError.token.endLine ?? NaN,
-        column: parseError.token.endColumn ?? NaN,
+        line: parseError.token.endLine ?? Number.NaN,
+        column: parseError.token.endColumn ?? Number.NaN,
       },
     },
   };
@@ -160,7 +160,7 @@ export const parser: Parser<CstNode> = {
     return node.location!.startOffset;
   },
   locEnd(node: CstNode) {
-    return node.location!.endOffset ?? NaN;
+    return node.location!.endOffset ?? Number.NaN;
   },
 };
 

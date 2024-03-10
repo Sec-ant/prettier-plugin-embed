@@ -105,7 +105,8 @@ export const randomUUID = (() => {
     for (let i = 0; i < uuidLength; ++i) {
       id +=
         dict[
-          parseInt((Math.random() * dict.length).toFixed(0), 10) % dict.length
+          Number.parseInt((Math.random() * dict.length).toFixed(0), 10) %
+            dict.length
         ];
     }
     return id;
