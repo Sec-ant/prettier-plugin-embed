@@ -103,7 +103,7 @@
     "chevrotain": "7.1.1",
     "concurrently": "^8.2.2",
     "copy-files-from-to": "^3.9.1",
-    "esbuild": "^0.22.0",
+    "esbuild": "^0.23.0",
     "fast-glob": "^3.3.2",
     "lint-staged": "^15.2.2",
     "npm-check-updates": "^16.14.15",
