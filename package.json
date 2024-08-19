@@ -96,9 +96,9 @@
     "@prettier/plugin-ruby": "^4.0.4",
     "@prettier/plugin-xml": "^3.2.2",
     "@stedi/prettier-plugin-jsonata": "^2.1.1",
-    "@types/node": "^20.11.25",
-    "@vitest/coverage-istanbul": "^1.3.1",
-    "@vitest/ui": "^1.3.1",
+    "@types/node": "^22.4.1",
+    "@vitest/coverage-istanbul": "^2.0.5",
+    "@vitest/ui": "^2.0.5",
     "@xml-tools/parser": "^1.0.11",
     "chevrotain": "7.1.1",
     "concurrently": "^8.2.2",
@@ -106,7 +106,7 @@
     "esbuild": "^0.23.0",
     "fast-glob": "^3.3.2",
     "lint-staged": "^15.2.2",
-    "npm-check-updates": "^16.14.15",
+    "npm-check-updates": "^17.0.6",
     "prettier": "^3.2.4",
     "prettier-plugin-glsl": "^0.2.0",
     "prettier-plugin-ini": "^1.1.0",
@@ -124,7 +124,7 @@
     "tsx": "^4.7.1",
     "typescript": "^5.4.2",
     "vite": "^5.1.5",
-    "vitest": "^1.3.1"
+    "vitest": "^2.0.5"
   },
   "dependencies": {
     "@types/estree": "^1.0.5",
