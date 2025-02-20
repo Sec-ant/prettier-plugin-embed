@@ -1,0 +1,18 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`fixtures > should work 1`] = `
+"sql.type(SESSION)\`
+  INSERT INTO
+    sessions (account_id, expires_at)
+  VALUES
+    (
+      \${accountId},
+      \${expiresAt.toJSON()}
+    ) RETURNING id,
+    created_at AS "createdAt",
+    updated_at AS "updatedAt",
+    expires_at AS "expiresAt",
+    account_id AS "accountId"
+\`;
+"
+`;
