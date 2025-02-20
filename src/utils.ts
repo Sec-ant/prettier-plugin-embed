@@ -1,4 +1,4 @@
-import type { Expression, Node, TemplateLiteral } from "estree";
+import type { Expression, Node, Super, TemplateLiteral } from "estree";
 import memoize from "micro-memoize";
 import {
   type AstPath,
@@ -220,6 +220,15 @@ export async function resolveEmbeddedOverrideOptions(
   }
 }
 
+function* createExpressionGenerator(
+  expression: Expression | Super,
+): Generator<Expression | Super> {
+  yield expression;
+  if (expression.type === "CallExpression") {
+    yield* createExpressionGenerator(expression.callee);
+  }
+}
+
 export const compareTagExpressionToTagString = (() => {
   const ignoreSet = new Set([
     "start",
@@ -266,14 +275,16 @@ export const compareTagExpressionToTagString = (() => {
       return false;
     }
 
-    if (
-      compareObjects(
-        tagExpression as unknown as Record<string, unknown>,
-        tagStringNode.tag as unknown as Record<string, unknown>,
-        ignoreSet,
-      )
-    ) {
-      return true;
+    for (const tagExp of createExpressionGenerator(tagExpression)) {
+      if (
+        compareObjects(
+          tagExp as unknown as Record<string, unknown>,
+          tagStringNode.tag as unknown as Record<string, unknown>,
+          ignoreSet,
+        )
+      ) {
+        return true;
+      }
     }
 
     return false;
