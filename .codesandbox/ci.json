@@ -1,4 +1,3 @@
 {
-  "installCommand": "install:ci",
   "node": "18"
 }
