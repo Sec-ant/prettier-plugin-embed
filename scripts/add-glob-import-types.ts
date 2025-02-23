@@ -1,6 +1,6 @@
 import { appendFile, stat } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import fastGlob from "fast-glob";
+import { glob } from "tinyglobby";
 
 const registerTypeDeclarationFilePath = fileURLToPath(
   new URL("../dist/embedded/register.d.ts", import.meta.url),
@@ -16,7 +16,7 @@ const registerSourceDirectoryPath = fileURLToPath(
   new URL("../src/embedded", import.meta.url),
 );
 
-const embeddedEntryFiles = await fastGlob.glob("./*/index.{ts,js}", {
+const embeddedEntryFiles = await glob("./*/index.{ts,js}", {
   cwd: registerSourceDirectoryPath,
 });
 
