@@ -1,5 +1,11 @@
 # prettier-plugin-embed
 
+## 0.5.0
+
+### Minor Changes
+
+- 15dd288: feat: support shorthand for CallExpression as tag
+
 ## 0.4.15
 
 ### Patch Changes
