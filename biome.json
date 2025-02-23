@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": ["./tests/code/**/*"],
+    "ignore": ["./tests/**/fixtures/**/*"],
     "ignoreUnknown": true
   },
   "organizeImports": {
@@ -36,6 +36,14 @@
       "json": {
         "parser": {
           "allowTrailingCommas": true
+        }
+      }
+    },
+    {
+      "include": ["package.json", ".all-contributorsrc"],
+      "json": {
+        "formatter": {
+          "lineWidth": 1
         }
       }
     }
