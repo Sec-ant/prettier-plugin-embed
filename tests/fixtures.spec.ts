@@ -3,7 +3,7 @@ import prettier from "prettier";
 import sql from "prettier-plugin-sql";
 import { glob } from "tinyglobby";
 import { describe, expect, it } from "vitest";
-import * as embed from "../src";
+import * as embed from "../src/index.js";
 
 describe("fixtures", () => {
   it("should work", async () => {
