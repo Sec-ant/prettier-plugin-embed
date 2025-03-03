@@ -1,6 +1,6 @@
 import type { Comment, Expression, TemplateLiteral } from "estree";
 import type { AstPath, Doc } from "prettier";
-import { builders, utils } from "prettier/doc";
+import { builders, utils } from "prettier/doc.js";
 import type {
   LiteralUnion,
   OmitIndexSignature,
