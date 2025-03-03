@@ -1,5 +1,5 @@
 import type { Options } from "prettier";
-import { builders, utils } from "prettier/doc";
+import { builders, utils } from "prettier/doc.js";
 import type { Embedder } from "../../types.js";
 import { preparePlaceholder, printTemplateExpressions } from "../utils.js";
 import { language } from "./language.js";
