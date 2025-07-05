@@ -109,7 +109,7 @@
     "prettier-plugin-pegjs": "^2.0.2",
     "prettier-plugin-prisma": "^5.0.0",
     "prettier-plugin-properties": "^0.3.0",
-    "prettier-plugin-sh": "^0.15.0",
+    "prettier-plugin-sh": "^0.18.0",
     "prettier-plugin-sql": "^0.18.1",
     "prettier-plugin-sql-cst": "^0.12.2",
     "prettier-plugin-toml": "^2.0.2",
