@@ -85,7 +85,7 @@
     "@changesets/cli": "^2.28.1",
     "@commitlint/cli": "^19.7.1",
     "@commitlint/config-conventional": "^19.7.1",
-    "@prettier/plugin-php": "^0.22.4",
+    "@prettier/plugin-php": "^0.24.0",
     "@prettier/plugin-pug": "^3.2.1",
     "@prettier/plugin-ruby": "^4.0.4",
     "@prettier/plugin-xml": "^3.4.1",
