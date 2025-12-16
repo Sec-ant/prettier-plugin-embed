@@ -38,7 +38,7 @@
       }
     },
     {
-      "includes": ["**/package.json", "**/.all-contributorsrc/**"],
+      "includes": ["**/package.json", "**/.all-contributorsrc"],
       "json": {
         "formatter": {
           "lineWidth": 1
