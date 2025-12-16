@@ -56,8 +56,9 @@ export const embedder: Embedder<Options> = async (
     doc,
     placeholderRegex,
     expressionDocs,
+    // Use literalline to preserve original indentation in CSS comments
     // https://github.com/prettier/prettier/blob/3bfabd012873e5022f341aca75566966d91870f1/src/language-js/embed/css.js#L52
-    true,
+    "literalline",
   );
 
   if (

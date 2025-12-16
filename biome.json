@@ -1,12 +1,10 @@
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "files": {
-    "ignore": ["./tests/**/fixtures/**/*"],
+    "includes": ["**", "!tests/**/fixtures/**/*"],
     "ignoreUnknown": true
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "formatter": {
     "enabled": true,
     "indentStyle": "space"
@@ -32,7 +30,7 @@
   },
   "overrides": [
     {
-      "include": ["*.json"],
+      "includes": ["**/*.json"],
       "json": {
         "parser": {
           "allowTrailingCommas": true
@@ -40,7 +38,7 @@
       }
     },
     {
-      "include": ["package.json", ".all-contributorsrc"],
+      "includes": ["**/package.json", "**/.all-contributorsrc/**"],
       "json": {
         "formatter": {
           "lineWidth": 1

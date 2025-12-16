@@ -5,7 +5,10 @@ import { parentPort, workerData } from "node:worker_threads";
 const executeWorker = async ({
   absolutePath,
   importMetaUrl,
-}: { absolutePath: string; importMetaUrl: string }) => {
+}: {
+  absolutePath: string;
+  importMetaUrl: string;
+}) => {
   register("tsx/esm", {
     parentURL: importMetaUrl,
     data: true,

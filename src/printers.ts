@@ -124,7 +124,7 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
     const tagsInOptionsGenerator = createTagsInOptionsGenerator(options);
 
     for (const embeddedLanguage of embeddedLanguages) {
-      let stringFormTag: string | undefined = undefined;
+      let stringFormTag: string | undefined;
 
       for (const tagInOptions of tagsInOptionsGenerator(embeddedLanguage)) {
         if (compareTagExpressionToTagString(tag, tagInOptions, parse)) {

@@ -9,7 +9,7 @@ import {
 } from "../utils.js";
 import { language } from "./language.js";
 
-const { line, group, indent, softline } = builders;
+const { line, group, indent, softline, dedentToRoot, literalline } = builders;
 
 export const embedder: Embedder<Options> = async (
   textToDoc,
@@ -63,7 +63,7 @@ export const embedder: Embedder<Options> = async (
     doc,
     placeholderRegex,
     expressionDocs,
-    true,
+    "hardline",
   );
 
   if (
@@ -75,7 +75,7 @@ export const embedder: Embedder<Options> = async (
       "`",
       leadingWhitespaces,
       resolvedOptions.noEmbeddedMultiLineIndentation?.includes(commentOrTag)
-        ? [group(contentDoc)]
+        ? dedentToRoot(group(contentDoc))
         : indent([group(contentDoc)]),
       trailingWhitespaces,
       "`",
@@ -85,11 +85,17 @@ export const embedder: Embedder<Options> = async (
   const leadingLineBreak = leadingWhitespaces.length ? line : softline;
   const trailingLineBreak = trailingWhitespaces.length ? line : softline;
 
+  // When noEmbeddedMultiLineIndentation is set, use dedentToRoot to prevent
+  // any indentation from being added to the markdown content.
+  // This matches Prettier's native behavior for markdown in template literals.
+  // https://github.com/prettier/prettier/blob/main/src/language-js/embed/markdown.js
+  if (resolvedOptions.noEmbeddedMultiLineIndentation?.includes(commentOrTag)) {
+    return ["`", literalline, dedentToRoot(contentDoc), softline, "`"];
+  }
+
   return group([
     "`",
-    resolvedOptions.noEmbeddedMultiLineIndentation?.includes(commentOrTag)
-      ? [leadingLineBreak, group(contentDoc)]
-      : indent([leadingLineBreak, group(contentDoc)]),
+    indent([leadingLineBreak, group(contentDoc)]),
     trailingLineBreak,
     "`",
   ]);
