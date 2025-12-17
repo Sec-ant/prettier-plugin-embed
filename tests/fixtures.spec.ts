@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import prettier from "prettier";
 import { globSync } from "tinyglobby";
-import { describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import * as embed from "../src";
 
 interface LanguageOptions {
@@ -95,6 +95,11 @@ for (const languageDir of languageDirs) {
 
   // Create a describe block for each language
   describe(language, () => {
+    beforeAll(() => {
+      // mute pug logs during tests
+      process.env.PRETTIER_PLUGIN_PUG_LOG_LEVEL = "off";
+    });
+
     for (const file of files) {
       // Skip options.json
       if (file.endsWith("options.json")) {
