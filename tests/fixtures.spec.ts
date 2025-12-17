@@ -1,6 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import type { Plugin } from "prettier";
 import prettier from "prettier";
 import { globSync } from "tinyglobby";
 import { describe, expect, it } from "vitest";
