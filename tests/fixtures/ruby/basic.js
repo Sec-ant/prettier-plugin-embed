@@ -5,6 +5,6 @@ class User;attr_accessor :name;end
 `;
 
 // Ruby - Comment `/* ruby */` test (with formatting issues)
-/* ruby */ `
+const tagTest2 = /* ruby */ `
 def add(a,b) a+b end
 `;

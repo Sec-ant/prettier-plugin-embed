@@ -21,7 +21,8 @@ function loadLanguageOptions(languageDir: string): LanguageOptions {
   try {
     const content = readFileSync(configPath, "utf-8");
     return JSON.parse(content);
-  } catch {
+  } catch (error) {
+    console.warn(`Failed to load language options from ${configPath}:`, error);
     return {};
   }
 }
@@ -55,7 +56,8 @@ function parsePrettierOptions(content: string): Record<string, unknown> {
   if (match?.[1]) {
     try {
       return JSON.parse(match[1]);
-    } catch {
+    } catch (error) {
+      console.warn(`Failed to parse @prettier options: ${optionsLine}`, error);
       return {};
     }
   }

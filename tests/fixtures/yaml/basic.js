@@ -6,7 +6,7 @@ author:   John
 `;
 
 // YAML - Comment `/* yaml */` test (with formatting issues)
-/* yaml */ `
+const commentTest = /* yaml */ `
 server:
   host:   localhost
   port:   3000
