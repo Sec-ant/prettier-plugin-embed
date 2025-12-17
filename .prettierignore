@@ -10,4 +10,6 @@
 *.tsx
 *.json
 *.jsonc
+pnpm-lock.yaml
+tests/**/fixtures/**/*
 .all-contributorsrc

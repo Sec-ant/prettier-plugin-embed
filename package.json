@@ -71,6 +71,7 @@
     "nocheck-chevrotain-types": "tsx ./scripts/nocheck-chevrotain-types.ts",
     "copy": "copy-files-from-to",
     "postbuild": "tsc --project ./tsconfig.production.json && conc \"pnpm:add-glob-import-types\" \"pnpm:nocheck-chevrotain-types\" \"pnpm:copy\"",
+    "test:ci": "vitest --run",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "process-readme": "tsx ./scripts/process-readme",
@@ -81,7 +82,7 @@
     "bump-biome:nightly": "pnpm add -DE @biomejs/biome@nightly"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.9",
+    "@biomejs/biome": "2.3.10",
     "@changesets/cli": "^2.29.8",
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
@@ -90,9 +91,9 @@
     "@prettier/plugin-ruby": "^4.0.4",
     "@prettier/plugin-xml": "^3.4.2",
     "@stedi/prettier-plugin-jsonata": "^2.1.8",
-    "@types/node": "^25.0.2",
-    "@vitest/coverage-istanbul": "^4.0.15",
-    "@vitest/ui": "^4.0.15",
+    "@types/node": "^25.0.3",
+    "@vitest/coverage-istanbul": "^4.0.16",
+    "@vitest/ui": "^4.0.16",
     "@xml-tools/parser": "^1.0.11",
     "chevrotain": "7.1.1",
     "concurrently": "^9.2.1",
@@ -118,11 +119,11 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vite": "^7.3.0",
-    "vitest": "^4.0.15"
+    "vitest": "^4.0.16"
   },
   "dependencies": {
     "@types/estree": "^1.0.8",
-    "dedent": "^1.7.0",
+    "dedent": "^1.7.1",
     "micro-memoize": "^5.1.1",
     "package-up": "^5.0.0",
     "tiny-jsonc": "^1.0.2",
