@@ -28,22 +28,6 @@ function loadLanguageOptions(languageDir: string): LanguageOptions {
 }
 
 /**
- * Dynamically import plugins specified in the config
- */
-async function loadPlugins(pluginNames: string[]): Promise<Plugin[]> {
-  const plugins: Plugin[] = [];
-  for (const name of pluginNames) {
-    try {
-      const plugin = await import(name);
-      plugins.push(plugin.default ?? plugin);
-    } catch (error) {
-      console.warn(`Failed to load plugin "${name}":`, error);
-    }
-  }
-  return plugins;
-}
-
-/**
  * Find the line containing @prettier options in the content
  * Returns the line index if found, -1 otherwise
  */
@@ -121,9 +105,6 @@ for (const languageDir of languageDirs) {
       const filename = path.basename(file);
 
       it(filename, async () => {
-        // Load plugins inside the test
-        const languagePlugins = await loadPlugins([...plugins]);
-
         const content = readFileSync(file, "utf-8");
         const fileOptions = parsePrettierOptions(content);
         const codeToFormat = getContentWithoutOptionsLine(content);
@@ -131,7 +112,7 @@ for (const languageDir of languageDirs) {
         const formatted = await prettier.format(codeToFormat, {
           ...restOptions,
           ...fileOptions,
-          plugins: [embed, ...languagePlugins],
+          plugins: [embed, ...plugins],
           filepath: file,
         });
 

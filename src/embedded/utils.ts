@@ -68,8 +68,8 @@ function getTemplateLiteralExpressionIndent(
   tabWidth: number,
 ): { indentSize: number; previousQuasiText: string } {
   let i = index;
-  const currentQuasi = templateLiteral.quasis[i];
-  const previousQuasiText = currentQuasi?.value.raw ?? "";
+  const precedingQuasi = templateLiteral.quasis[i];
+  const previousQuasiText = precedingQuasi?.value.raw ?? "";
 
   if (previousQuasiText.includes("\n")) {
     return {
