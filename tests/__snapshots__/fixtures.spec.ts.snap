@@ -116,7 +116,7 @@ const tagTest = graphql\`
 exports[`html > basic.js 1`] = `
 "// HTML - Tag \`html\` test (with formatting issues)
 const tagTest = html\`
-<div class="container">
+  <div class="container">
     <p>Hello</p>
     <span>World</span>
   </div>
@@ -124,10 +124,9 @@ const tagTest = html\`
 
 // HTML - Comment \`/* html */\` test (with formatting issues)
 /* html */ \`
-<form>
-    <input type="text" placeholder="Name" /><button type="submit">
-      Submit
-    </button>
+  <form>
+    <input type="text" placeholder="Name" />
+    <button type="submit">Submit</button>
   </form>
 \`;
 "
@@ -351,12 +350,24 @@ const tagTest = php\`
 exports[`prisma > basic.js 1`] = `
 "// Prisma - Tag \`prisma\` test (with formatting issues)
 const tagTest = prisma\`
-  datasource db{provider="postgresql" url=env("DATABASE_URL")}model User{id Int @id name String}
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
+
+  model User {
+    id   Int    @id
+    name String
+  }
 \`;
 
 // Prisma - Comment \`/* prisma */\` test (with formatting issues)
 /* prisma */ \`
-  model Post{id Int @id @default(autoincrement()) title String userId Int}
+  model Post {
+    id     Int    @id @default(autoincrement())
+    title  String
+    userId Int
+  }
 \`;
 "
 `;
@@ -584,12 +595,19 @@ const tagTest = ts\`
 exports[`xml > basic.js 1`] = `
 "// XML - Tag \`xml\` test (with formatting issues)
 const tagTest = xml\`
-<root attribute="value"><item>Content</item><element id="123">Text</element></root>
+  <root attribute="value">
+    <item>Content</item>
+    <element id="123">Text</element>
+  </root>
 \`;
 
 // XML - Comment \`/* xml */\` test (with formatting issues)
 /* xml */ \`
-<doc><node attr="1" attr2="2"><child/></node></doc>
+  <doc>
+    <node attr="1" attr2="2">
+      <child />
+    </node>
+  </doc>
 \`;
 "
 `;
