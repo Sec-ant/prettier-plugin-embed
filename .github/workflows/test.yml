@@ -16,5 +16,12 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
 
+      # This is required for @prettier/plugin-ruby to work correctly
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4" # Not needed with a .ruby-version, .tool-versions or mise.toml
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
       - name: Test
         run: pnpm -s test:ci
