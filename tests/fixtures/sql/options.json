@@ -1,0 +1,5 @@
+{
+  "plugins": ["prettier-plugin-sql"],
+  "embeddedSqlTags": ["sql"],
+  "embeddedOverrides": "[{\"tags\": [\"sql\"], \"options\": {\"language\": \"postgresql\"}}]"
+}

@@ -11,10 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - name: Setup
         uses: ./.github/actions/setup
 
+      # This is required for @prettier/plugin-ruby to work correctly
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4" # Not needed with a .ruby-version, .tool-versions or mise.toml
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+      - name: Install Ruby gems for plugin-ruby
+        run: |
+          gem install syntax_tree --no-document
+
       - name: Test
-        run: pnpm -s test
+        run: pnpm -s test:ci

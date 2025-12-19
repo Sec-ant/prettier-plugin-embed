@@ -1,6 +1,546 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`fixtures > should work 1`] = `
+exports[`css > basic.js 1`] = `
+"// CSS - Tag \`css\` test (with formatting issues)
+const tagTest = css\`
+  .container {
+    padding: 10px;
+    margin: 5px;
+  }
+  .button {
+    background: blue;
+    color: white;
+  }
+\`;
+
+// CSS - Comment \`/* css */\` test (with formatting issues)
+/* css */ \`
+  body {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  div {
+    display: flex;
+    justify-content: center;
+  }
+\`;
+"
+`;
+
+exports[`css > issue-88.js 1`] = `
+"// Issue #88: Enabling plugin changes formatting of embedded CSS
+// https://github.com/Sec-ant/prettier-plugin-embed/issues/88
+css\`
+  body {
+    color: red;
+  }
+\`;
+"
+`;
+
+exports[`css > issue-114.js 1`] = `
+"// Issue #114: CSS comments cause unstable formatting
+// https://github.com/Sec-ant/prettier-plugin-embed/issues/114
+const a = css\`
+  /*
+    Minimum column size of 0 required to prevent long
+    words from increasing the column size
+    https://css-tricks.com/preventing-a-grid-blowout/
+  */
+  grid-template-columns: 115px minmax(0, 1fr);
+\`;
+"
+`;
+
+exports[`es > basic.js 1`] = `
+"// ES/JavaScript - Tag \`js\` test (with formatting issues)
+const tagTest = js\`
+  function test(a, b) {
+    return a + b;
+  }
+  const x = 1,
+    y = 2;
+\`;
+
+// ES/JavaScript - Comment \`/* js */\` test (with formatting issues)
+/* js */ \`
+  const obj = { name: "test", value: 42 };
+  const arr = [1, 2, 3];
+\`;
+"
+`;
+
+exports[`glsl > basic.js 1`] = `
+"// GLSL - Tag \`glsl\` test (with formatting issues)
+const tagTest = glsl\`
+  attribute vec3 position;
+  uniform mat4 matrix;
+  void main() {
+    gl_Position = matrix * vec4(position, 1.0);
+  }
+\`;
+
+// GLSL - Comment \`/* glsl */\` test (with formatting issues)
+/* glsl */ \`
+  varying vec3 color;
+  void main() {
+    gl_FragColor = vec4(color, 1.0);
+  }
+\`;
+"
+`;
+
+exports[`graphql > basic.js 1`] = `
+"// GraphQL - Tag \`graphql\` test (with formatting issues)
+const tagTest = graphql\`
+  query GetUser($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      email
+    }
+  }
+\`;
+
+// GraphQL - Comment \`/* graphql */\` test (with formatting issues)
+/* graphql */ \`
+  mutation CreateUser($name: String!, $email: String!) {
+    createUser(name: $name, email: $email) {
+      id
+    }
+  }
+\`;
+"
+`;
+
+exports[`html > basic.js 1`] = `
+"// HTML - Tag \`html\` test (with formatting issues)
+const tagTest = html\`
+  <div class="container">
+    <p>Hello</p>
+    <span>World</span>
+  </div>
+\`;
+
+// HTML - Comment \`/* html */\` test (with formatting issues)
+/* html */ \`
+  <form>
+    <input type="text" placeholder="Name" />
+    <button type="submit">Submit</button>
+  </form>
+\`;
+"
+`;
+
+exports[`ini > basic.js 1`] = `
+"// INI - Tag \`ini\` test (with formatting issues: inconsistent spacing)
+const tagTest = ini\`
+  [database]
+  host=localhost
+  port=5432
+  user=admin
+\`;
+
+// INI - Comment \`/* ini */\` test (with formatting issues)
+/* ini */ \`
+  [server]
+  address=0.0.0.0
+  timeout=30
+\`;
+"
+`;
+
+exports[`java > basic.js 1`] = `
+"// Java - Tag \`java\` test (with formatting issues)
+const tagTest = java\`
+  public class Test {
+
+    public static void main(String[] args) {
+      System.out.println("Hello");
+    }
+  }
+\`;
+
+// Java - Comment \`/* java */\` test (with formatting issues)
+/* java */ \`
+  class User {
+
+    private String name;
+
+    public User(String n) {
+      this.name = n;
+    }
+  }
+\`;
+"
+`;
+
+exports[`json > basic.js 1`] = `
+"// JSON - Tag \`json\` test (with formatting issues)
+const tagTest = json\`
+  { "name": "test", "version": "1.0.0", "dependencies": { "lodash": "^4.0" } }
+\`;
+
+// JSON - Comment \`/* json */\` test (with formatting issues)
+/* json */ \`
+  {
+    "users": [
+      { "id": 1, "name": "Alice" },
+      { "id": 2, "name": "Bob" }
+    ]
+  }
+\`;
+"
+`;
+
+exports[`jsonata > basic.js 1`] = `
+"// JSONata - Tag \`jsonata\` test (with formatting issues)
+const tagTest = jsonata\`
+  Account.Order.Product{ "name": Product, "total": Price * Quantity }
+\`;
+
+// JSONata - Comment \`/* jsonata */\` test (with formatting issues)
+/* jsonata */ \` $sum(Order.(Price * Quantity)) \`;
+"
+`;
+
+exports[`latex > basic.js 1`] = `
+"// LaTeX - Tag \`latex\` test (with formatting issues: missing newlines)
+const tagTest = latex\`
+  \\\\documentclass{article}
+  \\\\begin{document}
+    \\\\section{Title}
+    Hello world.
+  \\\\end{document}
+\`;
+
+// LaTeX - Comment \`/* latex */\` test (with formatting issues)
+/* latex */ \`
+  \\\\begin{equation}
+    E=mc^{2}
+  \\\\end{equation}
+\`;
+"
+`;
+
+exports[`markdown > basic.js 1`] = `
+"// Markdown - Tag \`md\` test (with formatting issues: inconsistent list markers)
+const tagTest = md\`
+  # Title
+
+  - Item 1
+  - Item 2
+
+  * Item 3
+\`;
+
+// Markdown - Comment \`/* markdown */\` test (with formatting issues)
+/* markdown */ \`
+  ## Heading
+
+  - First
+  - Second
+\`;
+"
+`;
+
+exports[`markdown > issue-120.js 1`] = `
+"// Issue #120: noEmbeddedMultiLineIndentation not working for markdown
+// https://github.com/Sec-ant/prettier-plugin-embed/issues/120
+const markdown = String.raw;
+function getMd() {
+  if (true) {
+    if (true) {
+      return markdown\`
+# Hello
+
+**This is some bold text**
+      \`;
+    }
+  }
+}
+"
+`;
+
+exports[`nginx > basic.js 1`] = `
+"// Nginx - Tag \`nginx\` test (with formatting issues)
+const tagTest = nginx\`
+  server {
+    listen      80;
+    server_name example.com;
+
+    location / {
+      proxy_pass http://backend;
+    }
+  }
+\`;
+
+// Nginx - Comment \`/* nginx */\` test (with formatting issues)
+/* nginx */ \`
+  upstream backend {
+    server 127.0.0.1:3000;
+    server 127.0.0.1:3001;
+  }
+\`;
+"
+`;
+
+exports[`noop > basic.js 1`] = `
+"// Noop - Tag \`noop\` test (content should NOT be formatted, spaces preserved)
+const tagTest = noop\`
+This   text   will   NOT   be   formatted.   Spaces   preserved.
+\`;
+
+// Noop - Comment \`/* noop */\` test (content should NOT be formatted)
+/* noop */ \`
+Multiple    spaces    and    irregular    formatting    kept.
+\`;
+"
+`;
+
+exports[`pegjs > basic.js 1`] = `
+"// PEG.js - Tag \`pegjs\` test (with formatting issues)
+const tagTest = pegjs\`
+  start = a:word+ { return a.join(""); }
+
+  word
+    = "hello"
+    / "world"
+\`;
+
+// PEG.js - Comment \`/* pegjs */\` test (with formatting issues)
+/* pegjs */ \`
+  digit
+    = "0"
+    / "1"
+    / "2"
+    / "3"
+    / "4"
+    / "5"
+    / "6"
+    / "7"
+    / "8"
+    / "9"
+\`;
+"
+`;
+
+exports[`php > basic.js 1`] = `
+"// PHP - Tag \`php\` test (with formatting issues)
+const tagTest = php\`
+  <?php function greet($name)
+  {
+    echo "Hello " . $name;
+  }
+  class User
+  {
+    public $name;
+  } ?>
+\`;
+
+// PHP - Comment \`/* php */\` test (with formatting issues)
+/* php */ \`
+  <?php $x = 1;
+  $y = 2;
+  echo $x + $y; ?>
+\`;
+"
+`;
+
+exports[`prisma > basic.js 1`] = `
+"// Prisma - Tag \`prisma\` test (with formatting issues)
+const tagTest = prisma\`
+  datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+  }
+
+  model User {
+    id   Int    @id
+    name String
+  }
+\`;
+
+// Prisma - Comment \`/* prisma */\` test (with formatting issues)
+/* prisma */ \`
+  model Post {
+    id     Int    @id @default(autoincrement())
+    title  String
+    userId Int
+  }
+\`;
+"
+`;
+
+exports[`properties > basic.js 1`] = `
+"// Properties - Tag \`properties\` test (with formatting issues: inconsistent spacing)
+const tagTest = properties\`
+  app.name = MyApp
+  app.version = 1.0.0
+  database.url = localhost
+\`;
+
+// Properties - Comment \`/* properties */\` test (with formatting issues)
+/* properties */ \`
+  server.port = 8080
+  server.timeout = 30000
+\`;
+"
+`;
+
+exports[`pug > basic.js 1`] = `
+"// Pug - Tag \`pug\` test (with formatting issues: inconsistent indentation)
+const tagTest = pug\`
+  html
+    head
+      title Test
+    body
+      .container
+        p Hello
+\`;
+
+// Pug - Comment \`/* pug */\` test (with formatting issues)
+/* pug */ \`
+  div
+    span Text
+      a(href="#") Link
+\`;
+"
+`;
+
+exports[`ruby > basic.js 1`] = `
+"// Ruby - Tag \`ruby\` test (with formatting issues)
+const tagTest = ruby\`
+  def greet(name)
+  puts "Hello, #{name}"
+end
+class User
+  attr_accessor :name
+end
+\`;
+
+// Ruby - Comment \`/* ruby */\` test (with formatting issues)
+const tagTest2 = /* ruby */ \` def add(a, b)
+  a + b
+end \`;
+"
+`;
+
+exports[`sh > basic.js 1`] = `
+"// Shell - Tag \`sh\` test (with formatting issues: missing spaces, semicolons)
+const tagTest = sh\`
+  #!/bin/bash
+  if [ "$1" = "test" ]; then echo "Test mode"; else echo "Normal"; fi
+\`;
+
+// Shell - Comment \`/* sh */\` test (with formatting issues)
+/* sh */ \` for i in 1 2 3; do echo $i; done \`;
+"
+`;
+
+exports[`sql > basic.js 1`] = `
+"// SQL - Tag \`sql\` test (with formatting issues)
+const tagTest = sql\`
+  SELECT
+    id,
+    name,
+    email
+  FROM
+    users
+  WHERE
+    status = 'active'
+  ORDER BY
+    id
+\`;
+
+// SQL - Comment \`/* sql */\` test (with formatting issues)
+/* sql */ \`
+  INSERT INTO
+    users (name, email)
+  VALUES
+    ('John', 'john@test.com')
+\`;
+"
+`;
+
+exports[`sql > issue-35.js 1`] = `
+"// Issue #35: SQL casts, tilde, square brackets, $$ delimiter
+// https://github.com/Sec-ant/prettier-plugin-embed/issues/35
+sql\`
+  SELECT
+    ($$abc$$)::text AS val,
+    [col]::int,
+    $do$ select 1 $do$;
+\`;
+"
+`;
+
+exports[`sql > issue-45.js 1`] = `
+"// Issue #45: Multi-line dollar-quoted strings formatting
+// https://github.com/Sec-ant/prettier-plugin-embed/issues/45
+sql\`
+  SELECT
+    $$a
+  b$$::text AS val
+\`;
+"
+`;
+
+exports[`sql > issue-62.ts 1`] = `
+"// Issue #62: Literal tags with type annotations
+// https://github.com/Sec-ant/prettier-plugin-embed/issues/62
+type Revenue = any;
+declare function sql<_>(strings: TemplateStringsArray, ...values: any[]): any;
+declare const id: any;
+sql<Revenue>\`
+  SELECT
+    *
+  FROM
+    revenue
+  WHERE
+    id = \${id}
+\`;
+"
+`;
+
+exports[`sql > issue-64.js 1`] = `
+"// Issue #64: Object properties as identifiers
+// https://github.com/Sec-ant/prettier-plugin-embed/issues/64
+db.sql\`
+  SELECT
+    *
+  FROM
+    users
+  WHERE
+    id = \${userId}
+\`;
+"
+`;
+
+exports[`sql > issue-103.js 1`] = `
+"sql\`
+  SELECT
+    *
+  FROM
+    longer_table_name_with_many_characters
+  WHERE
+    longer_table_name_with_many_characters.id IN \${sql(
+      longerTableNameWithManyCharactersIds,
+    )}
+\`;
+
+sql\`
+  SELECT
+    *
+  FROM
+    \${sql(
+      evenLongerTableNameWithManyCharactersKeepsGoingEvenLongerAndLongerAndLonger,
+    )}
+\`;
+"
+`;
+
+exports[`sql > issue-137.js 1`] = `
 "sql.type(SESSION)\`
   INSERT INTO
     sessions (account_id, expires_at)
@@ -14,5 +554,75 @@ exports[`fixtures > should work 1`] = `
     expires_at AS "expiresAt",
     account_id AS "accountId"
 \`;
+"
+`;
+
+exports[`toml > basic.js 1`] = `
+"// TOML - Tag \`toml\` test (with formatting issues)
+const tagTest = toml\`
+  [package]
+  name = "myapp"
+  version = "1.0.0"
+\`;
+
+// TOML - Comment \`/* toml */\` test (with formatting issues)
+/* toml */ \`
+  [dependencies]
+  lodash = "^4.0"
+  express = "~4.18"
+\`;
+"
+`;
+
+exports[`ts > basic.js 1`] = `
+"// TypeScript - Tag \`ts\` test (with formatting issues)
+const tagTest = ts\`
+  interface User {
+    id: number;
+    name: string;
+  }
+  const getUser = (id: number): User => ({ id, name: "test" });
+\`;
+
+// TypeScript - Comment \`/* ts */\` test (with formatting issues)
+/* ts */ \`
+  type Props = { title: string; count?: number };
+  const fn = (): Props => ({ title: "hi" });
+\`;
+"
+`;
+
+exports[`xml > basic.js 1`] = `
+"// XML - Tag \`xml\` test (with formatting issues)
+const tagTest = xml\`
+  <root attribute="value">
+    <item>Content</item>
+    <element id="123">Text</element>
+  </root>
+\`;
+
+// XML - Comment \`/* xml */\` test (with formatting issues)
+/* xml */ \`
+  <doc>
+    <node attr="1" attr2="2">
+      <child />
+    </node>
+  </doc>
+\`;
+"
+`;
+
+exports[`yaml > basic.js 1`] = `
+"// YAML - Tag \`yaml\` test (with formatting issues)
+const tagTest = yaml\`
+  name: myapp
+  version: 1.0.0
+  author: John
+\`;
+
+// YAML - Comment \`/* yaml */\` test (with formatting issues)
+const commentTest = /* yaml */ \` server:
+    host: localhost
+    port: 3000 \`;
 "
 `;

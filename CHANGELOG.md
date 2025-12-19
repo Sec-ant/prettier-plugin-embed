@@ -11,7 +11,6 @@
 ### Patch Changes
 
 - fbb5cae: Fix wrong options fallback behaviors:
-
   - Empty list of tags and comments shouldn't fallback to identifiers in options.
 
 - 5cadbfa: Fix unstable embedded markdown indentation when using the `useTabs` option: https://github.com/Sec-ant/prettier-plugin-embed/pull/91#issuecomment-1963760555.
@@ -36,7 +35,6 @@
 ### Patch Changes
 
 - 67d0726: Fix a regression of formatting template literals with only whitespaces:
-
   - Template literals with only whitespaces should be formatted to ` `` `.
 
 ## 0.4.11
@@ -45,7 +43,6 @@
 
 - 3639712: Set up changesets
 - f4a41e7: Deprecate `identifier`-named options.
-
   - Change options `embedded<Language>Identifiers` to `embedded<Language>Comments` and `embedded<Language>Tags`.
   - Remove option ~~`noEmbeddedIdentificationByComment`~~ because it is not needed anymore.
   - Remove option ~~`noEmbeddedIdentificationByTag`~~ because it is not needded anymore.

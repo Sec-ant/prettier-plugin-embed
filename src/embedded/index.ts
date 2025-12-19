@@ -1,19 +1,19 @@
 export * from "./register.js";
 export type {
+  EmbeddedComment,
   EmbeddedDefaultComment,
   EmbeddedDefaultTag,
   EmbeddedEmbedders,
   EmbeddedLanguage,
   EmbeddedOptions,
   EmbeddedParsers,
-  EmbeddedComment,
   EmbeddedTag,
   PluginEmbedOptions,
 } from "./types.js";
 export {
-  makeIdentifiersOptionName,
-  makeCommentsOptionName,
-  makeTagsOptionName,
-  fallbackIndicator,
   type AutocompleteStringList,
+  fallbackIndicator,
+  makeCommentsOptionName,
+  makeIdentifiersOptionName,
+  makeTagsOptionName,
 } from "./utils.js";

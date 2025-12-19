@@ -64,7 +64,7 @@ export const embedder: Embedder<Options> = async (
       doc,
       placeholderRegex,
       expressionDocs,
-      true,
+      "hardline",
     );
   }
 

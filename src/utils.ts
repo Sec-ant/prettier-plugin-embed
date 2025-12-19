@@ -1,5 +1,5 @@
 import type { Expression, Node, Super, TemplateLiteral } from "estree";
-import memoize from "micro-memoize";
+import { memoize } from "micro-memoize";
 import {
   type AstPath,
   type Options,
@@ -189,7 +189,7 @@ export async function resolveEmbeddedOverrideOptions(
     kind: "comment" | "tag";
     filepath?: string;
   },
-) {
+): Promise<EmbeddedOverride["options"] | undefined> {
   // no embeddedOverrides string, return
   if (embeddedOverridesString === undefined) {
     return;
@@ -514,7 +514,7 @@ export function compareObjects<
     }
     if (
       !(
-        Object.prototype.hasOwnProperty.call(value2, key1) &&
+        Object.hasOwn(value2, key1) &&
         compare(value1[key1], value2[key1], ignoreSet)
       )
     ) {

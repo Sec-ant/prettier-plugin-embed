@@ -49,7 +49,12 @@ export const embedder: Embedder<Options> = async (
     parser: "prisma-parse",
   });
 
-  const contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
+  const contentDoc = simpleRehydrateDoc(
+    doc,
+    placeholderRegex,
+    expressionDocs,
+    "hardline",
+  );
 
   if (
     resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(commentOrTag)

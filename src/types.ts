@@ -10,10 +10,10 @@ import type {
   EmbeddedDefaultComment,
   EmbeddedDefaultTag,
   EmbeddedLanguage,
-  PluginEmbedOptions,
   makeCommentsOptionName,
   makeIdentifiersOptionName,
   makeTagsOptionName,
+  PluginEmbedOptions,
 } from "./embedded/index.js";
 import type { PluginEmbedLanguageAgnosticOptions } from "./options.js";
 

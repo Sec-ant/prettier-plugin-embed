@@ -1,3 +1,4 @@
+// @prettier {"embeddedSqlTags": ["sql.type"]}
 sql.type(SESSION)`
   INSERT INTO sessions (account_id, expires_at)
   VALUES (${accountId}, ${expiresAt.toJSON()})

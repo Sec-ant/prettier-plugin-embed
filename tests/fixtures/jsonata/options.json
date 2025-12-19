@@ -1,0 +1,3 @@
+{
+  "plugins": ["@stedi/prettier-plugin-jsonata"]
+}
