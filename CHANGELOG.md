@@ -1,5 +1,12 @@
 # prettier-plugin-embed
 
+## 0.5.1
+
+### Patch Changes
+
+- 0c1b3c4: Fix indentation issues in sql, css and markdown embedded languages.
+- 0c1b3c4: Fix embedded xml and prisma formatting behavior.
+
 ## 0.5.0
 
 ### Minor Changes
