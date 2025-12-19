@@ -1,0 +1,20 @@
+name: Test
+description: Run tests
+
+runs:
+  using: composite
+  steps:
+    # This is required for @prettier/plugin-ruby to work correctly
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: "3.4" # Not needed with a .ruby-version, .tool-versions or mise.toml
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+    - name: Install Ruby gems for plugin-ruby
+      shell: bash
+      run: gem install syntax_tree --no-document
+
+    - name: Test
+      shell: bash
+      run: pnpm -s test:ci
