@@ -1,8 +1,8 @@
-import parserBabel from "prettier/parser-babel";
-import parserEspree from "prettier/parser-espree";
-import parserFlow from "prettier/parser-flow";
-import parserMeriyah from "prettier/parser-meriyah";
-import parserTypescript from "prettier/parser-typescript";
+import parserEspree from "prettier/plugins/acorn.js";
+import parserBabel from "prettier/plugins/babel.js";
+import parserFlow from "prettier/plugins/flow.js";
+import parserMeriyah from "prettier/plugins/meriyah.js";
+import parserTypescript from "prettier/plugins/typescript.js";
 import { embeddedParsers } from "./embedded/index.js";
 
 export const parsers = {

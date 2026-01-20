@@ -7,7 +7,7 @@ import type {
   Plugin,
   Printer,
 } from "prettier";
-import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
+import { printers as estreePrinters } from "prettier/plugins/estree.js";
 import { embeddedLanguages } from "./embedded/index.js";
 import { parsers } from "./parsers.js";
 import {
