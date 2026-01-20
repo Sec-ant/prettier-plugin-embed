@@ -1,6 +1,6 @@
 import type { TemplateLiteral } from "estree";
 import type { AstPath, Doc, Options } from "prettier";
-import type { printer } from "prettier/doc";
+import type { printer } from "prettier/doc.js";
 import type {} from "sh-syntax";
 import type {} from "sql-formatter";
 import type {} from "sql-parser-cst";

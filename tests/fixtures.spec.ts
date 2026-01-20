@@ -3,7 +3,7 @@ import path from "node:path";
 import prettier from "prettier";
 import { globSync } from "tinyglobby";
 import { beforeAll, describe, expect, it } from "vitest";
-import * as embed from "../src";
+import * as embed from "../src/index.js";
 
 interface LanguageOptions {
   plugins?: string[];

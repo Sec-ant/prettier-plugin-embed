@@ -1,5 +1,5 @@
 import type { Options } from "prettier";
-import { builders } from "prettier/doc";
+import { builders } from "prettier/doc.js";
 import type { Embedder } from "../../types.js";
 import {
   printTemplateExpressions,
