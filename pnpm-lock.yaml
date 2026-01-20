@@ -73,8 +73,8 @@ importers:
         specifier: ^9.2.1
         version: 9.2.1
       copy-files-from-to:
-        specifier: ^3.13.0
-        version: 3.13.0
+        specifier: ^4.0.0
+        version: 4.0.0
       esbuild:
         specifier: ^0.27.1
         version: 0.27.1
@@ -771,6 +771,7 @@ packages:
 
   '@stedi/prettier-plugin-jsonata@2.1.8':
     resolution: {integrity: sha512-mk3uvWGDD0I+mtjS5XraVgd+8wa9QAmW+ub161WzA9DBlx9/8pY6yJbo3lZwjJXQtI/CK5liYA9EXBONWin7Og==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
       jsonata: ^1.7.0 || ^2.0.0
     bundledDependencies:
@@ -1135,9 +1136,9 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
-  copy-files-from-to@3.13.0:
-    resolution: {integrity: sha512-DRj1W8NRZAOt6+k9O0hcQ4R7pDX7wJMjs2b3EGgD/70qyM4ZZuIn0Kd8LLoOIuzR6Fvj/yIlA+3D4ZbVLIlG7A==}
-    engines: {node: '>=18'}
+  copy-files-from-to@4.0.0:
+    resolution: {integrity: sha512-dR7P9Horr5saSmqMiAfzKw9YZ8Akk5J2sw2eApvz/MWCbs933SAjeqzFQpIgKHZnpLy2kYaLceujKYSNFXpD0Q==}
+    engines: {node: '>=22.12.0'}
     hasBin: true
 
   cosmiconfig-typescript-loader@6.1.0:
@@ -1604,6 +1605,7 @@ packages:
 
   jsox@1.2.124:
     resolution: {integrity: sha512-KwptI8xUfOt7qJ+P+2utrJIEHTgDjXpBsDhPSM4GDq++4by+LX9nUFee97QfRloGcMh5iA9Ha/4UCVZl7zWzuA==}
+    deprecated: Discovered error in stringification with certain references
     hasBin: true
 
   lines-and-columns@1.2.4:
@@ -3518,7 +3520,7 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
-  copy-files-from-to@3.13.0:
+  copy-files-from-to@4.0.0:
     dependencies:
       async: 3.2.6
       axios: 1.13.2
