@@ -34,4 +34,4 @@ Use packed consumer profiles for package resolution, version boundaries, and run
 
 Document the default identifiers, required plugin, and any language-specific restrictions in the README language reference. Include a changeset for consumer-visible changes.
 
-Start each changeset with a one-sentence summary of its impact on consumers. Place detailed bullets and concise examples beneath that summary. Use active voice, present tense, and backticks for option and API names.
+Describe the impact of changes on consumers. Keep release entries at one list level and place concise examples beneath the change they illustrate. Use active voice, present tense, and backticks for option and API names.
