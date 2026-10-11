@@ -16,6 +16,7 @@ import {
   createCommentsInOptionsGenerator,
   createEmbeddedDoc,
   createTagsInOptionsGenerator,
+  matchTagExpressionPattern,
   parseCommentFromTemplateLiteralAstPath,
   parseTagFromTemplateLiteralAstPath,
 } from "./utils.js";
@@ -92,20 +93,32 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
     const tagsInOptionsGenerator = createTagsInOptionsGenerator(options, tag);
 
     for (const embeddedLanguage of embeddedLanguages) {
-      let hit = false;
+      let matchedTag: string | undefined;
 
       for (const tagInOptions of tagsInOptionsGenerator(embeddedLanguage)) {
-        if (tag === tagInOptions) {
-          hit = true;
+        if (
+          tag === tagInOptions ||
+          matchTagExpressionPattern(
+            { type: "Identifier", name: tag },
+            tagInOptions,
+          )
+        ) {
+          matchedTag = tagInOptions;
           break;
         }
       }
 
-      if (!hit) {
+      if (matchedTag === undefined) {
         continue;
       }
 
-      return createEmbeddedDoc(node, embeddedLanguage, tag, "tag", options);
+      return createEmbeddedDoc(
+        node,
+        embeddedLanguage,
+        matchedTag,
+        "tag",
+        options,
+      );
     }
 
     // unknown tag

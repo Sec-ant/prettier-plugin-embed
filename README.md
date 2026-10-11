@@ -19,17 +19,9 @@ npm i -D prettier prettier-plugin-embed
 
 ## Introduction
 
-### What?
+This plugin formats embedded languages in JavaScript and TypeScript template literals. Block comments and tags identify the language, and each integration delegates formatting to Prettier or a loaded language plugin.
 
-This Prettier plugin (namely [`prettier-plugin-embed`](https://github.com/Sec-ant/prettier-plugin-embed)) provides a configurable solution for formatting embedded languages in the form of [template literals](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals) within JavaScript or TypeScript files.
-
-### Why?
-
-Prettier's [`embedded-language-formatting`](https://prettier.io/docs/en/options.html#embedded-language-formatting) option provides the `auto` and `off` modes. This plugin adds per-language formatting controls, configurable block comments and tags for identifying embedded languages, and per-identifier overrides. For background, see [prettier/prettier#4424](https://github.com/prettier/prettier/issues/4424) and [prettier/prettier#5588](https://github.com/prettier/prettier/issues/5588).
-
-### How?
-
-By leveraging Prettier's plugin system, this plugin overrides the default [`embed`](https://prettier.io/docs/en/plugins#optional-embed) function of the `estree` printer, so varieties of new languages can be hooked in through this function. Check [this file](./src/printers.ts) to get an idea of how this is accomplished.
+It adds per-language controls, configurable identifiers, and per-identifier overrides to Prettier's embedded formatting. See [prettier/prettier#4424](https://github.com/prettier/prettier/issues/4424) and [prettier/prettier#5588](https://github.com/prettier/prettier/issues/5588) for related use cases.
 
 ## Features
 
@@ -102,25 +94,53 @@ export default {
 
 ### Quick Start Config Examples
 
-Here're some [quick start config examples](./ConfigExamples.md) to use this plugin for various embedded languages. Check beblow for a detailed explanation of all the available options.
+See [Config Examples](./ConfigExamples.md) for complete language plugin configurations and sample output.
 
-### An Overview of the Philosophy
+### Language identification and overrides
 
-To use this plugin, [`embedded-language-formatting`](https://prettier.io/docs/en/options.html#embedded-language-formatting) option must be set to `auto` (which is the default setting as of now), because this option serves as the main switch for activating embedded language formatting.
+Set `embeddedLanguageFormatting` to `"auto"` (Prettier's default) to enable embedded formatting. Prettier supplies the parsers for built-in languages. Install and load the additional plugins listed in the language table for other languages.
 
-This plugin connects embedded template literals to parsers and printers provided by Prettier and its [language plugins](https://prettier.io/docs/en/plugins.html#official-plugins). It provides the language identification, configuration, and formatting integration for those literals.
+A block comment such as `` /* sql */ `...` `` or a tag such as `` sql`...` `` selects an embedded language. Configure each language with `embedded<Language>Comments` and `embedded<Language>Tags`.
 
-Therefore, to enable formatting for a specific embedded language, the corresponding Prettier plugin for that language must also be loaded. For example, if you wish to format embedded XML language, you will need to load both this plugin and [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml). To find out which other plugins are required when using this plugin, please refer to the [Language-Specific Options](#language-specific-options) section below.
+Identification follows these rules:
 
-Embedded languages to be formatted are required to be enclosed in the template literals, and are identified by the preceding [block comments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#block_comments) `` /* comment */ `...` `` or [tags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) `` tag`...` ``. This plugin comes pre-configured with a built-in set of comments and tags for identifying various embedded languages. For instance, using comments like `/* xml */` or `/* svg */` or tags like `xml` or `svg` will trigger automatic formatting for the embedded XML language. You can specify an alternative list of comments or tags using the `embeddedXmlComments` option or the `embeddedXmlTags` option, respectively. The naming convention for these options follows the pattern of `embedded<Language>Comments` and `embedded<Language>Tags` for other languages as well. Further details on these options and how to configure them are also available in the [Language-Specific Options](#language-specific-options) section.
+1. A leading block comment is checked first. A recognized comment selects its language; an unrecognized comment uses Prettier's built-in behavior.
+2. Templates without a leading block comment are matched by their tag. Tags support exact identifiers, member expressions, and regular expression strings in `/pattern/flags` form.
+3. `embeddedNoopComments` and `embeddedNoopTags` take priority among matching languages and preserve template content as written.
+4. Other overlapping matches use the first matching language in the internal registry. Assign distinct identifiers or non-overlapping patterns to select a language explicitly.
 
-Tag options also accept regular expression strings in `/pattern/flags` form. They are matched against the tag expression, so `/\\.\\$queryRaw$/` can match `prisma.$queryRaw`, `client.$queryRaw`, or `ctx.prisma.$queryRaw` without listing each receiver.
+For example, this JSON configuration matches `prisma.$queryRaw`, `client.$queryRaw`, and `ctx.prisma.$queryRaw`. JSON and JavaScript strings escape each backslash as `\\`:
 
-To exclude certain comments or tags from being identified, like the default ones supported by the [`embedded-language-formatting`](https://prettier.io/docs/en/options.html#embedded-language-formatting) option, add them to the list of the `embeddedNoopComments`/`embeddedNoopTags` options. Any matching comments or tags listed in these options will take precedence over other `embedded<Language>Comments` and `embedded<Language>Tags` options, effectively disabling their formatting.
+```json
+{
+  "plugins": ["prettier-plugin-embed", "prettier-plugin-sql"],
+  "embeddedSqlTags": ["/\\.\\$queryRaw$/"]
+}
+```
 
-> [!IMPORTANT]
->
-> Specify comments or tags explicitly to keep language identification consistent across configurations.
+Simple identifiers support patterns too: `"/^query$/"` matches the tag `query`. Member and call expressions are represented in a normalized form for pattern matching; for example, `factory(argument).query` becomes `factory().query`.
+
+Per-tag overrides refer to the matching entry from `embedded<Language>Tags`, including the pattern string when a regular expression matches. The first matching override applies. For example, this JavaScript configuration gives embedded JavaScript selected by `query` its own quote style:
+
+```js
+export default {
+  plugins: ["prettier-plugin-embed"],
+  embeddedEsTags: ["/^query$/"],
+  embeddedOverrides: JSON.stringify([
+    { tags: ["/^query$/"], options: { singleQuote: true } },
+  ]),
+};
+```
+
+Embedded parsers receive the override options. The resulting document is laid out with the surrounding JavaScript or TypeScript document, using the outer Prettier `printWidth`.
+
+### Compatibility
+
+This plugin supports Prettier 3. Choose a version within the peer ranges of all loaded language plugins. XML formatting obtains its parser through the consumer's installed `@prettier/plugin-xml` dependency.
+
+The packed consumer suite covers npm, pnpm 10/11/12, Yarn Classic, Yarn Berry with node-modules and Plug'n'Play, and Bun installs. The Bun profile runs formatting with the Bun runtime; the other profiles use Node.js. The suite exercises JavaScript and TypeScript through the API and CLI, JSON/YAML/CommonJS/ESM configuration, and selected older and newer language plugin versions. Use the JavaScript configuration with imported plugin objects shown above for Yarn Plug'n'Play.
+
+For language-specific installation and configuration examples, see [Config Examples](./ConfigExamples.md). For adding an integration and its tests, see [Contributing](./CONTRIBUTING.md).
 
 ### Language-Specific Options
 
@@ -196,7 +216,7 @@ This built-in option can override native embedded language formatting for the sp
 
 Embedded CSS uses the parsers and printers included with Prettier.
 
-This can override the native formatting bahavior for embedded CSS language. If you want to keep the native behavior, set `embeddedCssComments` or `embeddedCssTags` to `[]` or other values.
+This can override the native formatting behavior for embedded CSS language. If you want to keep the native behavior, set `embeddedCssComments` or `embeddedCssTags` to `[]` or other values.
 
 If you want to specify different parsers for different comments or tags, check [`embeddedOverrides`](#embeddedoverrides-1).
 
@@ -672,9 +692,9 @@ This option is provided for users to override certain options based on comments 
 
 > [!NOTE]
 >
-> TypeScript override files (`.ts`, `.mts` and `.cts`) run on Node.js [18.19.0](https://nodejs.org/en/blog/release/v18.19.0#esm-and-customization-hook-changes) or later with [`tsx`](https://github.com/privatenumber/tsx) installed in the project. The Prettier VS Code extension currently loads JavaScript override files.
+> TypeScript override files (`.ts`, `.mts` and `.cts`) use Bun's native loader or the consumer project's [`tsx`](https://github.com/privatenumber/tsx) installation on Node.js. Node.js with native type stripping enabled can also load erasable TypeScript directly when `tsx` is absent. Install `tsx` for Node.js 18.19+ without native type stripping, or for TypeScript features that require transformation. The Prettier VS Code extension uses its bundled Node.js runtime; JavaScript override files provide the simplest editor setup.
 
-The resolved value should be an array of objects. Each object in the array must have 2 fields: `comments` and `options`, or `tags` and `options`. The `options` are considerred overrides that will be applied to the global `options` of prettier for those `comments` and `tags` only. It's like the [`overrides`](https://prettier.io/docs/en/configuration.html#configuration-overrides) of `prettier`, but it is comment/tag-based instead of file-based.
+The resolved value should be an array of objects. Each object in the array must have 2 fields: `comments` and `options`, or `tags` and `options`. The `options` are considered overrides that will be applied to the global `options` of prettier for those `comments` and `tags` only. It's like the [`overrides`](https://prettier.io/docs/en/configuration.html#configuration-overrides) of `prettier`, but it is comment/tag-based instead of file-based.
 
 In a json file, the root is the array of objects. In a JavaScript/TypeScript file, the array of objects should be a default export, or a named export with the name `embeddedOverrides`.
 

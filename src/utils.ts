@@ -68,7 +68,6 @@ async function importTsModule(absolutePath: string) {
     const worker = new Worker(importTsModuleWorkerDataUrl, {
       workerData: {
         absolutePath,
-        importMetaUrl: import.meta.url,
       },
     });
 
@@ -264,13 +263,17 @@ function getTagExpressionSource(
   }
 }
 
-function matchTagExpressionPattern(tagExpression: Expression, pattern: string) {
+export function matchTagExpressionPattern(
+  tagExpression: Expression,
+  pattern: string,
+) {
   const match = /^\/(.*)\/([dgimsuvy]*)$/.exec(pattern);
+  if (!match) return false;
   try {
     const expressionSource = getTagExpressionSource(tagExpression);
     return (
       expressionSource !== undefined &&
-      new RegExp(match![1]!, match![2]!).test(expressionSource)
+      new RegExp(match[1]!, match[2]!).test(expressionSource)
     );
   } catch {
     return false;

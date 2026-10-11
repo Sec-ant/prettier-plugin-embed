@@ -2,6 +2,7 @@ import type { Options } from "prettier";
 import type { Embedder } from "../../types.js";
 import {
   preparePlaceholder,
+  prepareTemplate,
   printTemplateExpressions,
   simpleRehydrateDoc,
   wrapEmbeddedDoc,
@@ -27,21 +28,8 @@ export const embedder: Embedder<Options> = async (
     "@prettier-placeholder",
   );
 
-  const text = node.quasis
-    .map((quasi, index, { length }) =>
-      index === length - 1
-        ? quasi.value.cooked
-        : quasi.value.cooked + createPlaceholder(index),
-    )
-    .join("");
-
-  const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
-  const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
-
-  const trimmedText = text.slice(
-    leadingWhitespaces.length,
-    -trailingWhitespaces.length || undefined,
-  );
+  const { trimmedText, leadingWhitespaces, trailingWhitespaces } =
+    prepareTemplate(node, createPlaceholder);
 
   const expressionDocs = printTemplateExpressions(path, print);
 

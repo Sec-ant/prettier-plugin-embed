@@ -51,7 +51,7 @@ function runPrettier(consumerDirectory, ...args) {
         encoding: "utf8",
       })
     : spawnSync(
-        process.execPath,
+        activePackageManager === "bun" ? "bun" : process.execPath,
         [
           path.join(
             consumerDirectory,
@@ -272,6 +272,7 @@ try {
       `import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import prettier from "prettier";
+${packageManager === "bun" ? "assert.ok(process.versions.bun, 'Bun profile uses the Bun runtime');" : ""}
 ${pnp ? `import * as prettierPluginEmbed from "prettier-plugin-embed";` : ""}
 ${pnp && xmlPluginVersion ? `import * as prettierPluginXml from "@prettier/plugin-xml";` : ""}
 
@@ -306,10 +307,14 @@ console.log("API JS/TS smoke passed with Prettier " + prettier.version);
           cwd: consumerDirectory,
           encoding: "utf8",
         })
-      : spawnSync(process.execPath, ["api-smoke.mjs"], {
-          cwd: consumerDirectory,
-          encoding: "utf8",
-        });
+      : spawnSync(
+          packageManager === "bun" ? "bun" : process.execPath,
+          ["api-smoke.mjs"],
+          {
+            cwd: consumerDirectory,
+            encoding: "utf8",
+          },
+        );
     assert.equal(apiSmokeResult.status, 0, apiSmokeResult.stderr);
     const apiSmokeOutput = `${apiSmokeResult.stdout}\n${apiSmokeResult.stderr}`;
     assert.doesNotMatch(
@@ -461,7 +466,7 @@ void options;
       }
       writeFileSync(
         path.join(consumerDirectory, "embedded-overrides.ts"),
-        `export default [{ tags: ["sql"], options: { keywordCase: "upper" } }];\n`,
+        `const keywordCase: "upper" = "upper";\nexport default [{ tags: ["sql"], options: { keywordCase } }];\n`,
       );
       writeFileSync(
         path.join(consumerDirectory, ".prettierrc.json"),
@@ -469,7 +474,12 @@ void options;
           plugins: ["prettier-plugin-embed", "prettier-plugin-sql"],
           embeddedSqlTags: ["sql"],
           embeddedOverrides: "./embedded-overrides.ts",
+          keywordCase: "lower",
         }),
+      );
+      writeFileSync(
+        path.join(consumerDirectory, "sample.sql.js"),
+        "const query = sql`select * from users where id = 1`;\n",
       );
       runPrettier(consumerDirectory, "sample.sql.js", "--write");
       assert.match(
@@ -477,6 +487,36 @@ void options;
         /\bSELECT\b/,
         "TypeScript embeddedOverrides should apply the SQL keyword case",
       );
+      if (packageManager === "pnpm@12") {
+        writeFileSync(
+          path.join(consumerDirectory, "pnpm-workspace.yaml"),
+          "allowBuilds:\n  esbuild: true\n",
+        );
+        runPackageManager(
+          packageManager,
+          ["add", "tsx@latest"],
+          consumerDirectory,
+        );
+        writeFileSync(
+          path.join(consumerDirectory, "sample.sql.js"),
+          "const query = sql`select * from users where id = 1`;\n",
+        );
+        run(
+          process.execPath,
+          [
+            "--no-experimental-strip-types",
+            "node_modules/prettier/bin/prettier.cjs",
+            "sample.sql.js",
+            "--write",
+          ],
+          consumerDirectory,
+        );
+        assert.match(
+          readFileSync(path.join(consumerDirectory, "sample.sql.js"), "utf8"),
+          /\bSELECT\b/,
+          "Consumer-provided tsx loads TypeScript overrides with native type stripping disabled",
+        );
+      }
       const typecheckArgs = [
         "--noEmit",
         "--skipLibCheck",

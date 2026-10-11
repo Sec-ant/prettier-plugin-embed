@@ -1,6 +1,25 @@
 import type { Options } from "prettier";
+import { printer as docPrinter } from "prettier/doc";
 import { describe, expect, it } from "vitest";
 import { embeddedEmbedders, embeddedLanguages } from "../src/embedded/index.js";
+
+it("registers unique language and option names with an embedder for each language", () => {
+  const modules = Object.values(
+    import.meta.glob<{
+      language: string;
+      options: Record<string, unknown>;
+      embedder?: unknown;
+    }>("../src/embedded/*/index.ts", { eager: true }),
+  );
+  const names = modules.map(({ language }) => language);
+  const optionNames = modules.flatMap(({ options }) => Object.keys(options));
+  expect(new Set(names).size).toBe(names.length);
+  expect(new Set(optionNames).size).toBe(optionNames.length);
+  expect(embeddedLanguages[0]).toBe("embeddedNoop");
+  for (const { language, embedder } of modules) {
+    if (language !== "embeddedNoop") expect(embedder).toBeTypeOf("function");
+  }
+});
 
 const languageOptions: Options = {
   parser: "babel",
@@ -91,6 +110,12 @@ for (const language of embeddedLanguages.filter(
           );
 
           expect(doc).toBeDefined();
+          const { formatted } = docPrinter.printDocToString(doc, {
+            printWidth: 80,
+            tabWidth: 2,
+            useTabs: false,
+          });
+          expect(formatted.match(/expression/g)).toHaveLength(1);
           expect(parsedOptions).toHaveLength(1);
           if (customParser) {
             expect(parsedOptions[0]).toMatchObject({

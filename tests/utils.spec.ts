@@ -450,7 +450,7 @@ describe("embedded overrides and object comparison", () => {
         writeFile(cjsPath, `module.exports = ${json};`),
         writeFile(jsPath, `export default ${json};`),
         writeFile(mtsPath, `export default ${json} as const;`),
-        writeFile(ctsPath, `export = ${json};`),
+        writeFile(ctsPath, `module.exports = ${json} as const;`),
         writeFile(tsPath, `export default ${json} as const;`),
       ]);
 

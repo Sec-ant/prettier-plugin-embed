@@ -3,6 +3,7 @@ import { utils } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
   preparePlaceholder,
+  prepareTemplate,
   printTemplateExpressions,
   wrapEmbeddedDoc,
 } from "../utils.js";
@@ -26,21 +27,8 @@ export const embedder: Embedder<Options> = async (
 
   const { createPlaceholder, placeholderRegex } = preparePlaceholder();
 
-  const text = node.quasis
-    .map((quasi, index, { length }) =>
-      index === length - 1
-        ? quasi.value.cooked
-        : quasi.value.cooked + createPlaceholder(index),
-    )
-    .join("");
-
-  const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
-  const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
-
-  const trimmedText = text.slice(
-    leadingWhitespaces.length,
-    -trailingWhitespaces.length || undefined,
-  );
+  const { trimmedText, leadingWhitespaces, trailingWhitespaces } =
+    prepareTemplate(node, createPlaceholder);
 
   const expressionDocs = printTemplateExpressions(path, print);
 
