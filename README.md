@@ -19,13 +19,21 @@ npm i -D prettier prettier-plugin-embed
 
 ## Introduction
 
-This plugin formats embedded languages in JavaScript and TypeScript template literals. Block comments and tags identify the language, and each integration delegates formatting to Prettier or a loaded language plugin.
+### What?
 
-It adds per-language controls, configurable identifiers, and per-identifier overrides to Prettier's embedded formatting. See [prettier/prettier#4424](https://github.com/prettier/prettier/issues/4424) and [prettier/prettier#5588](https://github.com/prettier/prettier/issues/5588) for related use cases.
+This Prettier plugin formats [embedded languages](https://prettier.io/docs/options#embedded-language-formatting) in [template literals](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals) within JavaScript and TypeScript files.
+
+### Why?
+
+It adds per-language formatting controls, configurable block comments and tags, and per-identifier overrides to Prettier's embedded formatting. See [prettier/prettier#4424](https://github.com/prettier/prettier/issues/4424) and [prettier/prettier#5588](https://github.com/prettier/prettier/issues/5588) for related use cases.
+
+### How?
+
+The plugin extends the [`embed`](https://prettier.io/docs/plugins#embed) method of Prettier's `estree` printer. Each integration delegates formatting to Prettier or a loaded language plugin. See [the printer implementation](./src/printers.ts) for the integration point.
 
 ## Features
 
-- **Supported Languages:** Format embedded CSS, JavaScript/TypeScript, HTML, GraphQL, JSON/JSONata, SQL, XML, YAML, and more. The [language matrix](#language-specific-options) lists every supported language, its default identifiers, and any required language plugin.
+- **Support for Additional Languages:** Extend embedded formatting to languages such as XML, SQL, PHP, and more. See [Language-Specific Options](#language-specific-options) for the supported languages and their default identifiers.
 
 - **Dual Identification Modes:** Identify embedded languages by block comments `` /* comment */ `...` `` or tags `` tag`...` `` preceding the template literals.
 
@@ -47,9 +55,27 @@ npm i -D prettier prettier-plugin-embed
 
 Install Prettier 3 in the project that runs formatting. The consumer supplies the formatter and its language plugins.
 
-Install the formatter plugin for each embedded language you use as a separate project dependency; the language table below shows which integrations require one.
+Install the formatter plugin for each embedded language you use as a separate project dependency; the [Language-Specific Options](#language-specific-options) section shows which integrations require one.
 
 Choose a Prettier version accepted by this plugin and every loaded language plugin. Each language plugin declares its own Prettier peer range.
+
+<details>
+<summary>Dependency resolution in strict installations</summary>
+
+The plugin loads Prettier through static imports, which resolve from the plugin's installation location. Standard project installs and Yarn's default Plug'n'Play dependency fallback allow these imports to access the project's installed Prettier.
+
+Yarn projects using `pnpFallbackMode: none`, and pnpm projects using `enableGlobalVirtualStore: true` with hoisting disabled, need an explicit dependency relationship for this resolution. For these configurations, add the following to `.yarnrc.yml` (Yarn) or `pnpm-workspace.yaml` (pnpm) to connect the plugin to the project's installed Prettier:
+
+```yaml
+packageExtensions:
+  "prettier-plugin-embed@*":
+    peerDependencies:
+      prettier: ">=3.0.0 <4"
+```
+
+Projects can also use Yarn's default `pnpFallbackMode: dependencies-only` or pnpm's project-local virtual store (`enableGlobalVirtualStore: false`).
+
+</details>
 
 ## Usage
 
@@ -98,18 +124,17 @@ export default {
 
 See [Config Examples](./ConfigExamples.md) for complete language plugin configurations and sample output.
 
-### Language identification and overrides
+### An Overview of the Philosophy
 
-Set `embeddedLanguageFormatting` to `"auto"` (Prettier's default) to enable embedded formatting. Prettier supplies the parsers for built-in languages. Install and load the additional plugins listed in the language table for other languages.
+Set [`embeddedLanguageFormatting`](https://prettier.io/docs/options#embedded-language-formatting) to `"auto"` (Prettier's default) to enable embedded formatting.
 
-A block comment such as `` /* sql */ `...` `` or a tag such as `` sql`...` `` selects an embedded language. Configure each language with `embedded<Language>Comments` and `embedded<Language>Tags`.
+This plugin uses Prettier's built-in parsers and existing [language plugins](https://prettier.io/docs/plugins#official-plugins), adding the integration needed to format their languages inside template literals.
 
-Identification follows these rules:
+Install and load the formatter plugin for each additional language you use. For example, embedded XML requires both this plugin and [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml). The [Language-Specific Options](#language-specific-options) section lists the required plugins.
 
-1. A leading block comment is checked first. A recognized comment selects its language; an unrecognized comment uses Prettier's built-in behavior.
-2. Templates without a leading block comment are matched by their tag. Tags support exact identifiers, member expressions, and regular expression strings in `/pattern/flags` form.
-3. `embeddedNoopComments` and `embeddedNoopTags` take priority among matching languages and preserve template content as written.
-4. Other overlapping matches use the first matching language in the internal registry. Assign distinct identifiers or non-overlapping patterns to select a language explicitly.
+A preceding [block comment](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#block_comments) such as `` /* xml */ `...` `` or a [tag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates) such as `` xml`...` `` identifies the embedded language. Configure each language with `embedded<Language>Comments` and `embedded<Language>Tags`. A leading block comment is checked first; templates without one are matched by their tag.
+
+Tags support exact identifiers, member expressions, and regular expression strings in `/pattern/flags` form. Simple identifiers support patterns too: `"/^query$/"` matches the tag `query`. Member and call expressions use a normalized form for pattern matching; for example, `factory(argument).query` becomes `factory().query`.
 
 For example, this JSON configuration matches `prisma.$queryRaw`, `client.$queryRaw`, and `ctx.prisma.$queryRaw`. JSON and JavaScript strings escape each backslash as `\\`:
 
@@ -120,75 +145,40 @@ For example, this JSON configuration matches `prisma.$queryRaw`, `client.$queryR
 }
 ```
 
-Simple identifiers support patterns too: `"/^query$/"` matches the tag `query`. Member and call expressions are represented in a normalized form for pattern matching; for example, `factory(argument).query` becomes `factory().query`.
+Add comments or tags to `embeddedNoopComments` or `embeddedNoopTags` to preserve their template content as written. These options take priority among matching languages. Other overlapping matches use the first matching language in the internal registry; assign distinct identifiers or non-overlapping patterns to select a language explicitly.
 
-Per-tag overrides refer to the matching entry from `embedded<Language>Tags`, including the pattern string when a regular expression matches. The first matching override applies. For example, this JavaScript configuration gives embedded JavaScript selected by `query` its own quote style:
-
-```js
-export default {
-  plugins: ["prettier-plugin-embed"],
-  embeddedEsTags: ["/^query$/"],
-  embeddedOverrides: JSON.stringify([
-    { tags: ["/^query$/"], options: { singleQuote: true } },
-  ]),
-};
-```
-
-Embedded parsers receive the override options. The resulting document is laid out with the surrounding JavaScript or TypeScript document, using the outer Prettier `printWidth`.
-
-### Compatibility
-
-This plugin supports Prettier 3. Choose a version within the peer ranges of all loaded language plugins. XML formatting uses the installed `@prettier/plugin-xml` parser and its native AST, including plugins loaded through a shared configuration package.
-
-The packed consumer suite covers npm, pnpm 10/11/12, Yarn Classic, Yarn Berry with node-modules and Plug'n'Play, and Bun installs. The Bun profile runs formatting with the Bun runtime; the other profiles use Node.js. The suite exercises JavaScript and TypeScript through the API and CLI, JSON/YAML/CommonJS/ESM configuration, and selected older and newer language plugin versions. Use the JavaScript configuration with imported plugin objects shown above for Yarn Plug'n'Play.
-
-#### Dependency resolution in strict installations
-
-The plugin loads Prettier through static imports, which resolve from the plugin's installation location. Standard project installs and Yarn's default Plug'n'Play dependency fallback allow these imports to access the project's installed Prettier.
-
-Yarn projects using `pnpFallbackMode: none`, and pnpm projects using `enableGlobalVirtualStore: true` with hoisting disabled, need an explicit dependency relationship for this resolution. For these configurations, add the following to `.yarnrc.yml` (Yarn) or `pnpm-workspace.yaml` (pnpm) to connect the plugin to the project's installed Prettier:
-
-```yaml
-packageExtensions:
-  "prettier-plugin-embed@*":
-    peerDependencies:
-      prettier: ">=3.0.0 <4"
-```
-
-Projects can also use Yarn's default `pnpFallbackMode: dependencies-only` or pnpm's project-local virtual store (`enableGlobalVirtualStore: false`).
-
-For language-specific installation and configuration examples, see [Config Examples](./ConfigExamples.md). For adding an integration and its tests, see [Contributing](./CONTRIBUTING.md).
+> [!IMPORTANT]
+>
+> Specify comments or tags explicitly to keep language identification stable across plugin versions.
 
 ### Language-Specific Options
 
-Supported embedded languages and their default identifiers are listed here. Identifiers can be changed with each language's `embedded<Language>Comments` and `embedded<Language>Tags` options.
+Supported embedded languages and their default comment/tag identifiers are:
 
-| Language                                               | Default comment/tag identifiers                             | Required language plugin                           |
-| ------------------------------------------------------ | ----------------------------------------------------------- | -------------------------------------------------- |
-| [CSS](#css)                                            | `css`                                                       | Prettier built in                                  |
-| [ES (ECMAScript/JavaScript)](#es-ecmascriptjavascript) | `js`, `jsx`, `es`, `es6`, `mjs`, `cjs`, `pac`, `javascript` | Prettier built in                                  |
-| [GLSL](#glsl)                                          | `glsl`, `shader`                                            | `prettier-plugin-glsl`                             |
-| [GraphQL](#graphql)                                    | `graphql`, `gql`                                            | Prettier built in                                  |
-| [HTML](#html)                                          | `html`, `xhtml`                                             | Prettier built in                                  |
-| [INI](#ini)                                            | `ini`, `cfg`, `pro`                                         | `prettier-plugin-ini`                              |
-| [Java](#java)                                          | `java`                                                      | `prettier-plugin-java`                             |
-| [JSON](#json)                                          | `json`, `jsonl`                                             | Prettier built in                                  |
-| [JSONata](#jsonata)                                    | `jsonata`                                                   | `@stedi/prettier-plugin-jsonata`                   |
-| [LaTeX](#latex)                                        | `latex`, `tex`, `aux`, `cls`, `bbl`, `bib`, `toc`, `sty`    | `prettier-plugin-latex`                            |
-| [Markdown](#markdown)                                  | `md`, `markdown`                                            | Prettier built in                                  |
-| [NGINX](#nginx)                                        | `nginx`                                                     | `prettier-plugin-nginx`                            |
-| [Pegjs](#pegjs)                                        | `pegjs`, `peggy`, `peg`                                     | `prettier-plugin-pegjs`                            |
-| [PHP](#php)                                            | `php`, `php5`                                               | `@prettier/plugin-php`                             |
-| [Prisma](#prisma)                                      | `prisma`                                                    | `prettier-plugin-prisma`                           |
-| [Properties](#properties)                              | `properties`                                                | `prettier-plugin-properties`                       |
-| [Pug](#pug)                                            | `pug`, `jade`                                               | `@prettier/plugin-pug`                             |
-| [Ruby](#ruby)                                          | `ruby`                                                      | `@prettier/plugin-ruby`                            |
-| [Sh (Shell)](#sh-shell)                                | `sh`                                                        | `prettier-plugin-sh`                               |
-| [SQL](#sql)                                            | `sql`                                                       | `prettier-plugin-sql` or `prettier-plugin-sql-cst` |
-| [TOML](#toml)                                          | `toml`                                                      | `prettier-plugin-toml`                             |
-| [TS (TypeScript)](#ts-typescript)                      | `ts`, `tsx`, `cts`, `mts`, `typescript`                     | Prettier built in                                  |
-| [XML](#xml)                                            | `xml`, `opml`, `rss`, `svg`                                 | `@prettier/plugin-xml`                             |
-| [YAML](#yaml)                                          | `yaml`, `yml`                                               | Prettier built in                                  |
+- [CSS](#css): `css`
+- [ES (ECMAScript/JavaScript)](#es-ecmascriptjavascript): `js`, `jsx`, `es`, `es6`, `mjs`, `cjs`, `pac`, `javascript`
+- [GLSL](#glsl): `glsl`, `shader`
+- [GraphQL](#graphql): `graphql`, `gql`
+- [HTML](#html): `html`, `xhtml`
+- [INI](#ini): `ini`, `cfg`, `pro`
+- [Java](#java): `java`
+- [JSON](#json): `json`, `jsonl`
+- [JSONata](#jsonata): `jsonata`
+- [LaTeX](#latex): `latex`, `tex`, `aux`, `cls`, `bbl`, `bib`, `toc`, `sty`
+- [Markdown](#markdown): `md`, `markdown`
+- [NGINX](#nginx): `nginx`
+- [Pegjs](#pegjs): `pegjs`, `peggy`, `peg`
+- [PHP](#php): `php`, `php5`
+- [Prisma](#prisma): `prisma`
+- [Properties](#properties): `properties`
+- [Pug](#pug): `pug`, `jade`
+- [Ruby](#ruby): `ruby`
+- [Sh (Shell)](#sh-shell): `sh`
+- [SQL](#sql): `sql`
+- [TOML](#toml): `toml`
+- [TS (TypeScript)](#ts-typescript): `ts`, `tsx`, `cts`, `mts`, `typescript`
+- [XML](#xml): `xml`, `opml`, `rss`, `svg`
+- [YAML](#yaml): `yaml`, `yml`
 
 <details open>
 <summary>
@@ -716,6 +706,20 @@ The Prettier VS Code extension uses its bundled Node.js runtime; JavaScript over
 Each override module load uses a fresh worker and module cache, so edits to the override file and its imported modules are reflected in subsequent formatting calls. Workers are released after the configuration has been read. Relative paths follow Prettier's configuration discovery and its [`clearConfigCache()`](https://prettier.io/docs/api#prettierclearconfigcache) API.
 
 The resolved value should be an array of objects. Each object in the array must have 2 fields: `comments` and `options`, or `tags` and `options`. The `options` are considered overrides that will be applied to the global `options` of prettier for those `comments` and `tags` only. It's like the [`overrides`](https://prettier.io/docs/en/configuration.html#configuration-overrides) of `prettier`, but it is comment/tag-based instead of file-based.
+
+Per-tag overrides refer to the matching entry from `embedded<Language>Tags`, including the pattern string when a regular expression matches. The first matching override applies. For example, this JavaScript configuration gives embedded JavaScript selected by `query` its own quote style:
+
+```js
+export default {
+  plugins: ["prettier-plugin-embed"],
+  embeddedEsTags: ["/^query$/"],
+  embeddedOverrides: JSON.stringify([
+    { tags: ["/^query$/"], options: { singleQuote: true } },
+  ]),
+};
+```
+
+Embedded parsers receive the override options. The resulting document is laid out with the surrounding JavaScript or TypeScript document, using the outer Prettier `printWidth`.
 
 In a json file, the root is the array of objects. In a JavaScript/TypeScript file, the array of objects should be a default export, or a named export with the name `embeddedOverrides`.
 
