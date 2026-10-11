@@ -1,14 +1,18 @@
 # Config Examples
 
-## `prettier-plugin-sql`
+## SQL
 
-Format SQL-in-JS with [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql) ([options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options))
+Format SQL-in-JS with [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) ([options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options)).
+
+### Installation
 
 Install the formatter and both plugins:
 
 ```sh
 npm install --save-dev prettier prettier-plugin-embed prettier-plugin-sql
 ```
+
+### Configuration
 
 `prettier.config.mjs`
 
@@ -22,7 +26,7 @@ export default {
 };
 ```
 
-Before formatting:
+### Input
 
 ```ts
 const users = await sql`
@@ -41,7 +45,7 @@ employers.company_id = companies.id WHERE users.id = ${userId}
 `;
 ```
 
-After formatting:
+### Formatted output
 
 ```ts
 const users = await sql`
@@ -56,4 +60,81 @@ const users = await sql`
   WHERE
     users.id = ${userId}
 `;
+```
+
+## Liquid
+
+Format Liquid-in-JS with [`@shopify/prettier-plugin-liquid`](https://github.com/Shopify/theme-tools/tree/main/packages/prettier-plugin-liquid#readme).
+
+### Installation
+
+Install the formatter and both plugins:
+
+```sh
+npm install --save-dev prettier prettier-plugin-embed @shopify/prettier-plugin-liquid
+```
+
+### Configuration
+
+`prettier.config.mjs`
+
+```js
+export default {
+  plugins: ["prettier-plugin-embed", "@shopify/prettier-plugin-liquid"],
+  embeddedLiquidTags: ["liquid"],
+};
+```
+
+### Input
+
+```ts
+const greeting = liquid`<p>{{user.name|escape}}</p>`;
+```
+
+### Formatted output
+
+```ts
+const greeting = liquid`<p>{{ user.name | escape }}</p>`;
+```
+
+## Dockerfile and Shell
+
+Format Dockerfile and Shell-in-JS with [`prettier-plugin-sh`](https://github.com/un-ts/prettier/tree/master/packages/sh#readme). Each tag selects the language's parser from the same plugin.
+
+### Installation
+
+Install the formatter and both plugins:
+
+```sh
+npm install --save-dev prettier prettier-plugin-embed prettier-plugin-sh
+```
+
+### Configuration
+
+`prettier.config.mjs`
+
+```js
+export default {
+  plugins: ["prettier-plugin-embed", "prettier-plugin-sh"],
+  embeddedDockerfileTags: ["dockerfile", "containerfile"],
+  embeddedShTags: ["sh"],
+};
+```
+
+### Input
+
+```ts
+const image = dockerfile`FROM node:24-alpine
+RUN echo ready&&echo done`;
+const command = sh`echo ready&&echo done`;
+```
+
+### Formatted output
+
+```ts
+const image = dockerfile`
+  FROM node:24-alpine
+  RUN echo ready && echo done
+`;
+const command = sh`echo ready && echo done`;
 ```

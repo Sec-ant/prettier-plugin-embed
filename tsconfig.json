@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "include": ["./src", "./tests"],
+  "exclude": ["./tests/**/fixtures"],
   "references": [
     {
       "path": "./tsconfig.node.json"

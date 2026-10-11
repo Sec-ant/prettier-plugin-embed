@@ -18,7 +18,9 @@ Biome owns JavaScript, TypeScript, and JSON formatting. Prettier handles documen
 
 Each integration lives in `src/embedded/<language>/`. Its `index.ts` exports the language identifier, options, embedder, and an optional custom parser. The registry discovers these exports during the build. Language and option names must be unique; the contract suite checks this invariant.
 
-Use `prepareTemplate` to combine template fragments, insert language-compatible placeholders, and extract exterior whitespace. Use `printTemplateExpressions` to print JavaScript expressions and `simpleRehydrateDoc` to restore them in the formatted language document. `wrapEmbeddedDoc` applies shared indentation and exterior whitespace options. Keep language-specific parsing, whitespace, and interpolation handling in the language adapter.
+Declare language options as static objects. Use `createEmbedder` for the shared template formatting pipeline, configuring the parser, placeholder syntax, newline handling, and exterior whitespace behavior for the language. Each embedder is created once during plugin initialization.
+
+Adapters with specialized parsing or document layout use the same pipeline utilities. `prepareTemplate` combines template fragments, inserts language-compatible placeholders, and extracts exterior whitespace. `printTemplateExpressions` prints JavaScript expressions, and `simpleRehydrateDoc` restores them while checking that each expression survives formatting. `wrapEmbeddedDoc` applies shared indentation and exterior whitespace options.
 
 The consumer installs and loads the language's Prettier plugin. Add that plugin as a development dependency here for integration tests. Confirm its parser name, Prettier peer range, and any runtime requirements before selecting supported versions.
 
@@ -26,7 +28,7 @@ The consumer installs and loads the language's Prettier plugin. Add that plugin 
 
 Put source fixtures in `tests/fixtures/<language>/` and shared options in that directory's `options.json`. A fixture can specify additional options with a `// @prettier {"option": "value"}` comment. Name issue regressions `issue-<number>.js` or `.ts`.
 
-The fixture suite checks formatted output and idempotency with the actual language plugin. Put focused language behavior tests in `tests/embedded/<language>.spec.ts`, and shared behavior tests next to the existing printer and utility suites.
+The fixture suite checks formatted output, idempotency, and preservation of template expressions and their order with the actual language plugin. TypeScript fixture inputs are checked as formatting examples; the project's TypeScript check covers source code and executable tests. Put focused language behavior tests in `tests/embedded/<language>.spec.ts`, and shared behavior tests next to the existing printer and utility suites.
 
 Cover plain template content, multiple interpolations, nested JavaScript expressions, comments, escaping, and relevant whitespace settings. Verify that each interpolation appears once in the correct position. Language grammars may accept placeholders in some positions but reject them in others, so use realistic examples from the intended use case.
 

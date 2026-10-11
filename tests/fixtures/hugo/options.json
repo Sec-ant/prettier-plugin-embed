@@ -1,0 +1,5 @@
+{
+  "plugins": [
+    "@htnabe/prettier-plugin-hugo-post"
+  ]
+}

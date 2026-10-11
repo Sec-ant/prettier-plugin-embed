@@ -213,6 +213,25 @@ describe("template expression printing", () => {
 });
 
 describe("rehydrating embedded documents", () => {
+  it("detects expressions discarded by a language formatter", () => {
+    expect(() =>
+      simpleRehydrateDoc("plain text", /pabc(\d+)xyz/g, [interpolation]),
+    ).toThrow("The embedded formatter changed an expression placeholder.");
+  });
+
+  it("escapes closing script tags in embedded HTML contexts", () => {
+    const doc = simpleRehydrateDoc(
+      "<script>value</SCRIPT>",
+      /never-match/g,
+      [],
+      false,
+      undefined,
+      undefined,
+      true,
+    );
+    expect(render(doc)).toBe("<script>value<\\/SCRIPT>");
+  });
+
   it("restores expressions and escapes template literal text", () => {
     const placeholder = "pabc0xyz";
     const doc = simpleRehydrateDoc(`raw ${placeholder} \\ `, /pabc(\d+)xyz/g, [
