@@ -1,15 +1,15 @@
 import dedent from "dedent";
 import type { Options } from "prettier";
-import { builders } from "prettier/doc";
+import type { builders } from "prettier/doc";
 import type { Embedder } from "../../types.js";
 import {
   preparePlaceholder,
+  prepareTemplate,
   printTemplateExpressions,
   simpleRehydrateDoc,
+  wrapEmbeddedDoc,
 } from "../utils.js";
 import { language } from "./language.js";
-
-const { group, line, softline, indent } = builders;
 
 export const embedder: Embedder<Options> = async (
   textToDoc,
@@ -29,24 +29,15 @@ export const embedder: Embedder<Options> = async (
 
   const { createPlaceholder, placeholderRegex } = preparePlaceholder();
 
-  const text = node.quasis
-    .map((quasi, index, { length }) =>
-      index === length - 1
-        ? quasi.value.cooked
-        : quasi.value.cooked + createPlaceholder(index),
-    )
-    .join("");
+  const { trimmedText, leadingWhitespaces, trailingWhitespaces } =
+    prepareTemplate(node, createPlaceholder);
 
-  const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
-  const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
-
-  const trimmedText = text.slice(
-    leadingWhitespaces.length,
-    -trailingWhitespaces.length || undefined,
+  const expressionDocs = printTemplateExpressions(
+    path,
+    print,
+    resolvedOptions,
+    false,
   );
-
-  const expressionDocs = printTemplateExpressions(path, print);
-
   let contentDoc: builders.Doc[] | builders.DocCommand;
 
   if (plugin === "prettier-plugin-sql-cst") {
@@ -56,6 +47,13 @@ export const embedder: Embedder<Options> = async (
     });
     contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
   } else {
+    const lineBreakBeforeExpressions = new Set(
+      node.quasis
+        .slice(0, -1)
+        .flatMap((quasi, index) =>
+          /\n[\t ]*$/.test(quasi.value.raw) ? [index] : [],
+        ),
+    );
     const doc = await textToDoc(dedent(trimmedText), {
       ...resolvedOptions,
       parser: "sql",
@@ -65,36 +63,18 @@ export const embedder: Embedder<Options> = async (
       placeholderRegex,
       expressionDocs,
       "hardline",
+      lineBreakBeforeExpressions,
+      resolvedOptions.tabWidth ?? 2,
     );
   }
 
-  if (
-    resolvedOptions.preserveEmbeddedExteriorWhitespaces?.includes(commentOrTag)
-  ) {
-    // TODO: should we label the doc with { hug: false } ?
-    // https://github.com/prettier/prettier/blob/5cfb76ee50cf286cab267cf3cb7a26e749c995f7/src/language-js/embed/html.js#L88
-    return group([
-      "`",
-      leadingWhitespaces,
-      resolvedOptions.noEmbeddedMultiLineIndentation?.includes(commentOrTag)
-        ? [group(contentDoc)]
-        : indent([group(contentDoc)]),
-      trailingWhitespaces,
-      "`",
-    ]);
-  }
-
-  const leadingLineBreak = leadingWhitespaces.length ? line : softline;
-  const trailingLineBreak = trailingWhitespaces.length ? line : softline;
-
-  return group([
-    "`",
-    resolvedOptions.noEmbeddedMultiLineIndentation?.includes(commentOrTag)
-      ? [leadingLineBreak, group(contentDoc)]
-      : indent([leadingLineBreak, group(contentDoc)]),
-    trailingLineBreak,
-    "`",
-  ]);
+  return wrapEmbeddedDoc(
+    contentDoc,
+    resolvedOptions,
+    commentOrTag,
+    leadingWhitespaces,
+    trailingWhitespaces,
+  );
 };
 
 /**

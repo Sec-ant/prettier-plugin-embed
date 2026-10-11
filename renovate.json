@@ -10,6 +10,5 @@
   ],
   "lockFileMaintenance": {
     "enabled": false
-  },
-  "ignoreDeps": ["chevrotain"]
+  }
 }

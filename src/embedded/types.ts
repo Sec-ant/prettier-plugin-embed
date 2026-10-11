@@ -1,5 +1,5 @@
 import type { Options, Parser, SupportOption } from "prettier";
-import type { LiteralUnion } from "type-fest";
+import type { LiteralUnion } from "../type-utils.js";
 import type { Embedder } from "../types.js";
 import type { Satisfies } from "./utils.js";
 

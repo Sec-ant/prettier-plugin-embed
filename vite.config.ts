@@ -1,53 +1,46 @@
 /// <reference types="vitest" />
 
-import { readFile } from "node:fs/promises";
 import { builtinModules } from "node:module";
-import { transform } from "esbuild";
 import { defineConfig } from "vite";
-import { reject } from "./.ncurc.cjs";
 
-export default defineConfig({
+const external = [
+  /^prettier(?:\/|$)/,
+  /(?:^|@.+?\/)prettier-plugin-/,
+  /^@prettier\/plugin-/,
+];
+
+export default defineConfig(({ command }) => ({
   build: {
     target: ["node18"],
     lib: {
       entry: {
         index: "./src/index.ts",
+        "import-module-worker": "./scripts/import-module-worker.ts",
       },
       formats: ["es"],
       fileName: (_, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
-      external: [...reject, ...builtinModules, /^node:/],
+      external: [...external, ...builtinModules, /^node:/],
     },
   },
   define: {
-    IMPORT_JS_MODULE_WORKER: JSON.stringify(
-      (
-        await transform(
-          await readFile("./scripts/import-js-module-worker.ts"),
-          {
-            loader: "ts",
-            minify: true,
-          },
-        )
-      ).code.trim(),
-    ),
-    IMPORT_TS_MODULE_WORKER: JSON.stringify(
-      (
-        await transform(
-          await readFile("./scripts/import-ts-module-worker.ts"),
-          {
-            loader: "ts",
-            minify: true,
-          },
-        )
-      ).code.trim(),
+    IMPORT_MODULE_WORKER_URL: JSON.stringify(
+      command === "build"
+        ? "./import-module-worker.js"
+        : "../scripts/import-module-worker.ts",
     ),
   },
   test: {
     passWithNoTests: true,
     coverage: {
-      provider: "istanbul",
+      provider: "v8",
+      thresholds: {
+        branches: 98,
+        functions: 98,
+        lines: 98,
+        statements: 98,
+      },
     },
   },
-});
+}));

@@ -8,11 +8,13 @@ import {
 type EmbeddedCommentsOrTags = (EmbeddedComment | EmbeddedTag)[];
 
 // biome-ignore format: no line break
-const NO_EMBEDDED_IDENTIFICATION_BY_COMMENT = "noEmbeddedIdentificationByComment";
+const NO_EMBEDDED_IDENTIFICATION_BY_COMMENT =
+  "noEmbeddedIdentificationByComment";
 // biome-ignore format: no line break
 const NO_EMBEDDED_IDENTIFICATION_BY_TAG = "noEmbeddedIdentificationByTag";
 // biome-ignore format: no line break
-const PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES = "preserveEmbeddedExteriorWhitespaces";
+const PRESERVE_EMBEDDED_EXTERIOR_WHITESPACES =
+  "preserveEmbeddedExteriorWhitespaces";
 // biome-ignore format: no line break
 const NO_EMBEDDED_MULTI_LINE_INDENTATION = "noEmbeddedMultiLineIndentation";
 const EMBEDDED_OVERRIDES = "embeddedOverrides";

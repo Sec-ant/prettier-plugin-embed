@@ -27,6 +27,16 @@ const tagTest = css\`
 "
 `;
 
+exports[`css > interpolation.js 1`] = `
+"const primaryColor = "red";
+const styles = css\`
+  .button {
+    color: \${primaryColor};
+  }
+\`;
+"
+`;
+
 exports[`css > issue-88.js 1`] = `
 "// Issue #88: Enabling plugin changes formatting of embedded CSS
 // https://github.com/Sec-ant/prettier-plugin-embed/issues/88
@@ -132,6 +142,12 @@ const tagTest = html\`
 "
 `;
 
+exports[`html > interpolation.js 1`] = `
+"const label = "Hello";
+const view = html\`<div>\${label}</div>\`;
+"
+`;
+
 exports[`ini > basic.js 1`] = `
 "// INI - Tag \`ini\` test (with formatting issues: inconsistent spacing)
 const tagTest = ini\`
@@ -193,6 +209,12 @@ const tagTest = json\`
 "
 `;
 
+exports[`json > interpolation.js 1`] = `
+"const name = "Alice";
+const value = json\`{ "name": \${name} }\`;
+"
+`;
+
 exports[`jsonata > basic.js 1`] = `
 "// JSONata - Tag \`jsonata\` test (with formatting issues)
 const tagTest = jsonata\`
@@ -244,6 +266,12 @@ const tagTest = md\`
 "
 `;
 
+exports[`markdown > interpolation.js 1`] = `
+"const title = "Overview";
+const document = md\` # \${title} \`;
+"
+`;
+
 exports[`markdown > issue-120.js 1`] = `
 "// Issue #120: noEmbeddedMultiLineIndentation not working for markdown
 // https://github.com/Sec-ant/prettier-plugin-embed/issues/120
@@ -259,6 +287,13 @@ function getMd() {
     }
   }
 }
+"
+`;
+
+exports[`markdown > preserve-exterior-whitespace.js 1`] = `
+"const document = md\`
+# heading
+\`;
 "
 `;
 
@@ -557,6 +592,44 @@ exports[`sql > issue-137.js 1`] = `
 "
 `;
 
+exports[`sql > issue-152.js 1`] = `
+"// Issue #152: preserve line breaks before SQL template expressions.
+function test() {
+  const myId = 123;
+  const otherClause = myId === 123 ? sql\`AND id2 = 1234\` : empty;
+
+  const query = sql\`
+    SELECT
+      *
+    FROM
+      table_name
+    WHERE
+      id = \${myId}
+      \${otherClause}
+  \`;
+}
+"
+`;
+
+exports[`sql > issue-161.js 1`] = `
+"// Issue #161: match Prisma raw SQL tags by method suffix.
+const query = ctx.prisma.$queryRaw\`
+  select
+    id,
+    name
+  from
+    users
+  where
+    active = true
+\`;
+const command = transaction.$executeRaw\`
+  delete from users
+  where
+    inactive = true
+\`;
+"
+`;
+
 exports[`toml > basic.js 1`] = `
 "// TOML - Tag \`toml\` test (with formatting issues)
 const tagTest = toml\`
@@ -624,5 +697,14 @@ const tagTest = yaml\`
 const commentTest = /* yaml */ \` server:
     host: localhost
     port: 3000 \`;
+"
+`;
+
+exports[`yaml > nested.js 1`] = `
+"const config = yaml\` services:
+    api:
+      ports:
+        - 3000
+        - 3001 \`;
 "
 `;

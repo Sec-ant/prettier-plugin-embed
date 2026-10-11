@@ -1,7 +1,8 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "stripInternal": true
+    "stripInternal": true,
+    "rootDir": "./src"
   },
   "include": ["./src"]
 }

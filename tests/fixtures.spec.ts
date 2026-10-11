@@ -1,8 +1,9 @@
+import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import prettier from "prettier";
 import { globSync } from "tinyglobby";
-import { beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import * as embed from "../src";
 
 interface LanguageOptions {
@@ -18,13 +19,7 @@ function loadLanguageOptions(languageDir: string): LanguageOptions {
   if (!existsSync(configPath)) {
     return {};
   }
-  try {
-    const content = readFileSync(configPath, "utf-8");
-    return JSON.parse(content);
-  } catch (error) {
-    console.warn(`Failed to load language options from ${configPath}:`, error);
-    return {};
-  }
+  return JSON.parse(readFileSync(configPath, "utf-8"));
 }
 
 /**
@@ -54,12 +49,7 @@ function parsePrettierOptions(content: string): Record<string, unknown> {
   const optionsLine = content.split("\n")[optionsLineIndex] ?? "";
   const match = optionsLine.match(/^\/\/\s*@prettier\s+({.+})$/);
   if (match?.[1]) {
-    try {
-      return JSON.parse(match[1]);
-    } catch (error) {
-      console.warn(`Failed to parse @prettier options: ${optionsLine}`, error);
-      return {};
-    }
+    return JSON.parse(match[1]);
   }
   return {};
 }
@@ -80,6 +70,47 @@ const fixturesDir = path.join(import.meta.dirname, "fixtures");
 const languageDirs = globSync("*/", {
   cwd: fixturesDir,
   onlyDirectories: true,
+}).sort();
+
+function rubyParserServerPids() {
+  if (process.platform === "win32") {
+    return [];
+  }
+
+  return execFileSync("ps", ["-axo", "pid=,command="], {
+    encoding: "utf8",
+  })
+    .split("\n")
+    .flatMap((line) => {
+      const match =
+        /^\s*(\d+) ruby .*\/node_modules\/\.pnpm\/@prettier\+plugin-ruby@.*\/src\/server\.rb --plugins=.*prettier-ruby-parser-.*\.txt$/.exec(
+          line,
+        );
+      return match?.[1] ? [Number(match[1])] : [];
+    });
+}
+
+const existingRubyParserServerPids = new Set<number>();
+
+beforeAll(() => {
+  // Mute pug logs during all fixture tests.
+  process.env.PRETTIER_PLUGIN_PUG_LOG_LEVEL = "off";
+  for (const pid of rubyParserServerPids()) {
+    existingRubyParserServerPids.add(pid);
+  }
+});
+
+afterAll(() => {
+  // @prettier/plugin-ruby's detached server survives Vitest worker teardown.
+  for (const pid of rubyParserServerPids()) {
+    if (!existingRubyParserServerPids.has(pid)) {
+      try {
+        process.kill(pid);
+      } catch {
+        // The server may already have exited.
+      }
+    }
+  }
 });
 
 for (const languageDir of languageDirs) {
@@ -93,21 +124,13 @@ for (const languageDir of languageDirs) {
   const files = globSync(`${language}/*`, {
     cwd: fixturesDir,
     absolute: true,
-  });
+  })
+    .filter((file) => /\.(?:js|ts)$/.test(file))
+    .sort();
 
   // Create a describe block for each language
   describe(language, () => {
-    beforeAll(() => {
-      // mute pug logs during tests
-      process.env.PRETTIER_PLUGIN_PUG_LOG_LEVEL = "off";
-    });
-
     for (const file of files) {
-      // Skip options.json
-      if (file.endsWith("options.json")) {
-        continue;
-      }
-
       const filename = path.basename(file);
 
       it(filename, async () => {
@@ -115,14 +138,20 @@ for (const languageDir of languageDirs) {
         const fileOptions = parsePrettierOptions(content);
         const codeToFormat = getContentWithoutOptionsLine(content);
 
-        const formatted = await prettier.format(codeToFormat, {
+        const formatOptions = {
           ...restOptions,
           ...fileOptions,
           plugins: [embed, ...plugins],
           filepath: file,
-        });
+        };
+        const formatted = await prettier.format(codeToFormat, formatOptions);
+        const formattedAgain = await prettier.format(formatted, formatOptions);
 
-        // Use snapshot with language/filename key for uniqueness
+        expect(formattedAgain, "fixture formatting should be idempotent").toBe(
+          formatted,
+        );
+
+        // Snapshot names include the language describe block and fixture filename.
         expect(formatted).toMatchSnapshot();
       });
     }

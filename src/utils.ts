@@ -1,5 +1,4 @@
 import type { Expression, Node, Super, TemplateLiteral } from "estree";
-import { memoize } from "micro-memoize";
 import {
   type AstPath,
   type Options,
@@ -32,73 +31,58 @@ async function importJsonc(absolutePath: string) {
   }
 }
 
-const importJsModuleWorkerDataUrl = /* @__PURE__ */ new URL(
-  `data:text/javascript,${encodeURIComponent(IMPORT_JS_MODULE_WORKER)}`,
+const importModuleWorkerUrl = /* @__PURE__ */ new URL(
+  /* @vite-ignore */ IMPORT_MODULE_WORKER_URL,
+  import.meta.url,
 );
 
-const importTsModuleWorkerDataUrl = /* @__PURE__ */ new URL(
-  `data:text/javascript,${encodeURIComponent(IMPORT_TS_MODULE_WORKER)}`,
-);
-
-async function importJsModule(absolutePath: string) {
+async function importModule(absolutePath: string) {
   const { Worker } = await import("node:worker_threads");
 
   return new Promise<EmbeddedOverride[] | undefined>((resolve) => {
-    const worker = new Worker(importJsModuleWorkerDataUrl, {
+    const worker = new Worker(importModuleWorkerUrl, {
       workerData: {
         absolutePath,
       },
     });
 
-    worker.once("message", (result) => {
-      resolve(result as EmbeddedOverride[] | undefined);
-    });
-
-    worker.once("error", (error) => {
-      console.error(error);
-      resolve(undefined);
-    });
-  });
-}
-
-async function importTsModule(absolutePath: string) {
-  const { Worker } = await import("node:worker_threads");
-
-  return new Promise<EmbeddedOverride[] | undefined>((resolve) => {
-    const worker = new Worker(importTsModuleWorkerDataUrl, {
-      workerData: {
-        absolutePath,
-        importMetaUrl: import.meta.url,
+    worker.once(
+      "message",
+      (result: { overrides?: EmbeddedOverride[]; error?: Error }) => {
+        void worker.terminate();
+        if (result.error) {
+          console.error(result.error);
+        }
+        resolve(result.overrides);
       },
-    });
-
-    worker.once("message", (result) => {
-      resolve(result as EmbeddedOverride[] | undefined);
-    });
+    );
 
     worker.once("error", (error) => {
       console.error(error);
       resolve(undefined);
     });
+
+    worker.once("exit", () => {
+      resolve(undefined);
+    });
   });
 }
 
-const resolveEmbeddedOverridesFileAbsolutePath = memoize(
-  async (embeddedOverridesFilePath: string, filepath?: string) => {
-    const { isAbsolute, dirname, resolve } = await import("node:path");
-    if (isAbsolute(embeddedOverridesFilePath)) {
-      return embeddedOverridesFilePath;
-    }
-    const configFilePath = await resolveConfigFile(filepath);
-    let configDir: string;
-    if (typeof configFilePath !== "string") {
-      configDir = process.env.PWD ?? process.cwd();
-    } else {
-      configDir = dirname(configFilePath);
-    }
-    return resolve(configDir, embeddedOverridesFilePath);
-  },
-);
+async function resolveEmbeddedOverridesFileAbsolutePath(
+  embeddedOverridesFilePath: string,
+  filepath?: string,
+) {
+  const { isAbsolute, dirname, resolve } = await import("node:path");
+  if (isAbsolute(embeddedOverridesFilePath)) {
+    return embeddedOverridesFilePath;
+  }
+  const configFilePath = await resolveConfigFile(filepath);
+  const configDir =
+    typeof configFilePath === "string"
+      ? dirname(configFilePath)
+      : (process.env.PWD ?? process.cwd());
+  return resolve(configDir, embeddedOverridesFilePath);
+}
 
 const resolveEmbeddedOverrides = async (
   embeddedOverridesString: string,
@@ -139,7 +123,7 @@ const resolveEmbeddedOverrides = async (
     extensionName === ".js"
   ) {
     const absolutePath = await absolutePathPromise;
-    const parsedEmbeddedOverrides = await importJsModule(absolutePath);
+    const parsedEmbeddedOverrides = await importModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
@@ -153,7 +137,7 @@ const resolveEmbeddedOverrides = async (
     extensionName === ".ts"
   ) {
     const absolutePath = await absolutePathPromise;
-    const parsedEmbeddedOverrides = await importTsModule(absolutePath);
+    const parsedEmbeddedOverrides = await importModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
@@ -178,27 +162,35 @@ const resolveEmbeddedOverrides = async (
   return;
 };
 
+const embeddedOverridesCache = new WeakMap<
+  Options,
+  Promise<EmbeddedOverride[] | undefined>
+>();
+
 export async function resolveEmbeddedOverrideOptions(
-  embeddedOverridesString: string | undefined,
+  options: Options,
   {
     commentOrTag,
     kind,
-    filepath,
   }: {
     commentOrTag: EmbeddedComment | EmbeddedTag;
     kind: "comment" | "tag";
-    filepath?: string;
   },
 ): Promise<EmbeddedOverride["options"] | undefined> {
   // no embeddedOverrides string, return
-  if (embeddedOverridesString === undefined) {
+  if (options.embeddedOverrides === undefined) {
     return;
   }
 
-  const embeddedOverrides = await resolveEmbeddedOverrides(
-    embeddedOverridesString,
-    filepath,
-  );
+  let embeddedOverridesPromise = embeddedOverridesCache.get(options);
+  if (embeddedOverridesPromise === undefined) {
+    embeddedOverridesPromise = resolveEmbeddedOverrides(
+      options.embeddedOverrides,
+      options.filepath,
+    );
+    embeddedOverridesCache.set(options, embeddedOverridesPromise);
+  }
+  const embeddedOverrides = await embeddedOverridesPromise;
 
   if (embeddedOverrides === undefined) {
     return;
@@ -229,6 +221,58 @@ function* createExpressionGenerator(
   }
 }
 
+function getTagExpressionSource(
+  expression: Expression | Super,
+): string | undefined {
+  if (expression.type === "Identifier") {
+    return expression.name;
+  }
+  if (expression.type === "ThisExpression") {
+    return "this";
+  }
+  if (expression.type === "MemberExpression") {
+    const object = getTagExpressionSource(expression.object);
+    if (object === undefined) {
+      return;
+    }
+    const optional = "optional" in expression && expression.optional;
+    if (!expression.computed && expression.property.type === "Identifier") {
+      return `${object}${optional ? "?." : "."}${expression.property.name}`;
+    }
+    if (expression.property.type === "Literal") {
+      return `${object}${optional ? "?." : ""}[${JSON.stringify(expression.property.value)}]`;
+    }
+    if (expression.property.type === "Identifier") {
+      return `${object}${optional ? "?." : ""}[${expression.property.name}]`;
+    }
+    return;
+  }
+  if (expression.type === "CallExpression") {
+    const callee = getTagExpressionSource(expression.callee);
+    return callee === undefined ? undefined : `${callee}()`;
+  }
+  if (expression.type === "ChainExpression") {
+    return getTagExpressionSource(expression.expression);
+  }
+}
+
+export function matchTagExpressionPattern(
+  tagExpression: Expression,
+  pattern: string,
+) {
+  const match = /^\/(.*)\/([dgimsuvy]*)$/.exec(pattern);
+  if (!match) return false;
+  try {
+    const expressionSource = getTagExpressionSource(tagExpression);
+    return (
+      expressionSource !== undefined &&
+      new RegExp(match[1]!, match[2]!).test(expressionSource)
+    );
+  } catch {
+    return false;
+  }
+}
+
 export const compareTagExpressionToTagString = (() => {
   const ignoreSet = new Set([
     "start",
@@ -244,6 +288,10 @@ export const compareTagExpressionToTagString = (() => {
     tagString: string,
     parse: (text: string) => Node | Promise<Node>,
   ) => {
+    if (/^\/.*\/[dgimsuvy]*$/.test(tagString)) {
+      return matchTagExpressionPattern(tagExpression, tagString);
+    }
+
     let tagStringTopLevelNode: Node;
     try {
       const node = parse(`${tagString}\`\``);
@@ -351,7 +399,7 @@ export function createCommentsInOptionsGenerator(
     if (commentsInOptions[0] === fallbackIndicator) {
       yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
     } else {
-      yield* commentsInOptions ?? [];
+      yield* commentsInOptions;
     }
   };
 }
@@ -374,7 +422,7 @@ export function createTagsInOptionsGenerator(options: Options, tag?: string) {
       if (tagsInOptions[0] === fallbackIndicator) {
         yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
       } else {
-        yield* tagsInOptions ?? [];
+        yield* tagsInOptions;
       }
     };
   }
@@ -407,8 +455,7 @@ export function createEmbeddedDoc(
   kind: "comment" | "tag",
   options: Options,
 ): ReturnType<Exclude<Printer["embed"], undefined>> {
-  // the noop "language" doesn't have an embedder,
-  // this makes it doesn't touch the embedded code
+  // Noop identifiers preserve the embedded code as written.
   const embeddedEmbedder = embeddedEmbedders[embeddedLanguage];
   if (!embeddedEmbedder) {
     return null;
@@ -420,11 +467,10 @@ export function createEmbeddedDoc(
   }
 
   const embeddedOverrideOptionsPromise = resolveEmbeddedOverrideOptions(
-    options.embeddedOverrides,
+    options,
     {
       commentOrTag,
       kind,
-      filepath: options.filepath,
     },
   );
 
