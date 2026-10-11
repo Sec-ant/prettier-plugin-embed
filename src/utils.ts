@@ -162,27 +162,35 @@ const resolveEmbeddedOverrides = async (
   return;
 };
 
+const embeddedOverridesCache = new WeakMap<
+  Options,
+  Promise<EmbeddedOverride[] | undefined>
+>();
+
 export async function resolveEmbeddedOverrideOptions(
-  embeddedOverridesString: string | undefined,
+  options: Options,
   {
     commentOrTag,
     kind,
-    filepath,
   }: {
     commentOrTag: EmbeddedComment | EmbeddedTag;
     kind: "comment" | "tag";
-    filepath?: string;
   },
 ): Promise<EmbeddedOverride["options"] | undefined> {
   // no embeddedOverrides string, return
-  if (embeddedOverridesString === undefined) {
+  if (options.embeddedOverrides === undefined) {
     return;
   }
 
-  const embeddedOverrides = await resolveEmbeddedOverrides(
-    embeddedOverridesString,
-    filepath,
-  );
+  let embeddedOverridesPromise = embeddedOverridesCache.get(options);
+  if (embeddedOverridesPromise === undefined) {
+    embeddedOverridesPromise = resolveEmbeddedOverrides(
+      options.embeddedOverrides,
+      options.filepath,
+    );
+    embeddedOverridesCache.set(options, embeddedOverridesPromise);
+  }
+  const embeddedOverrides = await embeddedOverridesPromise;
 
   if (embeddedOverrides === undefined) {
     return;
@@ -459,11 +467,10 @@ export function createEmbeddedDoc(
   }
 
   const embeddedOverrideOptionsPromise = resolveEmbeddedOverrideOptions(
-    options.embeddedOverrides,
+    options,
     {
       commentOrTag,
       kind,
-      filepath: options.filepath,
     },
   );
 

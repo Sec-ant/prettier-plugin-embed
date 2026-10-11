@@ -1,3 +1,6 @@
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import type { Options } from "prettier";
 import prettier from "prettier";
 import { expect, it } from "vitest";
@@ -78,6 +81,48 @@ it("uses the matching pattern for per-tag overrides", async () => {
     },
   );
   expect(formatted).toContain("const message = 'hello';");
+});
+
+it("shares overrides within a format call and reloads them for the next call", async () => {
+  const directory = await mkdtemp(path.join(tmpdir(), "embed-overrides-"));
+  const filepath = path.join(directory, "overrides.mjs");
+  const dependency = path.join(directory, "options.mjs");
+  const marker = path.join(directory, "evaluations.txt");
+  const options: Options = {
+    parser: "babel",
+    plugins: [plugin, "prettier-plugin-sql"],
+    embeddedOverrides: filepath,
+    keywordCase: "lower",
+  };
+  const source = `const first = sql\`select 1\`;
+const second = sql\`select 2\`;
+const third = /* sql */ \`select 3\`;`;
+  try {
+    await Promise.all([
+      writeFile(dependency, 'export default { keywordCase: "upper" };'),
+      writeFile(
+        filepath,
+        `import { appendFileSync } from "node:fs";
+import options from "./options.mjs";
+appendFileSync(new URL("./evaluations.txt", import.meta.url), "evaluated\\n");
+export default [
+  { tags: ["sql"], options },
+  { comments: ["sql"], options: { keywordCase: "lower" } },
+];`,
+      ),
+    ]);
+    const initial = await prettier.format(source, options);
+    expect(initial.match(/\bSELECT\b/g)).toHaveLength(2);
+    expect(initial.match(/\bselect\b/g)).toHaveLength(1);
+    expect(await readFile(marker, "utf8")).toBe("evaluated\n");
+
+    await writeFile(dependency, 'export default { keywordCase: "lower" };');
+    const updated = await prettier.format(source, options);
+    expect(updated.match(/\bselect\b/g)).toHaveLength(3);
+    expect(await readFile(marker, "utf8")).toBe("evaluated\nevaluated\n");
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });
 
 it.each([

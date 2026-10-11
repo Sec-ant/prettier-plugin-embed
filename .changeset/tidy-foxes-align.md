@@ -8,6 +8,8 @@ Load JavaScript and TypeScript overrides through the runtime's module loader, in
 
 Reflect edits to override modules and their dependencies in subsequent formatting calls, and follow Prettier's refreshed configuration discovery when resolving relative override paths.
 
+Share loaded override data across templates using the same formatting options, with comment and tag matching applied to each template.
+
 Align JavaScript interpolations with the formatted SQL indentation, including nested templates with comments. Use the SQL-CST formatter's document layout for interpolation line breaks.
 
 Express option utility types with TypeScript's mapped and conditional types, keeping the consumer dependency tree compatible with Node.js 18 installations.

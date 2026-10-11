@@ -402,30 +402,94 @@ describe("embedded overrides and object comparison", () => {
       { "identifiers": ["html"], "options": { "embeddedHtmlTags": ["view"] } },
     ]`;
     await expect(
-      resolveEmbeddedOverrideOptions(overrides, {
-        commentOrTag: "sql",
-        kind: "tag",
-      }),
+      resolveEmbeddedOverrideOptions(
+        { embeddedOverrides: overrides },
+        {
+          commentOrTag: "sql",
+          kind: "tag",
+        },
+      ),
     ).resolves.toEqual({ sqlDialect: "postgresql" });
     await expect(
-      resolveEmbeddedOverrideOptions(overrides, {
-        commentOrTag: "html",
-        kind: "tag",
-      }),
+      resolveEmbeddedOverrideOptions(
+        { embeddedOverrides: overrides },
+        {
+          commentOrTag: "html",
+          kind: "tag",
+        },
+      ),
     ).resolves.toEqual({ embeddedHtmlTags: ["view"] });
     await expect(
-      resolveEmbeddedOverrideOptions(overrides, {
-        commentOrTag: "missing",
-        kind: "tag",
-      }),
+      resolveEmbeddedOverrideOptions(
+        { embeddedOverrides: overrides },
+        {
+          commentOrTag: "missing",
+          kind: "tag",
+        },
+      ),
     ).resolves.toBeUndefined();
     await expect(
-      resolveEmbeddedOverrideOptions(undefined, {
-        commentOrTag: "sql",
-        kind: "tag",
-      }),
+      resolveEmbeddedOverrideOptions(
+        {},
+        {
+          commentOrTag: "sql",
+          kind: "tag",
+        },
+      ),
     ).resolves.toBeUndefined();
   });
+
+  it.each(["mjs", "mts"])(
+    "shares a %s override load and matches each template independently",
+    async (extension) => {
+      const directory = await mkdtemp(path.join(tmpdir(), "embed-overrides-"));
+      const filepath = path.join(directory, `overrides.${extension}`);
+      const marker = path.join(directory, "evaluations.txt");
+      const options = { embeddedOverrides: filepath };
+      const payload = [
+        { tags: ["sql"], options: { keywordCase: "upper" } },
+        { comments: ["sql"], options: { keywordCase: "lower" } },
+        { identifiers: ["view"], options: { singleQuote: true } },
+      ];
+      const matches = [
+        { commentOrTag: "sql", kind: "tag" },
+        { commentOrTag: "sql", kind: "comment" },
+        { commentOrTag: "view", kind: "tag" },
+        { commentOrTag: "missing", kind: "tag" },
+      ] as const;
+      try {
+        await writeFile(
+          filepath,
+          `import { appendFileSync } from "node:fs";
+appendFileSync(new URL("./evaluations.txt", import.meta.url), "evaluated\\n");
+export default ${JSON.stringify(payload)};`,
+        );
+        await expect(
+          Promise.all(
+            matches.map((match) =>
+              resolveEmbeddedOverrideOptions(options, match),
+            ),
+          ),
+        ).resolves.toEqual([
+          { keywordCase: "upper" },
+          { keywordCase: "lower" },
+          { singleQuote: true },
+          undefined,
+        ]);
+        await expect(
+          resolveEmbeddedOverrideOptions(options, matches[0]),
+        ).resolves.toEqual({ keywordCase: "upper" });
+        expect(await readFile(marker, "utf8")).toBe("evaluated\n");
+
+        await expect(
+          resolveEmbeddedOverrideOptions({ ...options }, matches[0]),
+        ).resolves.toEqual({ keywordCase: "upper" });
+        expect(await readFile(marker, "utf8")).toBe("evaluated\nevaluated\n");
+      } finally {
+        await rm(directory, { recursive: true, force: true });
+      }
+    },
+  );
 
   it("loads JSON, JavaScript, and TypeScript override files", async () => {
     const directory = await mkdtemp(path.join(tmpdir(), "embed-overrides-"));
@@ -466,10 +530,13 @@ describe("embedded overrides and object comparison", () => {
         tsPath,
       ]) {
         await expect(
-          resolveEmbeddedOverrideOptions(filepath, {
-            commentOrTag: "sql",
-            kind: "tag",
-          }),
+          resolveEmbeddedOverrideOptions(
+            { embeddedOverrides: filepath },
+            {
+              commentOrTag: "sql",
+              kind: "tag",
+            },
+          ),
         ).resolves.toEqual({ sqlDialect: "postgresql" });
       }
     } finally {
@@ -507,10 +574,13 @@ describe("embedded overrides and object comparison", () => {
       ]);
 
       await expect(
-        resolveEmbeddedOverrideOptions(filepath, {
-          commentOrTag: "sql",
-          kind: "tag",
-        }),
+        resolveEmbeddedOverrideOptions(
+          { embeddedOverrides: filepath },
+          {
+            commentOrTag: "sql",
+            kind: "tag",
+          },
+        ),
       ).resolves.toEqual({ keywordCase: "upper" });
     } finally {
       await rm(directory, { recursive: true, force: true });
@@ -539,18 +609,43 @@ describe("embedded overrides and object comparison", () => {
       ] as const;
       for (const [name, source, message] of cases) {
         const filepath = path.join(directory, name);
+        const options = { embeddedOverrides: filepath };
         await writeFile(filepath, source);
         consoleError.mockClear();
 
         await expect(
-          resolveEmbeddedOverrideOptions(filepath, {
+          Promise.all([
+            resolveEmbeddedOverrideOptions(options, {
+              commentOrTag: "sql",
+              kind: "tag",
+            }),
+            resolveEmbeddedOverrideOptions(options, {
+              commentOrTag: "html",
+              kind: "tag",
+            }),
+          ]),
+        ).resolves.toEqual([undefined, undefined]);
+        await expect(
+          resolveEmbeddedOverrideOptions(options, {
             commentOrTag: "sql",
-            kind: "tag",
+            kind: "comment",
           }),
         ).resolves.toBeUndefined();
+        expect(consoleError).toHaveBeenCalledTimes(2);
         expect(consoleError.mock.calls.flat().map(String).join("\n")).toContain(
           message,
         );
+        await writeFile(
+          filepath,
+          'export default [{ tags: ["sql"], options: { keywordCase: "upper" } }];',
+        );
+        await expect(
+          resolveEmbeddedOverrideOptions(
+            { ...options },
+            { commentOrTag: "sql", kind: "tag" },
+          ),
+        ).resolves.toEqual({ keywordCase: "upper" });
+        expect(consoleError).toHaveBeenCalledTimes(2);
       }
       expect(await readFile(marker, "utf8")).toBe("evaluated\n");
     } finally {
@@ -572,10 +667,13 @@ describe("embedded overrides and object comparison", () => {
       const exportOptions = (keywordCase: string) =>
         `${commonjs ? "module.exports =" : "export default"} { keywordCase: "${keywordCase}" };`;
       const resolveOptions = () =>
-        resolveEmbeddedOverrideOptions(filepath, {
-          commentOrTag: "sql",
-          kind: "tag",
-        });
+        resolveEmbeddedOverrideOptions(
+          { embeddedOverrides: filepath },
+          {
+            commentOrTag: "sql",
+            kind: "tag",
+          },
+        );
       try {
         await Promise.all([
           writeFile(dependencyPath, exportOptions("upper")),
@@ -617,10 +715,13 @@ describe("embedded overrides and object comparison", () => {
     try {
       await writeFile(filepath, "process.exit(0);");
       await expect(
-        resolveEmbeddedOverrideOptions(filepath, {
-          commentOrTag: "sql",
-          kind: "tag",
-        }),
+        resolveEmbeddedOverrideOptions(
+          { embeddedOverrides: filepath },
+          {
+            commentOrTag: "sql",
+            kind: "tag",
+          },
+        ),
       ).resolves.toBeUndefined();
       expect(consoleError).toHaveBeenCalledWith(
         `Failed to parse the js module file: ${filepath}`,
@@ -644,11 +745,13 @@ describe("embedded overrides and object comparison", () => {
       ]);
 
       await expect(
-        resolveEmbeddedOverrideOptions("./overrides.json", {
-          commentOrTag: "sql",
-          kind: "tag",
-          filepath: path.join(directory, "query.js"),
-        }),
+        resolveEmbeddedOverrideOptions(
+          {
+            embeddedOverrides: "./overrides.json",
+            filepath: path.join(directory, "query.js"),
+          },
+          { commentOrTag: "sql", kind: "tag" },
+        ),
       ).resolves.toEqual({ sqlDialect: "postgresql" });
     } finally {
       await rm(directory, { recursive: true, force: true });
@@ -659,10 +762,14 @@ describe("embedded overrides and object comparison", () => {
     const directory = await mkdtemp(path.join(tmpdir(), "embed-overrides-"));
     const nestedDirectory = path.join(directory, "nested");
     const options = {
-      commentOrTag: "sql",
-      kind: "tag" as const,
+      embeddedOverrides: "./overrides.json",
       filepath: path.join(nestedDirectory, "query.js"),
     };
+    const resolveOptions = () =>
+      resolveEmbeddedOverrideOptions(
+        { ...options },
+        { commentOrTag: "sql", kind: "tag" },
+      );
     const overrides = (keywordCase: string) =>
       JSON.stringify([{ tags: ["sql"], options: { keywordCase } }]);
     try {
@@ -676,15 +783,11 @@ describe("embedded overrides and object comparison", () => {
         ),
       ]);
 
-      await expect(
-        resolveEmbeddedOverrideOptions("./overrides.json", options),
-      ).resolves.toEqual({ keywordCase: "upper" });
+      await expect(resolveOptions()).resolves.toEqual({ keywordCase: "upper" });
 
       await writeFile(path.join(nestedDirectory, ".prettierrc.json"), "{}");
       await prettier.clearConfigCache();
-      await expect(
-        resolveEmbeddedOverrideOptions("./overrides.json", options),
-      ).resolves.toEqual({ keywordCase: "lower" });
+      await expect(resolveOptions()).resolves.toEqual({ keywordCase: "lower" });
     } finally {
       await prettier.clearConfigCache();
       await rm(directory, { recursive: true, force: true });
@@ -703,11 +806,13 @@ describe("embedded overrides and object comparison", () => {
       process.env.PWD = directory;
 
       await expect(
-        resolveEmbeddedOverrideOptions("./overrides.json", {
-          commentOrTag: "sql",
-          kind: "tag",
-          filepath: path.join(directory, "query.js"),
-        }),
+        resolveEmbeddedOverrideOptions(
+          {
+            embeddedOverrides: "./overrides.json",
+            filepath: path.join(directory, "query.js"),
+          },
+          { commentOrTag: "sql", kind: "tag" },
+        ),
       ).resolves.toEqual({ sqlDialect: "postgresql" });
     } finally {
       if (originalPwd === undefined) {
@@ -733,11 +838,13 @@ describe("embedded overrides and object comparison", () => {
       delete process.env.PWD;
 
       await expect(
-        resolveEmbeddedOverrideOptions(`./${cwdOverride}`, {
-          commentOrTag: "sql",
-          kind: "tag",
-          filepath: path.join(directory, "query.js"),
-        }),
+        resolveEmbeddedOverrideOptions(
+          {
+            embeddedOverrides: `./${cwdOverride}`,
+            filepath: path.join(directory, "query.js"),
+          },
+          { commentOrTag: "sql", kind: "tag" },
+        ),
       ).resolves.toEqual({ sqlDialect: "postgresql" });
     } finally {
       if (originalPwd === undefined) {
@@ -774,10 +881,13 @@ describe("embedded overrides and object comparison", () => {
         "invalid-overrides.yaml",
       ]) {
         await expect(
-          resolveEmbeddedOverrideOptions(embeddedOverrides, {
-            commentOrTag: "sql",
-            kind: "tag",
-          }),
+          resolveEmbeddedOverrideOptions(
+            { embeddedOverrides },
+            {
+              commentOrTag: "sql",
+              kind: "tag",
+            },
+          ),
         ).resolves.toBeUndefined();
       }
       expect(consoleError).toHaveBeenCalled();
