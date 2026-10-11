@@ -605,7 +605,7 @@ function test() {
       table_name
     WHERE
       id = \${myId}
-    \${otherClause}
+      \${otherClause}
   \`;
 }
 "

@@ -4,7 +4,6 @@ import type { printer } from "prettier/doc";
 import type {} from "sh-syntax";
 import type {} from "sql-formatter";
 import type {} from "sql-parser-cst";
-import type { OmitIndexSignature } from "type-fest";
 import type {
   AutocompleteStringList,
   EmbeddedDefaultComment,
@@ -16,6 +15,7 @@ import type {
   PluginEmbedOptions,
 } from "./embedded/index.js";
 import type { PluginEmbedLanguageAgnosticOptions } from "./options.js";
+import type { OmitIndexSignature } from "./type-utils.js";
 
 export type InternalPrintFun = (
   selector?: string | number | (string | number)[] | AstPath<TemplateLiteral>,

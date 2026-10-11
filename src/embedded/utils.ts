@@ -5,7 +5,7 @@ import type {
   LiteralUnion,
   OmitIndexSignature,
   UnionToIntersection,
-} from "type-fest";
+} from "../type-utils.js";
 import type { InternalPrintFun } from "../types.js";
 
 const {
@@ -153,11 +153,16 @@ export function printTemplateExpression(
   templateLiteral: TemplateLiteral,
   index: number,
   tabWidth: number,
+  preserveIndentation = true,
 ) {
   const { node } = path;
   let printed = print();
   if (node?.comments?.length) {
     printed = group([indent([softline, printed]), softline]);
+  }
+
+  if (!preserveIndentation) {
+    return group(["${", printed, lineSuffixBoundary, "}"]);
   }
 
   // Calculate the indentation based on the position of ${} in the template literal
@@ -181,6 +186,7 @@ export function printTemplateExpressions(
   path: AstPath<TemplateLiteral>,
   print: InternalPrintFun,
   options?: Options,
+  preserveIndentation = true,
 ) {
   const tabWidth = options?.tabWidth ?? 2;
   const templateLiteral = path.node;
@@ -192,6 +198,7 @@ export function printTemplateExpressions(
         templateLiteral,
         index,
         tabWidth,
+        preserveIndentation,
       ),
     "expressions",
   );
@@ -209,6 +216,7 @@ export function simpleRehydrateDoc(
    */
   newlineHandling: false | "hardline" | "literalline" = false,
   lineBreakBeforeExpressions?: ReadonlySet<number>,
+  interpolationTabWidth?: number,
 ) {
   const contentDoc = mapDoc(doc, (doc) => {
     if (typeof doc !== "string") {
@@ -216,9 +224,14 @@ export function simpleRehydrateDoc(
     }
     const parts: Doc[] = [];
     const components = doc.split(placeholderRegex);
+    let lineIndentation = "";
     for (let i = 0; i < components.length; i++) {
       let component = components[i]!;
       if (i % 2 === 0) {
+        if (i === 0 || component.includes("\n")) {
+          const lastLine = component.slice(component.lastIndexOf("\n") + 1);
+          lineIndentation = /^[\t ]*/.exec(lastLine)![0];
+        }
         if (!component) {
           continue;
         }
@@ -250,8 +263,19 @@ export function simpleRehydrateDoc(
             parts[parts.length - 1] = previousPart.replace(/[\t ]+$/, "");
           }
           parts.push(hardline);
+          if (interpolationTabWidth !== undefined) {
+            parts.push(lineIndentation);
+          }
         }
-        parts.push(expressionDocs[placeholderIndex]!);
+        const expressionDoc = expressionDocs[placeholderIndex]!;
+        parts.push(
+          interpolationTabWidth === undefined
+            ? expressionDoc
+            : align(
+                getAlignmentSize(lineIndentation, interpolationTabWidth),
+                expressionDoc,
+              ),
+        );
       }
     }
     return parts;

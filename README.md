@@ -45,7 +45,9 @@ It adds per-language controls, configurable identifiers, and per-identifier over
 npm i -D prettier prettier-plugin-embed
 ```
 
-Prettier is a peer dependency. Install the formatter plugin for each embedded language you use as a separate project dependency; the language table below shows which integrations require one.
+Install Prettier 3 in the project that runs formatting. The consumer supplies the formatter and its language plugins.
+
+Install the formatter plugin for each embedded language you use as a separate project dependency; the language table below shows which integrations require one.
 
 Choose a Prettier version accepted by this plugin and every loaded language plugin. Each language plugin declares its own Prettier peer range.
 
@@ -136,9 +138,24 @@ Embedded parsers receive the override options. The resulting document is laid ou
 
 ### Compatibility
 
-This plugin supports Prettier 3. Choose a version within the peer ranges of all loaded language plugins. XML formatting obtains its parser through the consumer's installed `@prettier/plugin-xml` dependency.
+This plugin supports Prettier 3. Choose a version within the peer ranges of all loaded language plugins. XML formatting uses the installed `@prettier/plugin-xml` parser and its native AST, including plugins loaded through a shared configuration package.
 
 The packed consumer suite covers npm, pnpm 10/11/12, Yarn Classic, Yarn Berry with node-modules and Plug'n'Play, and Bun installs. The Bun profile runs formatting with the Bun runtime; the other profiles use Node.js. The suite exercises JavaScript and TypeScript through the API and CLI, JSON/YAML/CommonJS/ESM configuration, and selected older and newer language plugin versions. Use the JavaScript configuration with imported plugin objects shown above for Yarn Plug'n'Play.
+
+#### Dependency resolution in strict installations
+
+The plugin loads Prettier through static imports, which resolve from the plugin's installation location. Standard project installs and Yarn's default Plug'n'Play dependency fallback allow these imports to access the project's installed Prettier.
+
+Yarn projects using `pnpFallbackMode: none`, and pnpm projects using `enableGlobalVirtualStore: true` with hoisting disabled, need an explicit dependency relationship for this resolution. For these configurations, add the following to `.yarnrc.yml` (Yarn) or `pnpm-workspace.yaml` (pnpm) to connect the plugin to the project's installed Prettier:
+
+```yaml
+packageExtensions:
+  "prettier-plugin-embed@*":
+    peerDependencies:
+      prettier: ">=3.0.0 <4"
+```
+
+Projects can also use Yarn's default `pnpFallbackMode: dependencies-only` or pnpm's project-local virtual store (`enableGlobalVirtualStore: false`).
 
 For language-specific installation and configuration examples, see [Config Examples](./ConfigExamples.md). For adding an integration and its tests, see [Contributing](./CONTRIBUTING.md).
 

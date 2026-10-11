@@ -32,15 +32,12 @@ export const embedder: Embedder<Options> = async (
   const { trimmedText, leadingWhitespaces, trailingWhitespaces } =
     prepareTemplate(node, createPlaceholder);
 
-  const expressionDocs = printTemplateExpressions(path, print);
-  const lineBreakBeforeExpressions = new Set(
-    node.quasis
-      .slice(0, -1)
-      .flatMap((quasi, index) =>
-        /\n[\t ]*$/.test(quasi.value.raw) ? [index] : [],
-      ),
+  const expressionDocs = printTemplateExpressions(
+    path,
+    print,
+    resolvedOptions,
+    false,
   );
-
   let contentDoc: builders.Doc[] | builders.DocCommand;
 
   if (plugin === "prettier-plugin-sql-cst") {
@@ -48,14 +45,15 @@ export const embedder: Embedder<Options> = async (
       ...resolvedOptions,
       parser: resolvedOptions.embeddedSqlParser ?? "sqlite",
     });
-    contentDoc = simpleRehydrateDoc(
-      doc,
-      placeholderRegex,
-      expressionDocs,
-      false,
-      lineBreakBeforeExpressions,
-    );
+    contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
   } else {
+    const lineBreakBeforeExpressions = new Set(
+      node.quasis
+        .slice(0, -1)
+        .flatMap((quasi, index) =>
+          /\n[\t ]*$/.test(quasi.value.raw) ? [index] : [],
+        ),
+    );
     const doc = await textToDoc(dedent(trimmedText), {
       ...resolvedOptions,
       parser: "sql",
@@ -66,6 +64,7 @@ export const embedder: Embedder<Options> = async (
       expressionDocs,
       "hardline",
       lineBreakBeforeExpressions,
+      resolvedOptions.tabWidth ?? 2,
     );
   }
 

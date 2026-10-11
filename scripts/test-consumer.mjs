@@ -107,7 +107,7 @@ try {
     { prettier: "3.9.10", packageManager: "pnpm@10", xml: false },
     { prettier: "3.0.0", xml: "3.0.0" },
     { prettier: "3.0.0", xml: "3.0.0", packageManager: "yarn" },
-    { prettier: "3.0.3", sql: "0.19.2" },
+    { prettier: "3.0.3", sql: "0.18.1" },
     {
       prettier: "3.6.0",
       extraPlugins: ["prettier-plugin-nginx", "prettier-plugin-sh"],

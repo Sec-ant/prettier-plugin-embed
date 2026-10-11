@@ -1,38 +1,124 @@
-import { fileURLToPath } from "node:url";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import xmlPlugin from "@prettier/plugin-xml";
 import { describe, expect, it } from "vitest";
 import {
-  loadXmlToolsParser,
+  loadXmlParser,
   parser,
-  simplifyCST,
+  parseWithXmlPlugin,
+  parseXml,
 } from "../src/embedded/xml/parser.js";
 
 describe("embedded XML parser", () => {
-  it("preserves future CST nodes through the generic simplifier fallback", () => {
-    const child = {
-      name: "futureChild",
-      location: { startOffset: 2, endOffset: 4 },
-      children: { Text: [{ image: "ok" }] },
+  it("uses the last loaded XML parser from a shared configuration", async () => {
+    const ast = { name: "consumer XML AST" };
+    const options = {
+      plugins: [
+        xmlPlugin,
+        new URL("file:///plugin.js"),
+        {},
+        { parsers: { xml: { parse: () => ast } } },
+      ],
     };
-    const cst = {
-      name: "futureNode",
-      location: { startOffset: 0, endOffset: 5 },
-      children: {
-        Mixed: [{ image: "<" }, child],
-        Additional: "future metadata",
-      },
-    };
-
-    const simplified = simplifyCST(cst as never);
-
-    expect(simplified).toMatchObject({
-      name: "futureNode",
-      Mixed: ["<", { name: "futureChild", Text: ["ok"] }],
-      Additional: "future metadata",
-    });
-    expect(simplified.children).toBe(cst.children);
+    expect(await parseXml("<root />", options as never)).toBe(ast);
   });
 
-  it("converts a complete XML document to the printer AST", async () => {
+  it("reports missing consumer XML support", async () => {
+    const error = new Error("missing consumer XML plugin");
+    await expect(
+      parseXml(
+        "<root />",
+        { plugins: [{}, new URL("file:///plugin.js")] } as never,
+        async () => {
+          throw error;
+        },
+      ),
+    ).rejects.toBe(error);
+  });
+
+  it("accepts XML module objects and default exports", async () => {
+    for (const plugin of [xmlPlugin, { default: xmlPlugin }, {}]) {
+      const loaded = await loadXmlParser(undefined, async () => plugin);
+      expect((await loaded.parse("<root />", {} as never)).name).toBe(
+        "document",
+      );
+    }
+  });
+  const isolatedModuleUrl = pathToFileURL(
+    path.join(tmpdir(), "embed-isolated-consumer", "index.js"),
+  );
+  it.each([
+    { text: "<root />", boundary: [] },
+    { text: "text<root />", boundary: [0, 3] },
+    { text: "<a/><b/>", boundary: [4] },
+    { text: "<a/>text", boundary: [4] },
+    { text: "<a/>\r\n<b/>", boundary: [6] },
+    { text: '<?xml version="1.0"?>', boundary: [] },
+    { text: "<!-- only a comment -->", boundary: [] },
+  ])("uses the loaded XML parser for $text", async ({ text, boundary }) => {
+    const options = { __embeddedXmlFragmentRecoverIndex: [] };
+    const ast = await parseWithXmlPlugin(
+      text,
+      options as never,
+      xmlPlugin.parsers!.xml!,
+    );
+    expect(ast.name).toBe("document");
+    expect(options.__embeddedXmlFragmentRecoverIndex).toEqual(boundary);
+  });
+
+  it("keeps the loaded XML parser's syntax diagnostics", async () => {
+    await expect(
+      parseWithXmlPlugin("<root a=>", {} as never, xmlPlugin.parsers!.xml!),
+    ).rejects.toMatchObject({ loc: { start: { line: 1, column: 9 } } });
+  });
+
+  it("removes the synthetic element from older XML parser ASTs", async () => {
+    const xmlParser = {
+      parse(text: string) {
+        if (text === "") {
+          throw new Error(
+            "Expecting token of type --> OPEN <-- but found --> '' <--",
+          );
+        }
+        return {
+          name: "document",
+          children: { element: [{ name: "element" }] },
+          location: { startOffset: 0 },
+        };
+      },
+    };
+    const ast = await parseWithXmlPlugin("", {} as never, xmlParser as never);
+    expect(ast.children).toEqual({});
+    expect(ast.location).toEqual({ startOffset: 0, endOffset: -1 });
+  });
+
+  it.each([
+    "consumer error",
+    new Error("consumer error"),
+    Object.assign(new Error("Expecting token of type --> EOF <--"), {
+      loc: { start: { line: Number.NaN, column: Number.NaN } },
+    }),
+    Object.assign(new Error("consumer error"), {
+      loc: { start: { line: 1, column: Number.NaN } },
+    }),
+  ])(
+    "preserves errors without a recoverable fragment location",
+    async (error) => {
+      await expect(
+        parseWithXmlPlugin(
+          "<root>",
+          {} as never,
+          {
+            parse() {
+              throw error;
+            },
+          } as never,
+        ),
+      ).rejects.toBe(error);
+    },
+  );
+  it("parses a complete XML document with the formatter's native AST", async () => {
     const ast = await parser.parse(
       `<?xml version="1.0"?>
 <!DOCTYPE root SYSTEM "root.dtd">
@@ -54,25 +140,42 @@ describe("embedded XML parser", () => {
   });
 
   it("loads the parser from the XML plugin when direct resolution is unavailable", async () => {
-    const parserModule = await loadXmlToolsParser(undefined, async () => {
+    const xmlParser = await loadXmlParser(undefined, async () => {
       throw new Error("not directly resolvable");
     });
-    expect(
-      (parserModule.parse("<root />") as { cst: { name: string } }).cst.name,
-    ).toBe("document");
+    expect((await xmlParser.parse("<root />", {} as never)).name).toBe(
+      "document",
+    );
   });
 
   it("resolves the XML plugin from the consumer file location", async () => {
-    const parserModule = await loadXmlToolsParser(
+    const xmlParser = await loadXmlParser(
       fileURLToPath(import.meta.url),
       async () => {
         throw new Error("not directly resolvable");
       },
+      isolatedModuleUrl,
     );
 
-    expect(
-      (parserModule.parse("<root />") as { cst: { name: string } }).cst.name,
-    ).toBe("document");
+    expect((await xmlParser.parse("<root />", {} as never)).name).toBe(
+      "document",
+    );
+  });
+
+  it("reports a missing XML plugin with the original resolution error", async () => {
+    const error = new Error("not directly resolvable");
+    await expect(
+      loadXmlParser(
+        fileURLToPath(isolatedModuleUrl),
+        async () => {
+          throw error;
+        },
+        isolatedModuleUrl,
+      ),
+    ).rejects.toMatchObject({
+      message: expect.stringContaining('"@prettier/plugin-xml"'),
+      cause: error,
+    });
   });
 
   it("reports lexical errors with source locations", async () => {
@@ -85,7 +188,6 @@ describe("embedded XML parser", () => {
   it("reports unrecoverable parser errors", async () => {
     await expect(parser.parse("<root>", {} as never)).rejects.toMatchObject({
       message: expect.stringContaining("(NaN:NaN)"),
-      cause: { name: "MismatchedTokenException" },
     });
   });
 
@@ -111,11 +213,11 @@ describe("embedded XML parser", () => {
     expect(options.__embeddedXmlFragmentRecoverIndex).toEqual([4]);
   });
 
-  it("recovers when a fragment starts with text before an element", async () => {
+  it("returns the text fragment before parsing the next element", async () => {
     const options = { __embeddedXmlFragmentRecoverIndex: [] };
     const ast = await parser.parse("text<foo/>", options as never);
 
-    expect(ast.element).toMatchObject({ name: "element", Name: "foo" });
+    expect(ast.element).toBeNull();
     expect(options.__embeddedXmlFragmentRecoverIndex).toEqual([0, 3]);
   });
 

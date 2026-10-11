@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 const external = [
   /^prettier(?:\/|$)/,
   /(?:^|@.+?\/)prettier-plugin-/,
-  "@xml-tools/parser",
+  /^@prettier\/plugin-/,
 ];
 
 export default defineConfig(({ command }) => ({
