@@ -17,10 +17,11 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Bump Version
-        run: pnpm -s changeset version
+        if: ${{ hashFiles('.changeset/*.md', '!.changeset/README.md') != '' }}
+        run: pnpm changeset version
 
       - name: Build
-        run: pnpm -s prepublishOnly
+        run: pnpm prepublishOnly
 
       - name: Publish Preview Release
         run: pnpx pkg-pr-new publish --compact
