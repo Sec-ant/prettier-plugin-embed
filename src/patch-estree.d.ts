@@ -1,5 +1,6 @@
 // patch estree types
 import "estree";
+
 declare module "estree" {
   interface Comment {
     leading: boolean;

@@ -1,16 +1,47 @@
-import type {
-  CstElement,
-  CstNode,
-  ILexingError,
-  IRecognitionException,
-  IToken,
-} from "chevrotain";
-import type { Options, Parser } from "prettier";
+import { createRequire } from "node:module";
+import path from "node:path";
+import type { Options, Parser, ParserOptions } from "prettier";
 import { language } from "./language.js";
 
 // Simplified AST node type (matching @prettier/plugin-xml format)
 // The AST structure is dynamic based on node type, so we use Record<string, unknown>
 type SimplifiedNode = Record<string, unknown>;
+
+interface CstToken {
+  image: string;
+}
+
+interface CstNode {
+  name: string;
+  location: unknown;
+  children: Record<string, CstElement[]>;
+}
+
+type CstElement = CstNode | CstToken;
+
+interface XmlToolsModule {
+  parse: (text: string) => unknown;
+}
+
+interface LexingError {
+  line: number;
+  column: number;
+  length: number;
+  message: string;
+}
+
+interface RecognitionException {
+  name: string;
+  message: string;
+  token: {
+    startLine?: number;
+    startColumn?: number;
+    endLine?: number;
+    endColumn?: number;
+    startOffset: number;
+    endOffset?: number;
+  };
+}
 
 /**
  * Transforms a Chevrotain CST node into a simplified AST format
@@ -21,11 +52,19 @@ type SimplifiedNode = Record<string, unknown>;
  *
  * This function mirrors the logic in @prettier/plugin-xml's internal simplifyCST.
  */
-function simplifyCST(node: CstNode): SimplifiedNode {
+export function simplifyCST(node: CstNode): SimplifiedNode {
+  const simplifiedNode = simplifyCSTNode(node);
+  // Older @prettier/plugin-xml releases inspect the original Chevrotain CST.
+  // Keep it available without exposing duplicate children to AST traversal.
+  Object.defineProperty(simplifiedNode, "children", { value: node.children });
+  return simplifiedNode;
+}
+
+function simplifyCSTNode(node: CstNode): SimplifiedNode {
   const children = node.children;
 
   // Helper to get image from first token
-  const getImage = (tokens: IToken[] | undefined): string | null =>
+  const getImage = (tokens: CstToken[] | undefined): string | null =>
     tokens?.[0]?.image ?? null;
 
   // Helper to simplify array of CstNodes
@@ -58,49 +97,53 @@ function simplifyCST(node: CstNode): SimplifiedNode {
       return {
         name: node.name,
         location: node.location,
-        XMLDeclOpen: getImage(children.XMLDeclOpen as IToken[] | undefined),
+        XMLDeclOpen: getImage(children.XMLDeclOpen as CstToken[] | undefined),
         attribute: simplifyArray(children.attribute),
-        SPECIAL_CLOSE: getImage(children.SPECIAL_CLOSE as IToken[] | undefined),
+        SPECIAL_CLOSE: getImage(
+          children.SPECIAL_CLOSE as CstToken[] | undefined,
+        ),
       };
     case "docTypeDecl":
       return {
         name: node.name,
         location: node.location,
-        DocType: getImage(children.DocType as IToken[] | undefined),
-        Name: getImage(children.Name as IToken[] | undefined),
+        DocType: getImage(children.DocType as CstToken[] | undefined),
+        Name: getImage(children.Name as CstToken[] | undefined),
         externalID: simplifyOne(children.externalID),
-        CLOSE: getImage(children.CLOSE as IToken[] | undefined),
+        CLOSE: getImage(children.CLOSE as CstToken[] | undefined),
       };
     case "externalID":
       return {
         name: node.name,
         location: node.location,
-        Public: getImage(children.Public as IToken[] | undefined),
-        System: getImage(children.System as IToken[] | undefined),
-        PubIDLiteral: getImage(children.PubIDLiteral as IToken[] | undefined),
-        SystemLiteral: getImage(children.SystemLiteral as IToken[] | undefined),
+        Public: getImage(children.Public as CstToken[] | undefined),
+        System: getImage(children.System as CstToken[] | undefined),
+        PubIDLiteral: getImage(children.PubIDLiteral as CstToken[] | undefined),
+        SystemLiteral: getImage(
+          children.SystemLiteral as CstToken[] | undefined,
+        ),
       };
     case "element":
       return {
         name: node.name,
         location: node.location,
-        OPEN: getImage(children.OPEN as IToken[] | undefined),
-        Name: getImage(children.Name as IToken[] | undefined),
+        OPEN: getImage(children.OPEN as CstToken[] | undefined),
+        Name: getImage(children.Name as CstToken[] | undefined),
         attribute: simplifyArray(children.attribute),
-        START_CLOSE: getImage(children.START_CLOSE as IToken[] | undefined),
+        START_CLOSE: getImage(children.START_CLOSE as CstToken[] | undefined),
         content: simplifyOne(children.content),
-        SLASH_OPEN: getImage(children.SLASH_OPEN as IToken[] | undefined),
-        END_NAME: getImage(children.END_NAME as IToken[] | undefined),
-        END: getImage(children.END as IToken[] | undefined),
-        SLASH_CLOSE: getImage(children.SLASH_CLOSE as IToken[] | undefined),
+        SLASH_OPEN: getImage(children.SLASH_OPEN as CstToken[] | undefined),
+        END_NAME: getImage(children.END_NAME as CstToken[] | undefined),
+        END: getImage(children.END as CstToken[] | undefined),
+        SLASH_CLOSE: getImage(children.SLASH_CLOSE as CstToken[] | undefined),
       };
     case "attribute":
       return {
         name: node.name,
         location: node.location,
-        Name: getImage(children.Name as IToken[] | undefined),
-        EQUALS: getImage(children.EQUALS as IToken[] | undefined),
-        STRING: getImage(children.STRING as IToken[] | undefined),
+        Name: getImage(children.Name as CstToken[] | undefined),
+        EQUALS: getImage(children.EQUALS as CstToken[] | undefined),
+        STRING: getImage(children.STRING as CstToken[] | undefined),
       };
     case "content":
       return {
@@ -109,35 +152,35 @@ function simplifyCST(node: CstNode): SimplifiedNode {
         chardata: simplifyArray(children.chardata),
         element: simplifyArray(children.element),
         reference: simplifyArray(children.reference),
-        // These should remain as IToken arrays (not mapped to .image)
-        CData: (children.CData as IToken[] | undefined) ?? [],
-        Comment: (children.Comment as IToken[] | undefined) ?? [],
+        // These should remain as token arrays (not mapped to .image)
+        CData: (children.CData as CstToken[] | undefined) ?? [],
+        Comment: (children.Comment as CstToken[] | undefined) ?? [],
         PROCESSING_INSTRUCTION:
-          (children.PROCESSING_INSTRUCTION as IToken[] | undefined) ?? [],
+          (children.PROCESSING_INSTRUCTION as CstToken[] | undefined) ?? [],
       };
     case "chardata":
       return {
         name: node.name,
         location: node.location,
-        SEA_WS: getImage(children.SEA_WS as IToken[] | undefined),
-        TEXT: getImage(children.TEXT as IToken[] | undefined),
+        SEA_WS: getImage(children.SEA_WS as CstToken[] | undefined),
+        TEXT: getImage(children.TEXT as CstToken[] | undefined),
       };
     case "reference":
       return {
         name: node.name,
         location: node.location,
-        EntityRef: getImage(children.EntityRef as IToken[] | undefined),
-        CharRef: getImage(children.CharRef as IToken[] | undefined),
+        EntityRef: getImage(children.EntityRef as CstToken[] | undefined),
+        CharRef: getImage(children.CharRef as CstToken[] | undefined),
       };
     case "misc":
       return {
         name: node.name,
         location: node.location,
-        Comment: getImage(children.Comment as IToken[] | undefined),
+        Comment: getImage(children.Comment as CstToken[] | undefined),
         PROCESSING_INSTRUCTION: getImage(
-          children.PROCESSING_INSTRUCTION as IToken[] | undefined,
+          children.PROCESSING_INSTRUCTION as CstToken[] | undefined,
         ),
-        SEA_WS: getImage(children.SEA_WS as IToken[] | undefined),
+        SEA_WS: getImage(children.SEA_WS as CstToken[] | undefined),
       };
     default:
       return {
@@ -148,7 +191,7 @@ function simplifyCST(node: CstNode): SimplifiedNode {
             key,
             Array.isArray(value)
               ? value.map((v) =>
-                  isCstNode(v) ? simplifyCST(v) : (v as IToken).image,
+                  isCstNode(v) ? simplifyCST(v) : (v as CstToken).image,
                 )
               : value,
           ]),
@@ -171,7 +214,33 @@ interface ErrorOptions {
   loc: Loc;
 }
 
-function createSyntaxErrorFromLexError(lexError: ILexingError) {
+export async function loadXmlToolsParser(
+  filepath?: string,
+  loadDirectly: () => Promise<XmlToolsModule> = () =>
+    import("@xml-tools/parser"),
+) {
+  try {
+    return (await loadDirectly()) as XmlToolsModule;
+  } catch (error) {
+    // pnpm keeps transitive dependencies private to their owning package.
+    // The XML formatter already brings this parser when XML support is used.
+    try {
+      const consumerRequire = createRequire(
+        filepath ? path.resolve(filepath) : `${process.cwd()}/package.json`,
+      );
+      const xmlPluginEntry = consumerRequire.resolve("@prettier/plugin-xml");
+      const xmlPluginRequire = createRequire(xmlPluginEntry);
+      return xmlPluginRequire("@xml-tools/parser") as XmlToolsModule;
+    } catch {
+      throw new Error(
+        'Formatting embedded XML requires the consumer to install "@prettier/plugin-xml".',
+        { cause: error },
+      );
+    }
+  }
+}
+
+function createSyntaxErrorFromLexError(lexError: LexingError) {
   const options: ErrorOptions = {
     loc: {
       start: {
@@ -194,7 +263,7 @@ function createSyntaxErrorFromLexError(lexError: ILexingError) {
   return error;
 }
 
-function createSyntaxErrorFromParseError(parseError: IRecognitionException) {
+function createSyntaxErrorFromParseError(parseError: RecognitionException) {
   const options: ErrorOptions = {
     loc: {
       start: {
@@ -220,12 +289,18 @@ function createSyntaxErrorFromParseError(parseError: IRecognitionException) {
 // We return a simplified AST, not the raw Chevrotain CstNode.
 // The AST structure matches what @prettier/plugin-xml's printer expects.
 export const parser: Parser<SimplifiedNode> = {
-  async parse(text: string, options: Options) {
+  async parse(text: string, options: ParserOptions<SimplifiedNode>) {
+    const embeddedOptions = options as unknown as Options;
     // Custom parsing - use @xml-tools/parser and simplify CST to AST format
     // that @prettier/plugin-xml's printer expects
-    const { parse: xmlToolsParse } = await import("@xml-tools/parser");
-
-    const { lexErrors, parseErrors, cst } = xmlToolsParse(text);
+    const { parse: xmlToolsParse } = await loadXmlToolsParser(
+      embeddedOptions.filepath,
+    );
+    const { lexErrors, parseErrors, cst } = xmlToolsParse(text) as unknown as {
+      cst: CstNode;
+      lexErrors: LexingError[];
+      parseErrors: RecognitionException[];
+    };
 
     // If there are any lexical errors, throw the first of them as an error.
     if (lexErrors.length > 0) {
@@ -243,8 +318,7 @@ export const parser: Parser<SimplifiedNode> = {
             parseError.name,
           )
         ) {
-          // we cannot recover from other types of error
-          // so we throw it
+          // Surface unsupported parser errors with their source location.
           throw createSyntaxErrorFromParseError(parseError);
         }
         if (
@@ -261,14 +335,10 @@ export const parser: Parser<SimplifiedNode> = {
           ) ||
           /Redundant input, expecting EOF but found: /.test(parseError.message)
         ) {
-          // multi-element fragments (element + element, element + text)
-          // we cannot recover from this error because of the information loss
-          // so we parse the available cst for now
-          // and attach the error information to the options
-          // and reparse the rest in the next pass
-          options.__embeddedXmlFragmentRecoverIndex?.splice(
+          // Parse the available CST, record the fragment boundary, and parse the remainder on the next pass.
+          embeddedOptions.__embeddedXmlFragmentRecoverIndex?.splice(
             0,
-            options.__embeddedXmlFragmentRecoverIndex.length,
+            embeddedOptions.__embeddedXmlFragmentRecoverIndex.length,
             parseError.token.startOffset,
           );
           break;
@@ -278,20 +348,17 @@ export const parser: Parser<SimplifiedNode> = {
             parseError.message,
           )
         ) {
-          // multi-element fragments (text + element)
-          // we cannot recover from this error because of the information loss
-          // so we attach the error information to the options
-          // and reparse the rest in the next pass
+          // Record the fragment boundary and parse the remainder on the next pass.
           if (
             parseError.token.endOffset === undefined ||
             Number.isNaN(parseError.token.endOffset)
           ) {
-            // we cannot recover if endOffset is not present
+            // An end offset identifies where the next fragment begins.
             break;
           }
-          options.__embeddedXmlFragmentRecoverIndex?.splice(
+          embeddedOptions.__embeddedXmlFragmentRecoverIndex?.splice(
             0,
-            options.__embeddedXmlFragmentRecoverIndex.length,
+            embeddedOptions.__embeddedXmlFragmentRecoverIndex.length,
             parseError.token.startOffset,
             parseError.token.endOffset,
           );
@@ -323,7 +390,7 @@ export const parser: Parser<SimplifiedNode> = {
 function pruneCst(cstNode: CstNode) {
   const cstNodeChildren = cstNode.children;
   for (const name in cstNodeChildren) {
-    const cstElements = cstNodeChildren[name] ?? [];
+    const cstElements = cstNodeChildren[name]!;
     for (let i = cstElements.length - 1; i >= 0; --i) {
       const cstElement = cstElements[i]!;
       if (!isCstNode(cstElement)) {

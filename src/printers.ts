@@ -41,7 +41,7 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
 
   // check if the template literal node has a leading block comment,
   // if it does, the inner value of the block comment is returned,
-  // if it does not, `undefined` is returned.
+  // Without a leading comment, this lookup returns `undefined`.
   const comment = parseCommentFromTemplateLiteralAstPath(path);
 
   // template literal node has a leading comment block
@@ -84,7 +84,7 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
   // check if the template literal node has a tag,
   // if it does and the tag is a simple identifier, the identifier name is returned as a string
   // if it does but the tag is a complex expression, the expression is returned as an expression node
-  // if it does not, `undefined` is returned.
+  // Without a tag, this lookup returns `undefined`.
   const tag = parseTagFromTemplateLiteralAstPath(path);
 
   // template literal node has a simple identifier tag
@@ -118,7 +118,7 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
     const parse = (text: string) =>
       (parsers[options.parser as keyof typeof parsers] as Parser<Node>).parse(
         text,
-        options as ParserOptions<Node>,
+        options as unknown as ParserOptions<Node>,
       );
 
     const tagsInOptionsGenerator = createTagsInOptionsGenerator(options);

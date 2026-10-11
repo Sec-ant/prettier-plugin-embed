@@ -11,6 +11,7 @@ import type { InternalPrintFun } from "../types.js";
 const {
   group,
   indent,
+  line,
   softline,
   lineSuffixBoundary,
   addAlignmentToDoc,
@@ -18,6 +19,47 @@ const {
   hardline,
 } = builders;
 const { mapDoc, replaceEndOfLine } = utils;
+
+export function wrapEmbeddedDoc(
+  contentDoc: Doc,
+  options: {
+    preserveEmbeddedExteriorWhitespaces?: string[];
+    noEmbeddedMultiLineIndentation?: string[];
+  },
+  commentOrTag: string,
+  leadingWhitespaces: string,
+  trailingWhitespaces: string,
+  preserveExteriorWhitespaces = false,
+): Doc {
+  const preserveExterior =
+    preserveExteriorWhitespaces ||
+    options.preserveEmbeddedExteriorWhitespaces?.includes(commentOrTag);
+  const noIndent =
+    options.noEmbeddedMultiLineIndentation?.includes(commentOrTag);
+  const content = group(contentDoc);
+
+  if (preserveExterior) {
+    return group([
+      "`",
+      leadingWhitespaces,
+      noIndent ? content : indent([content]),
+      trailingWhitespaces,
+      "`",
+    ]);
+  }
+
+  const leadingLineBreak = leadingWhitespaces.length ? line : softline;
+  const trailingLineBreak = trailingWhitespaces.length ? line : softline;
+
+  return group([
+    "`",
+    noIndent
+      ? [leadingLineBreak, content]
+      : indent([leadingLineBreak, content]),
+    trailingLineBreak,
+    "`",
+  ]);
+}
 
 /**
  * Get the alignment size for a string (counting tabs as tabWidth spaces).
@@ -44,13 +86,9 @@ function getAlignmentSize(text: string, tabWidth: number): number {
  */
 function getIndentSize(value: string, tabWidth: number): number {
   const lastNewlineIndex = value.lastIndexOf("\n");
-  if (lastNewlineIndex === -1) {
-    return 0;
-  }
-
   // Get all the leading whitespaces after the last newline
   const lastLine = value.slice(lastNewlineIndex + 1);
-  const leadingWhitespace = lastLine.match(/^[\t ]*/)?.[0] ?? "";
+  const leadingWhitespace = /^[\t ]*/.exec(lastLine)![0];
   return getAlignmentSize(leadingWhitespace, tabWidth);
 }
 
@@ -68,8 +106,7 @@ function getTemplateLiteralExpressionIndent(
   tabWidth: number,
 ): { indentSize: number; previousQuasiText: string } {
   let i = index;
-  const precedingQuasi = templateLiteral.quasis[i];
-  const previousQuasiText = precedingQuasi?.value.raw ?? "";
+  const previousQuasiText = templateLiteral.quasis[i]!.value.raw;
 
   if (previousQuasiText.includes("\n")) {
     return {
@@ -79,9 +116,7 @@ function getTemplateLiteralExpressionIndent(
   }
 
   while (i-- > 0) {
-    const q = templateLiteral.quasis[i];
-    if (!q) break;
-    const text = q.value.raw;
+    const text = templateLiteral.quasis[i]!.value.raw;
     if (text.includes("\n")) {
       return { indentSize: getIndentSize(text, tabWidth), previousQuasiText };
     }
@@ -151,12 +186,13 @@ export function simpleRehydrateDoc(
    * - "literalline": replace newlines with literalline via replaceEndOfLine (preserves original indentation)
    */
   newlineHandling: false | "hardline" | "literalline" = false,
+  lineBreakBeforeExpressions?: ReadonlySet<number>,
 ) {
   const contentDoc = mapDoc(doc, (doc) => {
     if (typeof doc !== "string") {
       return doc;
     }
-    const parts = [];
+    const parts: Doc[] = [];
     const components = doc.split(placeholderRegex);
     for (let i = 0; i < components.length; i++) {
       let component = components[i]!;
@@ -166,7 +202,7 @@ export function simpleRehydrateDoc(
         }
         component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
         if (newlineHandling === "literalline") {
-          // Use replaceEndOfLine which uses literalline (doesn't add indentation)
+          // Use replaceEndOfLine, which emits literalline and preserves literal indentation.
           // This is useful for languages like CSS where the formatter already
           // produces correctly indented output (e.g., in multi-line comments)
           parts.push(replaceEndOfLine(component));
@@ -182,6 +218,17 @@ export function simpleRehydrateDoc(
         }
       } else {
         const placeholderIndex = Number(component);
+        const formattedTextBeforeExpression = components[i - 1]!;
+        if (
+          lineBreakBeforeExpressions?.has(placeholderIndex) &&
+          !/\n[\t ]*$/.test(formattedTextBeforeExpression)
+        ) {
+          const previousPart = parts.at(-1);
+          if (typeof previousPart === "string") {
+            parts[parts.length - 1] = previousPart.replace(/[\t ]+$/, "");
+          }
+          parts.push(hardline);
+        }
         parts.push(expressionDocs[placeholderIndex]!);
       }
     }

@@ -1,0 +1,14 @@
+minimumReleaseAgeExclude:
+  - npm-check-updates@23.1.1
+  - prettier-plugin-sql-cst@0.23.0
+  - prettier@3.9.10
+  - sql-parser-cst@0.42.2
+allowBuilds:
+  "@biomejs/biome": true
+  esbuild: true
+  simple-git-hooks: true
+publicHoistPattern:
+  - "@changesets/config"
+  - sh-syntax
+  - sql-formatter
+  - sql-parser-cst

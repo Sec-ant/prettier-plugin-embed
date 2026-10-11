@@ -6,7 +6,7 @@ runs:
   steps:
     # This is required for @prettier/plugin-ruby to work correctly
     - name: Setup Ruby
-      uses: ruby/setup-ruby@v1
+      uses: ruby/setup-ruby@e81a8fa391b11a595c1b7ed84177cc0fe02faf83 # v1.328.0
       with:
         ruby-version: "3.4" # Not needed with a .ruby-version, .tool-versions or mise.toml
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
@@ -18,3 +18,7 @@ runs:
     - name: Test
       shell: bash
       run: pnpm -s test:ci
+
+    - name: Test packed consumer install
+      shell: bash
+      run: pnpm -s test:consumer

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg width="680px" height="250px" viewBox="0 0 680 250" version="1.1"
 	xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<title>Prettier Plugin Embed</title>
 	<style type="text/css">
 		.st0{opacity:0.5;}
 		.st1{fill:#4D616E;}
-		.st2{opacity:0.5;fill:#4D616E;enable-background:new ;}
+		.st2{opacity:0.5;fill:#4D616E;}
 		.st3{fill:#56B3B4;}
 		.st4{fill:#EA5E5E;}
 		.st5{fill:#FBBF47;}

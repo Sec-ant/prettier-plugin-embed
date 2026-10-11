@@ -4,7 +4,12 @@ import { readFile } from "node:fs/promises";
 import { builtinModules } from "node:module";
 import { transform } from "esbuild";
 import { defineConfig } from "vite";
-import { reject } from "./.ncurc.cjs";
+
+const external = [
+  /^prettier(?:\/|$)/,
+  /(?:^|@.+?\/)prettier-plugin-/,
+  "@xml-tools/parser",
+];
 
 export default defineConfig({
   build: {
@@ -17,7 +22,7 @@ export default defineConfig({
       fileName: (_, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
-      external: [...reject, ...builtinModules, /^node:/],
+      external: [...external, ...builtinModules, /^node:/],
     },
   },
   define: {
@@ -47,7 +52,13 @@ export default defineConfig({
   test: {
     passWithNoTests: true,
     coverage: {
-      provider: "istanbul",
+      provider: "v8",
+      thresholds: {
+        branches: 98.5,
+        functions: 98.5,
+        lines: 97.8,
+        statements: 97.7,
+      },
     },
   },
 });

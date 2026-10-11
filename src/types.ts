@@ -57,12 +57,11 @@ type EmbeddedOverrideOptions = Omit<
       | ReturnType<typeof makeCommentsOptionName<EmbeddedLanguage>>
       | ReturnType<typeof makeTagsOptionName<EmbeddedLanguage>>
     >,
-  // these options are used in `printDocToString`,
-  // we cannot override them because plugins can only affect ast and doc generation at most
+  // These options are applied in `printDocToString`, after plugins generate the AST and document.
   // check: https://github.com/prettier/prettier/blob/7aecca5d6473d73f562ca3af874831315f8f2581/src/document/printer.js
   | keyof printer.Options
   | "endOfLine"
-  // some other options we don't want to expose to the users or don't make sense to override
+  // These options are managed by Prettier or have no per-identifier override semantics.
   | "parser"
   | "filepath"
   | "embeddedLanguageFormatting"

@@ -229,6 +229,54 @@ function* createExpressionGenerator(
   }
 }
 
+function getTagExpressionSource(
+  expression: Expression | Super,
+): string | undefined {
+  if (expression.type === "Identifier") {
+    return expression.name;
+  }
+  if (expression.type === "ThisExpression") {
+    return "this";
+  }
+  if (expression.type === "MemberExpression") {
+    const object = getTagExpressionSource(expression.object);
+    if (object === undefined) {
+      return;
+    }
+    const optional = "optional" in expression && expression.optional;
+    if (!expression.computed && expression.property.type === "Identifier") {
+      return `${object}${optional ? "?." : "."}${expression.property.name}`;
+    }
+    if (expression.property.type === "Literal") {
+      return `${object}${optional ? "?." : ""}[${JSON.stringify(expression.property.value)}]`;
+    }
+    if (expression.property.type === "Identifier") {
+      return `${object}${optional ? "?." : ""}[${expression.property.name}]`;
+    }
+    return;
+  }
+  if (expression.type === "CallExpression") {
+    const callee = getTagExpressionSource(expression.callee);
+    return callee === undefined ? undefined : `${callee}()`;
+  }
+  if (expression.type === "ChainExpression") {
+    return getTagExpressionSource(expression.expression);
+  }
+}
+
+function matchTagExpressionPattern(tagExpression: Expression, pattern: string) {
+  const match = /^\/(.*)\/([dgimsuvy]*)$/.exec(pattern);
+  try {
+    const expressionSource = getTagExpressionSource(tagExpression);
+    return (
+      expressionSource !== undefined &&
+      new RegExp(match![1]!, match![2]!).test(expressionSource)
+    );
+  } catch {
+    return false;
+  }
+}
+
 export const compareTagExpressionToTagString = (() => {
   const ignoreSet = new Set([
     "start",
@@ -244,6 +292,10 @@ export const compareTagExpressionToTagString = (() => {
     tagString: string,
     parse: (text: string) => Node | Promise<Node>,
   ) => {
+    if (/^\/.*\/[dgimsuvy]*$/.test(tagString)) {
+      return matchTagExpressionPattern(tagExpression, tagString);
+    }
+
     let tagStringTopLevelNode: Node;
     try {
       const node = parse(`${tagString}\`\``);
@@ -351,7 +403,7 @@ export function createCommentsInOptionsGenerator(
     if (commentsInOptions[0] === fallbackIndicator) {
       yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
     } else {
-      yield* commentsInOptions ?? [];
+      yield* commentsInOptions;
     }
   };
 }
@@ -374,7 +426,7 @@ export function createTagsInOptionsGenerator(options: Options, tag?: string) {
       if (tagsInOptions[0] === fallbackIndicator) {
         yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
       } else {
-        yield* tagsInOptions ?? [];
+        yield* tagsInOptions;
       }
     };
   }
@@ -407,8 +459,7 @@ export function createEmbeddedDoc(
   kind: "comment" | "tag",
   options: Options,
 ): ReturnType<Exclude<Printer["embed"], undefined>> {
-  // the noop "language" doesn't have an embedder,
-  // this makes it doesn't touch the embedded code
+  // Noop identifiers preserve the embedded code as written.
   const embeddedEmbedder = embeddedEmbedders[embeddedLanguage];
   if (!embeddedEmbedder) {
     return null;
