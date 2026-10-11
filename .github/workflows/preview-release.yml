@@ -18,10 +18,10 @@ jobs:
 
       - name: Bump Version
         if: ${{ hashFiles('.changeset/*.md', '!.changeset/README.md') != '' }}
-        run: pnpm -s changeset version
+        run: pnpm changeset version
 
       - name: Build
-        run: pnpm -s prepublishOnly
+        run: pnpm prepublishOnly
 
       - name: Publish Preview Release
         run: pnpx pkg-pr-new publish --compact

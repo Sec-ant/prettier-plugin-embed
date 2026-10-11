@@ -15,6 +15,7 @@ permissions:
 
 env:
   NPM_CONFIG_PROVENANCE: true
+  PNPM_CONFIG_PROVENANCE: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -33,14 +34,10 @@ jobs:
       - name: Test
         uses: ./.github/actions/test
 
-      - name: Get Next Package Version
-        id: package-version
-        run: echo "version=$(pnpm -s changeset status --output=release.json && jq -r '.releases[0].newVersion // '$(npm pkg get version)'' release.json && rm release.json)" >> $GITHUB_OUTPUT
-
       - name: Create Release Pull Request or Publish to NPM
         id: changesets
         uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          publish-script: pnpm -s changeset publish
-          commit-message: "chore(release): v${{ steps.package-version.outputs.version }}"
+          publish-script: pnpm changeset publish
+          commit-message: "chore(release): version packages"
