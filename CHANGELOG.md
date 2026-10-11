@@ -4,29 +4,31 @@
 
 ### Minor Changes
 
-- 06ccce5: - Support regular expression strings in `embedded<Language>Tags` for simple and member-expression tags. Apply per-tag `embeddedOverrides` to the configured pattern that matches.
+- 06ccce5: Improve embedded-language matching, formatter compatibility, and override loading.
 
-  Match `query` and `db.query` with one pattern and apply `singleQuote` to their embedded JavaScript:
+  - Support regular expression strings in `embedded<Language>Tags` for simple and member-expression tags. Apply per-tag `embeddedOverrides` to the configured pattern that matches.
 
-  ```js
-  // prettier.config.mjs
-  export default {
-    plugins: ["prettier-plugin-embed"],
-    embeddedEsTags: ["/query$/i"],
-    embeddedOverrides: JSON.stringify([
-      { tags: ["/query$/i"], options: { singleQuote: true } },
-    ]),
-  };
-  ```
+    Match `query` and `db.query` with one pattern and apply `singleQuote` to their embedded JavaScript:
 
-  Output comparison (`-`: `0.5.1`; `+`: this release):
+    ```js
+    // prettier.config.mjs
+    export default {
+      plugins: ["prettier-plugin-embed"],
+      embeddedEsTags: ["/query$/i"],
+      embeddedOverrides: JSON.stringify([
+        { tags: ["/query$/i"], options: { singleQuote: true } },
+      ]),
+    };
+    ```
 
-  ```diff
-  -const first = query`const message="hello"`;
-  -const second = db.query`const message="hello"`;
-  +const first = query`const message = 'hello';`;
-  +const second = db.query`const message = 'hello';`;
-  ```
+    Output comparison (`-`: `0.5.1`; `+`: this release):
+
+    ```diff
+    -const first = query`const message="hello"`;
+    -const second = db.query`const message="hello"`;
+    +const first = query`const message = 'hello';`;
+    +const second = db.query`const message = 'hello';`;
+    ```
 
   - Fix line breaks and indentation around SQL interpolations, including nested templates and JavaScript comments. Preserve source line breaks before interpolations with `prettier-plugin-sql` and follow the formatted layout with `prettier-plugin-sql-cst`.
 

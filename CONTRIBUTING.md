@@ -33,3 +33,5 @@ Cover plain template content, multiple interpolations, nested JavaScript express
 Use packed consumer profiles for package resolution, version boundaries, and runtime differences. Review snapshot changes as formatting behavior changes. Coverage helps locate untested paths; semantic assertions establish what each integration supports.
 
 Document the default identifiers, required plugin, and any language-specific restrictions in the README language reference. Include a changeset for consumer-visible changes.
+
+Start each changeset with a one-sentence summary of its impact on consumers. Place detailed bullets and concise examples beneath that summary. Use active voice, present tense, and backticks for option and API names.
