@@ -116,20 +116,20 @@ try {
       prettier: "3.9.10",
       xml: "latest",
       packageManager: "pnpm@10",
-      pnpmConfig: "node-linker=hoisted\n",
+      pnpmConfig: "nodeLinker: hoisted\n",
     },
     {
       prettier: "3.3.0",
       sql: "0.19.2",
       packageManager: "pnpm@11",
-      pnpmConfig: "node-linker=isolated\n",
+      pnpmConfig: "nodeLinker: isolated\n",
     },
     {
       prettier: "latest",
       xml: "latest",
       sql: "latest",
       packageManager: "pnpm@12",
-      pnpmConfig: "node-linker=isolated\n",
+      pnpmConfig: "nodeLinker: isolated\n",
     },
     {
       prettier: "latest",
@@ -197,7 +197,10 @@ try {
       JSON.stringify(packageJson, null, 2),
     );
     if (pnpmConfig) {
-      writeFileSync(path.join(consumerDirectory, ".npmrc"), pnpmConfig);
+      writeFileSync(
+        path.join(consumerDirectory, "pnpm-workspace.yaml"),
+        pnpmConfig,
+      );
     }
     if (yarnConfig) {
       writeFileSync(path.join(consumerDirectory, ".yarnrc.yml"), yarnConfig);

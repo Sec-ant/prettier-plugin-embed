@@ -217,7 +217,11 @@ export function simpleRehydrateDoc(
   newlineHandling: false | "hardline" | "literalline" = false,
   lineBreakBeforeExpressions?: ReadonlySet<number>,
   interpolationTabWidth?: number,
+  escapeClosingScript = false,
 ) {
+  const restoredExpressions = expressionDocs.length
+    ? new Set<number>()
+    : undefined;
   const contentDoc = mapDoc(doc, (doc) => {
     if (typeof doc !== "string") {
       return doc;
@@ -236,6 +240,9 @@ export function simpleRehydrateDoc(
           continue;
         }
         component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
+        if (escapeClosingScript) {
+          component = component.replaceAll(/<\/(?=script\b)/gi, "<\\/");
+        }
         if (newlineHandling === "literalline") {
           // Use replaceEndOfLine, which emits literalline and preserves literal indentation.
           // This is useful for languages like CSS where the formatter already
@@ -253,6 +260,7 @@ export function simpleRehydrateDoc(
         }
       } else {
         const placeholderIndex = Number(component);
+        restoredExpressions?.add(placeholderIndex);
         const formattedTextBeforeExpression = components[i - 1]!;
         if (
           lineBreakBeforeExpressions?.has(placeholderIndex) &&
@@ -280,6 +288,11 @@ export function simpleRehydrateDoc(
     }
     return parts;
   });
+  if (expressionDocs.some((_, index) => !restoredExpressions!.has(index))) {
+    throw new Error(
+      "The embedded formatter changed an expression placeholder.",
+    );
+  }
   return contentDoc;
 }
 

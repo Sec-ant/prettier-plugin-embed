@@ -2,13 +2,75 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import prettier from "prettier";
+import { parsers } from "prettier/plugins/babel";
 import { globSync } from "tinyglobby";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import * as embed from "../src";
 
 interface LanguageOptions {
   plugins?: string[];
   [key: string]: unknown;
+}
+
+const formattingMetadata = new Set([
+  "start",
+  "end",
+  "loc",
+  "range",
+  "extra",
+  "comments",
+  "leadingComments",
+  "trailingComments",
+  "innerComments",
+]);
+
+function normalizeExpression(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(normalizeExpression);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([key]) => !formattingMetadata.has(key))
+        .map(([key, child]) => [key, normalizeExpression(child)]),
+    );
+  }
+  return value;
+}
+
+async function templateExpressions(source: string) {
+  const templates: unknown[] = [];
+  function visit(value: unknown) {
+    if (Array.isArray(value)) {
+      for (const child of value) visit(child);
+    } else if (value && typeof value === "object") {
+      const node = value as Record<string, unknown>;
+      if (node.type === "TemplateLiteral") {
+        templates.push(normalizeExpression(node.expressions));
+      }
+      for (const [key, child] of Object.entries(node)) {
+        if (!formattingMetadata.has(key)) visit(child);
+      }
+    }
+  }
+  const parser = parsers["babel-ts"]!;
+  await prettier.format(source, {
+    parser: "babel-ts",
+    embeddedLanguageFormatting: "off",
+    plugins: [
+      {
+        parsers: {
+          "babel-ts": {
+            ...parser,
+            async parse(text, options) {
+              const ast = await parser.parse(text, options);
+              visit(ast);
+              return ast;
+            },
+          },
+        },
+      },
+    ],
+  });
+  return templates;
 }
 
 /**
@@ -144,12 +206,31 @@ for (const languageDir of languageDirs) {
           plugins: [embed, ...plugins],
           filepath: file,
         };
-        const formatted = await prettier.format(codeToFormat, formatOptions);
-        const formattedAgain = await prettier.format(formatted, formatOptions);
+        const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+        let formatted: string;
+        try {
+          formatted = await prettier.format(codeToFormat, formatOptions);
+          const formattedAgain = await prettier.format(
+            formatted,
+            formatOptions,
+          );
 
-        expect(formattedAgain, "fixture formatting should be idempotent").toBe(
-          formatted,
-        );
+          expect(
+            errors,
+            "embedded formatting should succeed",
+          ).not.toHaveBeenCalled();
+          expect(
+            formattedAgain,
+            "fixture formatting should be idempotent",
+          ).toBe(formatted);
+        } finally {
+          errors.mockRestore();
+        }
+
+        expect(
+          await templateExpressions(formatted),
+          "formatting preserves template expressions and their order",
+        ).toEqual(await templateExpressions(codeToFormat));
 
         // Snapshot names include the language describe block and fixture filename.
         expect(formatted).toMatchSnapshot();

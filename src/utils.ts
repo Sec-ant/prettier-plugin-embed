@@ -397,7 +397,9 @@ export function createCommentsInOptionsGenerator(
     ] ?? [fallbackIndicator];
     // fallback to identifiers
     if (commentsInOptions[0] === fallbackIndicator) {
-      yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
+      yield* (options[makeIdentifiersOptionName(embeddedLanguage)] as
+        | readonly string[]
+        | undefined) ?? [];
     } else {
       yield* commentsInOptions;
     }
@@ -420,7 +422,9 @@ export function createTagsInOptionsGenerator(options: Options, tag?: string) {
       ];
       // fallback to identifiers
       if (tagsInOptions[0] === fallbackIndicator) {
-        yield* options[makeIdentifiersOptionName(embeddedLanguage)] ?? [];
+        yield* (options[makeIdentifiersOptionName(embeddedLanguage)] as
+          | readonly string[]
+          | undefined) ?? [];
       } else {
         yield* tagsInOptions;
       }
@@ -435,9 +439,9 @@ export function createTagsInOptionsGenerator(options: Options, tag?: string) {
     // fallback to identifiers
     if (tagsInOptions[0] === fallbackIndicator) {
       const { noEmbeddedIdentificationByTag } = options;
-      for (const identifier of options[
+      for (const identifier of (options[
         makeIdentifiersOptionName(embeddedLanguage)
-      ] ?? []) {
+      ] as readonly string[] | undefined) ?? []) {
         if (!noEmbeddedIdentificationByTag?.includes(identifier)) {
           yield identifier;
         }

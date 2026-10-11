@@ -1,5 +1,43 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`astro > basic.js 1`] = `
+"const tagged = astro\`
+---
+  const title = "Hello";
+  ---
+
+  <section>
+    <h1>{title}</h1>
+    <p>World</p>
+  </section>
+\`;
+
+const commented = /* astro */ \`
+---
+  const title = "Hello";
+  ---
+
+  <section>
+    <h1>{title}</h1>
+    <p>World</p>
+  </section>
+\`;
+"
+`;
+
+exports[`astro > interpolations.ts 1`] = `
+"const generated: string = astro\`
+---
+  const title = \${getFirstValue({ items: [1, 2], enabled: true })};
+  ---
+
+  <section class="\${getSecondValue(/* label */ { value: input })}">
+    <h1>{title}</h1>
+  </section>
+\`;
+"
+`;
+
 exports[`css > basic.js 1`] = `
 "// CSS - Tag \`css\` test (with formatting issues)
 const tagTest = css\`
@@ -62,6 +100,34 @@ const a = css\`
 "
 `;
 
+exports[`dockerfile > basic.js 1`] = `
+"const tagged = dockerfile\`
+  FROM node:24
+  WORKDIR /app
+  RUN echo hello;echo world
+  COPY . .
+  CMD ["node", "index.js"]
+\`;
+
+const commented = /* dockerfile */ \`
+  FROM node:24
+  WORKDIR /app
+  RUN echo hello;echo world
+  COPY . .
+  CMD ["node", "index.js"]
+\`;
+"
+`;
+
+exports[`dockerfile > interpolations.ts 1`] = `
+"const generated: string = dockerfile\`
+  FROM node:\${getFirstValue({ items: [1, 2], enabled: true })}
+  ENV APP_NAME="\${getSecondValue(/* label */ { value: input })}"
+  RUN echo "$APP_NAME";echo ready
+\`;
+"
+`;
+
 exports[`es > basic.js 1`] = `
 "// ES/JavaScript - Tag \`js\` test (with formatting issues)
 const tagTest = js\`
@@ -76,6 +142,38 @@ const tagTest = js\`
 /* js */ \`
   const obj = { name: "test", value: 42 };
   const arr = [1, 2, 3];
+\`;
+"
+`;
+
+exports[`gherkin > basic.js 1`] = `
+"const tagged = gherkin\`
+  Feature: Login
+
+    Scenario: Success
+      Given a user
+      When the user signs in
+      Then the user sees a dashboard
+\`;
+
+const commented = /* gherkin */ \`
+  Feature: Login
+
+    Scenario: Success
+      Given a user
+      When the user signs in
+      Then the user sees a dashboard
+\`;
+"
+`;
+
+exports[`gherkin > interpolations.ts 1`] = `
+"const generated: string = gherkin\`
+  Feature: \${getFirstValue({ items: [1, 2], enabled: true })}
+
+    Scenario: Success
+      Given a user named "\${getSecondValue(/* label */ { value: input })}"
+      Then the user signs in
 \`;
 "
 `;
@@ -96,6 +194,42 @@ const tagTest = glsl\`
   void main() {
     gl_FragColor = vec4(color, 1.0);
   }
+\`;
+"
+`;
+
+exports[`go-template > basic.js 1`] = `
+"const tagged = goTemplate\`
+<section>
+    {{ if .User }}
+      <h1>{{ .User.Name }}</h1>
+    {{ else }}
+      <p>Guest</p>
+    {{ end }}
+  </section>
+\`;
+
+const commented = /* goTemplate */ \`
+<section>
+    {{ if .User }}
+      <h1>{{ .User.Name }}</h1>
+    {{ else }}
+      <p>Guest</p>
+    {{ end }}
+  </section>
+\`;
+"
+`;
+
+exports[`go-template > interpolations.ts 1`] = `
+"const generated: string = goTemplate\`
+<section
+    class="\${getFirstValue({ items: [1, 2], enabled: true })}"
+  >
+    {{ if .User }}
+      <h1>\${getSecondValue(/* label */ { value: input })} {{ .User.Name }}</h1>
+    {{ end }}
+  </section>
 \`;
 "
 `;
@@ -123,6 +257,46 @@ const tagTest = graphql\`
 "
 `;
 
+exports[`handlebars > basic.js 1`] = `
+"const tagged = handlebars\`
+<section>
+    {{#if user}}
+      <h1>
+        {{ user.name }}
+      </h1>
+    {{else}}
+      <p>Guest</p>
+    {{/if}}
+  </section>
+\`;
+
+const commented = /* handlebars */ \`
+<section>
+    {{#if user}}
+      <h1>
+        {{ user.name }}
+      </h1>
+    {{else}}
+      <p>Guest</p>
+    {{/if}}
+  </section>
+\`;
+"
+`;
+
+exports[`handlebars > interpolations.ts 1`] = `
+"const generated: string = handlebars\`
+<section
+    class="\${getFirstValue({ items: [1, 2], enabled: true })}"
+  >
+    {{#if user}}
+      <h1>\${getSecondValue(/* label */ { value: input })} {{ user.name }}</h1>
+    {{/if}}
+  </section>
+\`;
+"
+`;
+
 exports[`html > basic.js 1`] = `
 "// HTML - Tag \`html\` test (with formatting issues)
 const tagTest = html\`
@@ -145,6 +319,46 @@ const tagTest = html\`
 exports[`html > interpolation.js 1`] = `
 "const label = "Hello";
 const view = html\`<div>\${label}</div>\`;
+"
+`;
+
+exports[`hugo > basic.js 1`] = `
+"const tagged = hugo\`
+  +++
+  title = "Example"
+  tags = ["one", "two"]
+  +++
+
+  # Heading
+
+  {{< figure src="image.jpg" >}}
+\`;
+
+const commented = /* hugo */ \`
+  +++
+  title = "Example"
+  tags = ["one", "two"]
+  +++
+
+  # Heading
+
+  {{< figure src="image.jpg" >}}
+\`;
+"
+`;
+
+exports[`hugo > interpolations.ts 1`] = `
+"const generated: string = hugo\`
+  ---
+  title: \${getFirstValue({ items: [1, 2], enabled: true })}
+  ---
+
+  # Heading
+
+  Hello \${getSecondValue(/* label */ { value: input })}
+
+  {{< figure src="image.jpg" >}}
+\`;
 "
 `;
 
@@ -191,6 +405,34 @@ const tagTest = java\`
 "
 `;
 
+exports[`jinja > basic.js 1`] = `
+"const tagged = jinja\`
+<section>
+    {% if user %}<h1>{{ user.name }}</h1>{% else %}<p>Guest</p>{% endif %}
+  </section>
+\`;
+
+const commented = /* jinja */ \`
+<section>
+    {% if user %}<h1>{{ user.name }}</h1>{% else %}<p>Guest</p>{% endif %}
+  </section>
+\`;
+"
+`;
+
+exports[`jinja > interpolations.ts 1`] = `
+"const generated: string = jinja\`
+<section
+    class="\${getFirstValue({ items: [1, 2], enabled: true })}"
+  >
+    {% if user %}
+      <h1>\${getSecondValue(/* label */ { value: input })} {{ user.name }}</h1>
+    {% endif %}
+  </section>
+\`;
+"
+`;
+
 exports[`json > basic.js 1`] = `
 "// JSON - Tag \`json\` test (with formatting issues)
 const tagTest = json\`
@@ -226,6 +468,29 @@ const tagTest = jsonata\`
 "
 `;
 
+exports[`jte > basic.js 1`] = `
+"const tagged = jte\`
+@param String name
+  <section><h1>\\\${name}</h1></section>
+\`;
+
+const commented = /* jte */ \`
+@param String name
+  <section><h1>\\\${name}</h1></section>
+\`;
+"
+`;
+
+exports[`jte > interpolations.ts 1`] = `
+"const generated: string = jte\`
+@param String name
+  <section class="\${getFirstValue({ items: [1, 2], enabled: true })}">
+    <h1>\${getSecondValue(/* label */ { value: input })} \\\${name}</h1>
+  </section>
+\`;
+"
+`;
+
 exports[`latex > basic.js 1`] = `
 "// LaTeX - Tag \`latex\` test (with formatting issues: missing newlines)
 const tagTest = latex\`
@@ -241,6 +506,45 @@ const tagTest = latex\`
   \\\\begin{equation}
     E=mc^{2}
   \\\\end{equation}
+\`;
+"
+`;
+
+exports[`liquid > basic.js 1`] = `
+"const tagged = liquid\`
+<section>
+    {% if user %}
+      <h1>{{ user.name | escape }}</h1>
+    {% else %}
+      <p>Guest</p>
+    {% endif %}
+  </section>
+\`;
+
+const commented = /* liquid */ \`
+<section>
+    {% if user %}
+      <h1>{{ user.name | escape }}</h1>
+    {% else %}
+      <p>Guest</p>
+    {% endif %}
+  </section>
+\`;
+"
+`;
+
+exports[`liquid > interpolations.ts 1`] = `
+"const generated: string = liquid\`
+<section class="\${getFirstValue({
+       items: [1, 2],
+       enabled: true,
+     })}">
+    {% if user %}
+      <h1>
+        \${getSecondValue(/* label */ { value: input })} {{ user.name | escape }}
+      </h1>
+    {% endif %}
+  </section>
 \`;
 "
 `;
@@ -297,6 +601,83 @@ exports[`markdown > preserve-exterior-whitespace.js 1`] = `
 "
 `;
 
+exports[`marko > basic.js 1`] = `
+"const tagged = marko\`
+<section>
+    <h1>Hello \\\${input.name}</h1>
+    <p>World</p>
+  </section>
+\`;
+
+const commented = /* marko */ \`
+<section>
+    <h1>Hello \\\${input.name}</h1>
+    <p>World</p>
+  </section>
+\`;
+"
+`;
+
+exports[`marko > interpolations.ts 1`] = `
+"const generated: string = marko\`
+<section class="\${getFirstValue({
+    items: [1, 2],
+    enabled: true,
+  })}">
+    <h1>\${getSecondValue(/* label */ { value: input })} \\\${input.name}</h1>
+  </section>
+\`;
+"
+`;
+
+exports[`motoko > basic.js 1`] = `
+"const tagged = motoko\`
+  actor {
+    public query func greet(name : Text) : async Text { "Hello, " # name };
+  };
+\`;
+
+const commented = /* motoko */ \`
+  actor {
+    public query func greet(name : Text) : async Text { "Hello, " # name };
+  };
+\`;
+"
+`;
+
+exports[`motoko > interpolations.ts 1`] = `
+"const generated: string = motoko\`
+  actor {
+    let name : Text = "\${getFirstValue({ items: [1, 2], enabled: true })}";
+    let total : Nat = \${getSecondValue(/* label */ { value: input })};
+  };
+\`;
+"
+`;
+
+exports[`mustache > basic.js 1`] = `
+"const tagged = mustache\`
+<section>{{#user}}<h1>{{ name }}</h1>{{/user}}{{^user}}<p>Guest</p>{{/user}}</section>
+\`;
+
+const commented = /* mustache */ \`
+<section>{{#user}}<h1>{{ name }}</h1>{{/user}}{{^user}}<p>Guest</p>{{/user}}</section>
+\`;
+"
+`;
+
+exports[`mustache > interpolations.ts 1`] = `
+"const generated: string = mustache\`
+<section class="\${getFirstValue({
+    items: [1, 2],
+    enabled: true,
+  })}">{{#user}}<h1>\${getSecondValue(
+    /* label */ { value: input },
+  )} {{ name }}</h1>{{/user}}</section>
+\`;
+"
+`;
+
 exports[`nginx > basic.js 1`] = `
 "// Nginx - Tag \`nginx\` test (with formatting issues)
 const tagTest = nginx\`
@@ -329,6 +710,46 @@ This   text   will   NOT   be   formatted.   Spaces   preserved.
 // Noop - Comment \`/* noop */\` test (content should NOT be formatted)
 /* noop */ \`
 Multiple    spaces    and    irregular    formatting    kept.
+\`;
+"
+`;
+
+exports[`nunjucks > basic.js 1`] = `
+"const tagged = nunjucks\`
+<section>
+    {% if user %}
+      <h1>
+        {{ user.name }}
+      </h1>
+    {% else %}
+      <p>Guest</p>
+    {% endif %}
+  </section>
+\`;
+
+const commented = /* nunjucks */ \`
+<section>
+    {% if user %}
+      <h1>
+        {{ user.name }}
+      </h1>
+    {% else %}
+      <p>Guest</p>
+    {% endif %}
+  </section>
+\`;
+"
+`;
+
+exports[`nunjucks > interpolations.ts 1`] = `
+"const generated: string = nunjucks\`
+<section
+    class="\${getFirstValue({ items: [1, 2], enabled: true })}"
+  >
+    {% if user %}
+      <h1>\${getSecondValue(/* label */ { value: input })} {{ user.name }}</h1>
+    {% endif %}
+  </section>
 \`;
 "
 `;
@@ -378,6 +799,33 @@ const tagTest = php\`
   <?php $x = 1;
   $y = 2;
   echo $x + $y; ?>
+\`;
+"
+`;
+
+exports[`powershell > basic.js 1`] = `
+"const tagged = powershell\`
+  if ($true) {
+      Write-Output "hello"
+  } else {
+      Write-Output "world"
+  }
+\`;
+
+const commented = /* powershell */ \`
+  if ($true) {
+      Write-Output "hello"
+  } else {
+      Write-Output "world"
+  }
+\`;
+"
+`;
+
+exports[`powershell > interpolations.ts 1`] = `
+"const generated: string = powershell\`
+  Write-Output "\${getFirstValue({ items: [1, 2], enabled: true })}"
+  Write-Output "\${getSecondValue(/* label */ { value: input })}"
 \`;
 "
 `;
@@ -470,6 +918,53 @@ const tagTest = sh\`
 
 // Shell - Comment \`/* sh */\` test (with formatting issues)
 /* sh */ \` for i in 1 2 3; do echo $i; done \`;
+"
+`;
+
+exports[`solidity > alternate-parser.js 1`] = `
+"const generated = solidity\`
+  pragma solidity ^0.8.20;
+  contract Counter {
+    uint public count = 0;
+    function increment() public {
+      count += 1;
+    }
+  }
+\`;
+"
+`;
+
+exports[`solidity > basic.js 1`] = `
+"const tagged = solidity\`
+  pragma solidity ^0.8.20;
+  contract Counter {
+    uint public count = 0;
+    function increment() public {
+      count += 1;
+    }
+  }
+\`;
+
+const commented = /* solidity */ \`
+  pragma solidity ^0.8.20;
+  contract Counter {
+    uint public count = 0;
+    function increment() public {
+      count += 1;
+    }
+  }
+\`;
+"
+`;
+
+exports[`solidity > interpolations.ts 1`] = `
+"const generated: string = solidity\`
+  pragma solidity ^0.8.20;
+  contract Counter {
+    string public name = "\${getFirstValue({ items: [1, 2], enabled: true })}";
+    uint public count = \${getSecondValue(/* label */ { value: input })};
+  }
+\`;
 "
 `;
 
@@ -630,6 +1125,38 @@ const command = transaction.$executeRaw\`
 "
 `;
 
+exports[`svelte > basic.js 1`] = `
+"const tagged = svelte\`
+<script>
+    let name = "World";
+  </script>
+
+  <section><h1>Hello {name}</h1></section>
+\`;
+
+const commented = /* svelte */ \`
+<script>
+    let name = "World";
+  </script>
+
+  <section><h1>Hello {name}</h1></section>
+\`;
+"
+`;
+
+exports[`svelte > interpolations.ts 1`] = `
+"const generated: string = svelte\`
+<script>
+    let name = \${getFirstValue({ items: [1, 2], enabled: true })};
+  </script>
+
+  <section class="\${getSecondValue(/* label */ { value: input })}">
+    <h1>Hello {name}</h1>
+  </section>
+\`;
+"
+`;
+
 exports[`toml > basic.js 1`] = `
 "// TOML - Tag \`toml\` test (with formatting issues)
 const tagTest = toml\`
@@ -681,6 +1208,35 @@ const tagTest = xml\`
       <child />
     </node>
   </doc>
+\`;
+"
+`;
+
+exports[`xquery > alternate-parser.js 1`] = `
+"const generated = xquery\` <item>{ 1 + 2 }</item> \`;
+"
+`;
+
+exports[`xquery > basic.js 1`] = `
+"const tagged = xquery\`
+  for $item in (1, 2, 3)
+  return <item>{ $item }</item>
+\`;
+
+const commented = /* xquery */ \`
+  for $item in (1, 2, 3)
+  return <item>{ $item }</item>
+\`;
+"
+`;
+
+exports[`xquery > interpolations.ts 1`] = `
+"const generated: string = xquery\`
+  declare variable $value := \${getFirstValue({ items: [1, 2], enabled: true })};
+
+  <item label="\${getSecondValue(/* label */ { value: input })}">
+    { $value }
+  </item>
 \`;
 "
 `;

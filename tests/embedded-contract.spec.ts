@@ -35,6 +35,8 @@ const configurableParsers = new Set([
   "embeddedRuby",
   "embeddedSql",
   "embeddedTs",
+  "embeddedSolidity",
+  "embeddedXQuery",
 ]);
 
 for (const language of embeddedLanguages.filter(

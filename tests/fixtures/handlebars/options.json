@@ -1,0 +1,5 @@
+{
+  "plugins": [
+    "@poliklot/prettier-plugin-handlebars"
+  ]
+}
