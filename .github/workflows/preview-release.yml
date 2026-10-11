@@ -17,6 +17,7 @@ jobs:
         uses: ./.github/actions/setup
 
       - name: Bump Version
+        if: ${{ hashFiles('.changeset/*.md', '!.changeset/README.md') != '' }}
         run: pnpm -s changeset version
 
       - name: Build
