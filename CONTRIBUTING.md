@@ -10,6 +10,8 @@ Install the package manager version declared in `package.json`, then run `pnpm i
 - `pnpm test:ci` runs unit tests and language fixtures with coverage.
 - `pnpm test:consumer` builds and packs the plugin, then installs it in temporary consumer projects. It requires npm, Corepack, and Bun, and accesses package registries.
 
+After building, run `node scripts/test-consumer.mjs --package-manager=pnpm@12` to focus on one package manager's profiles. The consumer suite copies executable fixtures from `tests/consumer/fixtures/` into installed consumer projects. It checks override edits within one process, consumer-preloaded hooks, and TypeScript loading with older and current tsx versions. Its pnpm 12 profile uses the package manager's runtime provisioning to check Node.js 18.19.
+
 Biome owns JavaScript, TypeScript, and JSON formatting. Prettier handles documentation and other configuration formats. Fixture input files preserve the source text needed by their tests.
 
 ## Adding a language

@@ -168,7 +168,7 @@ Supported embedded languages and their default identifiers are listed here. Iden
 | [Ruby](#ruby)                                          | `ruby`                                                      | `@prettier/plugin-ruby`                            |
 | [Sh (Shell)](#sh-shell)                                | `sh`                                                        | `prettier-plugin-sh`                               |
 | [SQL](#sql)                                            | `sql`                                                       | `prettier-plugin-sql` or `prettier-plugin-sql-cst` |
-| [TOML](#TOML)                                          | `toml`                                                      | `prettier-plugin-toml`                             |
+| [TOML](#toml)                                          | `toml`                                                      | `prettier-plugin-toml`                             |
 | [TS (TypeScript)](#ts-typescript)                      | `ts`, `tsx`, `cts`, `mts`, `typescript`                     | Prettier built in                                  |
 | [XML](#xml)                                            | `xml`, `opml`, `rss`, `svg`                                 | `@prettier/plugin-xml`                             |
 | [YAML](#yaml)                                          | `yaml`, `yml`                                               | Prettier built in                                  |
@@ -690,9 +690,13 @@ Embedded YAML uses the parsers and printers included with Prettier.
 
 This option is provided for users to override certain options based on comments or tags. Due to the lack of support for using objects in prettier plugin options (https://github.com/prettier/prettier/issues/14671), it accepts a **stringified** json string, or a file path with an extension of `.json`, `.jsonc`, `.js`, `.cjs`, `.mjs`, `.ts`, `.cts` or `.mts` as its value. If no extension is provided, it will be treated as a `.json`/`.jsonc` file. For relative paths, it will automatically figure out the prettier config location and use that as the base path.
 
-> [!NOTE]
->
-> TypeScript override files (`.ts`, `.mts` and `.cts`) use Bun's native loader or the consumer project's [`tsx`](https://github.com/privatenumber/tsx) installation on Node.js. Node.js with native type stripping enabled can also load erasable TypeScript directly when `tsx` is absent. Install `tsx` for Node.js 18.19+ without native type stripping, or for TypeScript features that require transformation. The Prettier VS Code extension uses its bundled Node.js runtime; JavaScript override files provide the simplest editor setup.
+TypeScript override files (`.ts`, `.mts` and `.cts`) are loaded with the active runtime's `import()`. Node.js with [native type stripping](https://nodejs.org/api/typescript.html) enabled can load erasable TypeScript, and Bun provides native TypeScript loading. The runtime determines module semantics: `.mts` uses ES modules, `.cts` uses CommonJS, and `.ts` follows the package's module type.
+
+Consumers can enable a compatible loader through Node.js startup options, such as `node --import tsx node_modules/prettier/bin/prettier.cjs . --write`. Override files are evaluated in workers, which inherit the runtime's startup preloads. Enable synchronous module hooks through a `--import` or `--require` preload so they are available in those workers. When the runtime reports unsupported module loading or TypeScript transformation, the plugin can use the consumer project's optional [`tsx`](https://github.com/privatenumber/tsx) 4.19+ installation as a fallback. This fallback uses Node.js's [`module.register()`](https://nodejs.org/api/module.html#moduleregisterspecifier-parenturl-options) API, introduced in Node.js 18.19 and 20.6. Configuration errors include their original diagnostics.
+
+The Prettier VS Code extension uses its bundled Node.js runtime; JavaScript override files provide the simplest editor setup.
+
+Each override module load uses a fresh worker and module cache, so edits to the override file and its imported modules are reflected in subsequent formatting calls. Workers are released after the configuration has been read. Relative paths follow Prettier's configuration discovery and its [`clearConfigCache()`](https://prettier.io/docs/api#prettierclearconfigcache) API.
 
 The resolved value should be an array of objects. Each object in the array must have 2 fields: `comments` and `options`, or `tags` and `options`. The `options` are considered overrides that will be applied to the global `options` of prettier for those `comments` and `tags` only. It's like the [`overrides`](https://prettier.io/docs/en/configuration.html#configuration-overrides) of `prettier`, but it is comment/tag-based instead of file-based.
 

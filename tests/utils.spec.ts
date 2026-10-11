@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Options } from "prettier";
@@ -477,6 +477,160 @@ describe("embedded overrides and object comparison", () => {
     }
   });
 
+  it("uses native TypeScript loading when a consumer has tsx installed", async () => {
+    const directory = await mkdtemp(
+      path.join(tmpdir(), "embed-overrides space-"),
+    );
+    const loaderDirectory = path.join(directory, "node_modules/tsx");
+    const filepath = path.join(directory, "overrides.mts");
+    try {
+      await mkdir(loaderDirectory, { recursive: true });
+      await Promise.all([
+        writeFile(
+          path.join(loaderDirectory, "package.json"),
+          JSON.stringify({
+            type: "module",
+            exports: {
+              "./esm": "./api.mjs",
+              "./esm/api": "./api.mjs",
+            },
+          }),
+        ),
+        writeFile(
+          path.join(loaderDirectory, "api.mjs"),
+          'throw new Error("consumer loader was evaluated");',
+        ),
+        writeFile(
+          filepath,
+          'export const embeddedOverrides = [{ tags: ["sql"], options: { keywordCase: "upper" } }] as const;',
+        ),
+      ]);
+
+      await expect(
+        resolveEmbeddedOverrideOptions(filepath, {
+          commentOrTag: "sql",
+          kind: "tag",
+        }),
+      ).resolves.toEqual({ keywordCase: "upper" });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("preserves configuration errors and evaluates a failing module once", async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), "embed-overrides-"));
+    const marker = path.join(directory, "evaluations.txt");
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    try {
+      const cases = [
+        [
+          "throw.mts",
+          'import { appendFileSync } from "node:fs";\nappendFileSync(new URL("./evaluations.txt", import.meta.url), "evaluated\\n");\nthrow new Error("invalid override setting");',
+          "invalid override setting",
+        ],
+        [
+          "missing.mts",
+          'import "./missing-dependency.mjs";\nexport default [];',
+          "missing-dependency.mjs",
+        ],
+        ["syntax.mts", "export default {", "SyntaxError"],
+      ] as const;
+      for (const [name, source, message] of cases) {
+        const filepath = path.join(directory, name);
+        await writeFile(filepath, source);
+        consoleError.mockClear();
+
+        await expect(
+          resolveEmbeddedOverrideOptions(filepath, {
+            commentOrTag: "sql",
+            kind: "tag",
+          }),
+        ).resolves.toBeUndefined();
+        expect(consoleError.mock.calls.flat().map(String).join("\n")).toContain(
+          message,
+        );
+      }
+      expect(await readFile(marker, "utf8")).toBe("evaluated\n");
+    } finally {
+      consoleError.mockRestore();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it.each(["mjs", "cjs", "mts", "cts"])(
+    "reloads a %s override and its dependencies after configuration edits",
+    async (extension) => {
+      const directory = await mkdtemp(path.join(tmpdir(), "embed-overrides-"));
+      const filepath = path.join(directory, `overrides.${extension}`);
+      const commonjs = extension === "cjs" || extension === "cts";
+      const dependencyPath = path.join(
+        directory,
+        commonjs ? "options.cjs" : "options.mjs",
+      );
+      const exportOptions = (keywordCase: string) =>
+        `${commonjs ? "module.exports =" : "export default"} { keywordCase: "${keywordCase}" };`;
+      const resolveOptions = () =>
+        resolveEmbeddedOverrideOptions(filepath, {
+          commentOrTag: "sql",
+          kind: "tag",
+        });
+      try {
+        await Promise.all([
+          writeFile(dependencyPath, exportOptions("upper")),
+          writeFile(
+            filepath,
+            commonjs
+              ? 'module.exports = [{ tags: ["sql"], options: require("./options.cjs") }];'
+              : 'import options from "./options.mjs";\nexport default [{ tags: ["sql"], options }];',
+          ),
+        ]);
+        await expect(resolveOptions()).resolves.toEqual({
+          keywordCase: "upper",
+        });
+
+        await writeFile(dependencyPath, exportOptions("lower"));
+        await expect(resolveOptions()).resolves.toEqual({
+          keywordCase: "lower",
+        });
+
+        await writeFile(
+          filepath,
+          `${commonjs ? "module.exports =" : "export default"} [{ tags: ["sql"], options: { keywordCase: "upper" } }];`,
+        );
+        await expect(resolveOptions()).resolves.toEqual({
+          keywordCase: "upper",
+        });
+      } finally {
+        await rm(directory, { recursive: true, force: true });
+      }
+    },
+  );
+
+  it("resolves when an override module exits before exporting", async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), "embed-overrides-"));
+    const filepath = path.join(directory, "overrides.mjs");
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    try {
+      await writeFile(filepath, "process.exit(0);");
+      await expect(
+        resolveEmbeddedOverrideOptions(filepath, {
+          commentOrTag: "sql",
+          kind: "tag",
+        }),
+      ).resolves.toBeUndefined();
+      expect(consoleError).toHaveBeenCalledWith(
+        `Failed to parse the js module file: ${filepath}`,
+      );
+    } finally {
+      consoleError.mockRestore();
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it("resolves relative override paths from the Prettier config directory", async () => {
     const directory = await mkdtemp(path.join(tmpdir(), "embed-overrides-"));
     const payload = [{ tags: ["sql"], options: { sqlDialect: "postgresql" } }];
@@ -497,6 +651,42 @@ describe("embedded overrides and object comparison", () => {
         }),
       ).resolves.toEqual({ sqlDialect: "postgresql" });
     } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("follows refreshed Prettier config discovery for relative overrides", async () => {
+    const directory = await mkdtemp(path.join(tmpdir(), "embed-overrides-"));
+    const nestedDirectory = path.join(directory, "nested");
+    const options = {
+      commentOrTag: "sql",
+      kind: "tag" as const,
+      filepath: path.join(nestedDirectory, "query.js"),
+    };
+    const overrides = (keywordCase: string) =>
+      JSON.stringify([{ tags: ["sql"], options: { keywordCase } }]);
+    try {
+      await mkdir(nestedDirectory);
+      await Promise.all([
+        writeFile(path.join(directory, ".prettierrc.json"), "{}"),
+        writeFile(path.join(directory, "overrides.json"), overrides("upper")),
+        writeFile(
+          path.join(nestedDirectory, "overrides.json"),
+          overrides("lower"),
+        ),
+      ]);
+
+      await expect(
+        resolveEmbeddedOverrideOptions("./overrides.json", options),
+      ).resolves.toEqual({ keywordCase: "upper" });
+
+      await writeFile(path.join(nestedDirectory, ".prettierrc.json"), "{}");
+      await prettier.clearConfigCache();
+      await expect(
+        resolveEmbeddedOverrideOptions("./overrides.json", options),
+      ).resolves.toEqual({ keywordCase: "lower" });
+    } finally {
+      await prettier.clearConfigCache();
       await rm(directory, { recursive: true, force: true });
     }
   });

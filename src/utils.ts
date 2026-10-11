@@ -1,5 +1,4 @@
 import type { Expression, Node, Super, TemplateLiteral } from "estree";
-import { memoize } from "micro-memoize";
 import {
   type AstPath,
   type Options,
@@ -32,72 +31,58 @@ async function importJsonc(absolutePath: string) {
   }
 }
 
-const importJsModuleWorkerDataUrl = /* @__PURE__ */ new URL(
-  `data:text/javascript,${encodeURIComponent(IMPORT_JS_MODULE_WORKER)}`,
+const importModuleWorkerUrl = /* @__PURE__ */ new URL(
+  /* @vite-ignore */ IMPORT_MODULE_WORKER_URL,
+  import.meta.url,
 );
 
-const importTsModuleWorkerDataUrl = /* @__PURE__ */ new URL(
-  `data:text/javascript,${encodeURIComponent(IMPORT_TS_MODULE_WORKER)}`,
-);
-
-async function importJsModule(absolutePath: string) {
+async function importModule(absolutePath: string) {
   const { Worker } = await import("node:worker_threads");
 
   return new Promise<EmbeddedOverride[] | undefined>((resolve) => {
-    const worker = new Worker(importJsModuleWorkerDataUrl, {
+    const worker = new Worker(importModuleWorkerUrl, {
       workerData: {
         absolutePath,
       },
     });
 
-    worker.once("message", (result) => {
-      resolve(result as EmbeddedOverride[] | undefined);
-    });
-
-    worker.once("error", (error) => {
-      console.error(error);
-      resolve(undefined);
-    });
-  });
-}
-
-async function importTsModule(absolutePath: string) {
-  const { Worker } = await import("node:worker_threads");
-
-  return new Promise<EmbeddedOverride[] | undefined>((resolve) => {
-    const worker = new Worker(importTsModuleWorkerDataUrl, {
-      workerData: {
-        absolutePath,
+    worker.once(
+      "message",
+      (result: { overrides?: EmbeddedOverride[]; error?: Error }) => {
+        void worker.terminate();
+        if (result.error) {
+          console.error(result.error);
+        }
+        resolve(result.overrides);
       },
-    });
-
-    worker.once("message", (result) => {
-      resolve(result as EmbeddedOverride[] | undefined);
-    });
+    );
 
     worker.once("error", (error) => {
       console.error(error);
       resolve(undefined);
     });
+
+    worker.once("exit", () => {
+      resolve(undefined);
+    });
   });
 }
 
-const resolveEmbeddedOverridesFileAbsolutePath = memoize(
-  async (embeddedOverridesFilePath: string, filepath?: string) => {
-    const { isAbsolute, dirname, resolve } = await import("node:path");
-    if (isAbsolute(embeddedOverridesFilePath)) {
-      return embeddedOverridesFilePath;
-    }
-    const configFilePath = await resolveConfigFile(filepath);
-    let configDir: string;
-    if (typeof configFilePath !== "string") {
-      configDir = process.env.PWD ?? process.cwd();
-    } else {
-      configDir = dirname(configFilePath);
-    }
-    return resolve(configDir, embeddedOverridesFilePath);
-  },
-);
+async function resolveEmbeddedOverridesFileAbsolutePath(
+  embeddedOverridesFilePath: string,
+  filepath?: string,
+) {
+  const { isAbsolute, dirname, resolve } = await import("node:path");
+  if (isAbsolute(embeddedOverridesFilePath)) {
+    return embeddedOverridesFilePath;
+  }
+  const configFilePath = await resolveConfigFile(filepath);
+  const configDir =
+    typeof configFilePath === "string"
+      ? dirname(configFilePath)
+      : (process.env.PWD ?? process.cwd());
+  return resolve(configDir, embeddedOverridesFilePath);
+}
 
 const resolveEmbeddedOverrides = async (
   embeddedOverridesString: string,
@@ -138,7 +123,7 @@ const resolveEmbeddedOverrides = async (
     extensionName === ".js"
   ) {
     const absolutePath = await absolutePathPromise;
-    const parsedEmbeddedOverrides = await importJsModule(absolutePath);
+    const parsedEmbeddedOverrides = await importModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
@@ -152,7 +137,7 @@ const resolveEmbeddedOverrides = async (
     extensionName === ".ts"
   ) {
     const absolutePath = await absolutePathPromise;
-    const parsedEmbeddedOverrides = await importTsModule(absolutePath);
+    const parsedEmbeddedOverrides = await importModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
     }

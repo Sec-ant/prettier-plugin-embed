@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
 import {
+  copyFileSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -11,6 +12,11 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
+
+const { values } = parseArgs({
+  options: { "package-manager": { type: "string" } },
+});
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const temporaryDirectory = mkdtempSync(
@@ -68,6 +74,7 @@ function runPrettier(consumerDirectory, ...args) {
     /TypeError: Cannot destructure property 'Name' of 'node\.children'/,
     "XML plugin embed errors must not be swallowed by Prettier",
   );
+  return output;
 }
 
 function verifyConfig(consumerDirectory, configName, configContent) {
@@ -154,6 +161,13 @@ try {
     { prettier: "latest", sql: "latest" },
   ];
 
+  const selectedProfiles = compatibilityProfiles.filter(
+    ({ packageManager = "npm" }) =>
+      !values["package-manager"] ||
+      packageManager === values["package-manager"],
+  );
+  assert.ok(selectedProfiles.length, "No matching package manager profile");
+
   for (const [
     profileIndex,
     {
@@ -166,7 +180,7 @@ try {
       pnp,
       extraPlugins = [],
     },
-  ] of compatibilityProfiles.entries()) {
+  ] of selectedProfiles.entries()) {
     activePackageManager = packageManager;
     const consumerDirectory = path.join(
       temporaryDirectory,
@@ -468,34 +482,43 @@ void options;
         path.join(consumerDirectory, "embedded-overrides.ts"),
         `const keywordCase: "upper" = "upper";\nexport default [{ tags: ["sql"], options: { keywordCase } }];\n`,
       );
+      const overrideConfig = {
+        plugins: ["prettier-plugin-embed", "prettier-plugin-sql"],
+        embeddedSqlTags: ["sql"],
+        embeddedOverrides: "./embedded-overrides.ts",
+        keywordCase: "lower",
+      };
       writeFileSync(
         path.join(consumerDirectory, ".prettierrc.json"),
-        JSON.stringify({
-          plugins: ["prettier-plugin-embed", "prettier-plugin-sql"],
-          embeddedSqlTags: ["sql"],
-          embeddedOverrides: "./embedded-overrides.ts",
-          keywordCase: "lower",
-        }),
+        JSON.stringify(overrideConfig),
       );
       writeFileSync(
         path.join(consumerDirectory, "sample.sql.js"),
         "const query = sql`select * from users where id = 1`;\n",
       );
-      runPrettier(consumerDirectory, "sample.sql.js", "--write");
+      const overrideOutput = runPrettier(
+        consumerDirectory,
+        "sample.sql.js",
+        "--write",
+      );
       assert.match(
         readFileSync(path.join(consumerDirectory, "sample.sql.js"), "utf8"),
         /\bSELECT\b/,
-        "TypeScript embeddedOverrides should apply the SQL keyword case",
+        `TypeScript embeddedOverrides should apply the SQL keyword case\n${overrideOutput}`,
+      );
+      copyFileSync(
+        path.join(root, "tests/consumer/fixtures/override-reload.mjs"),
+        path.join(consumerDirectory, "api-overrides.mjs"),
+      );
+      run(
+        packageManager === "bun" ? "bun" : process.execPath,
+        ["api-overrides.mjs"],
+        consumerDirectory,
       );
       if (packageManager === "pnpm@12") {
-        writeFileSync(
-          path.join(consumerDirectory, "pnpm-workspace.yaml"),
-          "allowBuilds:\n  esbuild: true\n",
-        );
-        runPackageManager(
-          packageManager,
-          ["add", "tsx@latest"],
-          consumerDirectory,
+        copyFileSync(
+          path.join(root, "tests/consumer/fixtures/typescript-preload.mjs"),
+          path.join(consumerDirectory, "override-loader.mjs"),
         );
         writeFileSync(
           path.join(consumerDirectory, "sample.sql.js"),
@@ -505,6 +528,8 @@ void options;
           process.execPath,
           [
             "--no-experimental-strip-types",
+            "--import",
+            "./override-loader.mjs",
             "node_modules/prettier/bin/prettier.cjs",
             "sample.sql.js",
             "--write",
@@ -514,8 +539,42 @@ void options;
         assert.match(
           readFileSync(path.join(consumerDirectory, "sample.sql.js"), "utf8"),
           /\bSELECT\b/,
-          "Consumer-provided tsx loads TypeScript overrides with native type stripping disabled",
+          "Consumer-preloaded hooks load TypeScript overrides in workers",
         );
+        writeFileSync(
+          path.join(consumerDirectory, "pnpm-workspace.yaml"),
+          "allowBuilds:\n  esbuild: true\n",
+        );
+        copyFileSync(
+          path.join(root, "tests/consumer/fixtures/typescript-overrides.mjs"),
+          path.join(consumerDirectory, "api-typescript.mjs"),
+        );
+        for (const tsxVersion of ["4.19.0", "latest"]) {
+          runPackageManager(
+            packageManager,
+            ["add", `tsx@${tsxVersion}`],
+            consumerDirectory,
+          );
+          for (const fixture of ["api-typescript.mjs", "api-overrides.mjs"]) {
+            for (const runtimeArgs of [[], ["--no-experimental-strip-types"]]) {
+              run(
+                process.execPath,
+                [...runtimeArgs, fixture, "--transform"],
+                consumerDirectory,
+              );
+            }
+            runPackageManager(
+              packageManager,
+              ["dlx", "node@18.19.0", fixture, "--transform"],
+              consumerDirectory,
+              {
+                PNPM_CONFIG_TOOLS: JSON.stringify({
+                  node: { mirror: "https://nodejs.org/download/" },
+                }),
+              },
+            );
+          }
+        }
       }
       const typecheckArgs = [
         "--noEmit",

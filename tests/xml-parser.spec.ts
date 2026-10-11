@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   loadXmlToolsParser,
@@ -63,7 +64,7 @@ describe("embedded XML parser", () => {
 
   it("resolves the XML plugin from the consumer file location", async () => {
     const parserModule = await loadXmlToolsParser(
-      new URL(import.meta.url).pathname,
+      fileURLToPath(import.meta.url),
       async () => {
         throw new Error("not directly resolvable");
       },

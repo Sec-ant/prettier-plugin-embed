@@ -172,9 +172,6 @@ importers:
       dedent:
         specifier: ^1.7.2
         version: 1.7.2
-      micro-memoize:
-        specifier: ^5.2.0
-        version: 5.2.0
       tiny-jsonc:
         specifier: ^1.0.2
         version: 1.0.2
@@ -227,9 +224,6 @@ importers:
       copy-files-from-to:
         specifier: ^4.0.1
         version: 4.0.1(debug@4.4.0(supports-color@10.2.2))
-      esbuild:
-        specifier: ^0.28.2
-        version: 0.28.2
       lint-staged:
         specifier: ^17.6.0
         version: 17.6.0
@@ -1557,10 +1551,6 @@ packages:
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
-  fast-equals@5.4.0:
-    resolution: {integrity: sha512-jt2DW/aNFNwke7AUd+Z+e6pz39KO5rzdbbFCg2sGafS4mk13MI7Z8O5z9cADNn5lhGODIgLwug6TZO2ctf7kcw==}
-    engines: {node: '>=6.0.0'}
-
   fast-glob@3.3.3:
     resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
     engines: {node: '>=8.6.0'}
@@ -1570,9 +1560,6 @@ packages:
 
   fast-string-width@3.0.2:
     resolution: {integrity: sha512-gX8LrtNEI5hq8DVUfRQMbr5lpaS4nMIWV+7XEbXk2b8kiQIizgnlr12B4dA3ZEx3308ze0O4Q1R+cHts8kyUJg==}
-
-  fast-stringify@4.0.0:
-    resolution: {integrity: sha512-lE2DIivBaLysf6hK5WH/VfMgqRbvBVHcpGVVTmA5Zi8oWIjq9YxIt6lYGdUgP1HNSXxTIat7HEIDnrSvXSeKQw==}
 
   fast-uri@3.0.6:
     resolution: {integrity: sha512-Atfo14OibSv5wAp4VWNsFYE1AchQRTv9cBGWET4pZWHzYshFSS9NQI6I57rdKn9croWVMbYFbLhJ+yJvmZIIHw==}
@@ -1888,9 +1875,6 @@ packages:
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
-
-  micro-memoize@5.2.0:
-    resolution: {integrity: sha512-r9HPHhVUAbjFxOhf5dP/lK5fRRkkKATXMuTBUR/YInx/CPmmrfo9hKHvXq1+iU+zrR1cORT25g3yWlLfEZsmqQ==}
 
   micromatch@4.0.8:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
@@ -3695,8 +3679,6 @@ snapshots:
 
   fast-deep-equal@3.1.3: {}
 
-  fast-equals@5.4.0: {}
-
   fast-glob@3.3.3:
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -3710,8 +3692,6 @@ snapshots:
   fast-string-width@3.0.2:
     dependencies:
       fast-string-truncated-width: 3.0.3
-
-  fast-stringify@4.0.0: {}
 
   fast-uri@3.0.6: {}
 
@@ -3972,11 +3952,6 @@ snapshots:
       is-buffer: 1.1.6
 
   merge2@1.4.1: {}
-
-  micro-memoize@5.2.0:
-    dependencies:
-      fast-equals: 5.4.0
-      fast-stringify: 4.0.0
 
   micromatch@4.0.8:
     dependencies:
