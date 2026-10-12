@@ -975,18 +975,19 @@ export default ${JSON.stringify(payload)};`,
     const consoleError = vi
       .spyOn(console, "error")
       .mockImplementation(() => {});
+    const error = new Error("embedded parser failed");
     try {
       await expect(
         embeddedDoc(
           async () => {
-            throw new Error("embedded parser failed");
+            throw error;
           },
           () => "",
           path as never,
           {} as never,
         ),
-      ).rejects.toThrow("embedded parser failed");
-      expect(consoleError).toHaveBeenCalledOnce();
+      ).rejects.toBe(error);
+      expect(consoleError).not.toHaveBeenCalled();
     } finally {
       consoleError.mockRestore();
     }

@@ -480,23 +480,18 @@ export function createEmbeddedDoc(
 
   // otherwise we return the embedder function
   return async (...args) => {
-    try {
-      const doc = await embeddedEmbedder(...args, {
-        commentOrTag,
-        kind,
-        embeddedOverrideOptions: await embeddedOverrideOptionsPromise,
-      });
-      return label(
-        {
-          embed: true,
-          ...(doc as builders.Label).label,
-        },
-        doc,
-      );
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
+    const doc = await embeddedEmbedder(...args, {
+      commentOrTag,
+      kind,
+      embeddedOverrideOptions: await embeddedOverrideOptionsPromise,
+    });
+    return label(
+      {
+        embed: true,
+        ...(doc as builders.Label).label,
+      },
+      doc,
+    );
   };
 }
 

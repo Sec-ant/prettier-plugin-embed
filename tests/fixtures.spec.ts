@@ -6,6 +6,8 @@ import { parsers } from "prettier/plugins/babel";
 import { globSync } from "tinyglobby";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import * as embed from "../src";
+import { embeddedEmbedders } from "../src/embedded/index.js";
+import type { Embedder } from "../src/types.js";
 
 interface LanguageOptions {
   plugins?: string[];
@@ -153,8 +155,15 @@ function rubyParserServerPids() {
 }
 
 const existingRubyParserServerPids = new Set<number>();
+const embedderSpies = Object.keys(embeddedEmbedders).map((language) =>
+  vi.spyOn(
+    embeddedEmbedders as Record<keyof typeof embeddedEmbedders, Embedder>,
+    language as keyof typeof embeddedEmbedders,
+  ),
+);
 
 beforeAll(() => {
+  vi.stubEnv("PRETTIER_DEBUG", undefined);
   // Mute pug logs during all fixture tests.
   process.env.PRETTIER_PLUGIN_PUG_LOG_LEVEL = "off";
   for (const pid of rubyParserServerPids()) {
@@ -163,6 +172,8 @@ beforeAll(() => {
 });
 
 afterAll(() => {
+  vi.unstubAllEnvs();
+  for (const spy of embedderSpies) spy.mockRestore();
   // @prettier/plugin-ruby's detached server survives Vitest worker teardown.
   for (const pid of rubyParserServerPids()) {
     if (!existingRubyParserServerPids.has(pid)) {
@@ -206,6 +217,7 @@ for (const languageDir of languageDirs) {
           plugins: [embed, ...plugins],
           filepath: file,
         };
+        for (const spy of embedderSpies) spy.mockClear();
         const errors = vi.spyOn(console, "error").mockImplementation(() => {});
         let formatted: string;
         try {
@@ -219,6 +231,15 @@ for (const languageDir of languageDirs) {
             errors,
             "embedded formatting should succeed",
           ).not.toHaveBeenCalled();
+          expect(
+            embedderSpies.flatMap((spy) => [
+              ...spy.mock.results.filter((result) => result.type === "throw"),
+              ...spy.mock.settledResults.filter(
+                (result) => result.type !== "fulfilled",
+              ),
+            ]),
+            "embedded formatting should succeed",
+          ).toEqual([]);
           expect(
             formattedAgain,
             "fixture formatting should be idempotent",
