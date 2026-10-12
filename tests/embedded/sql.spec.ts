@@ -1,8 +1,55 @@
 import type { Options } from "prettier";
 import { format } from "prettier";
-import { expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { embeddedEmbedders } from "../../src/embedded/index.js";
 import * as embed from "../../src/index.js";
+
+describe.each(["babel", "babel-ts", "typescript"])(
+  "SQL fragment errors with %s",
+  (parser) => {
+    const input = `const id=1;\nexport const where=sql\`id = $\{id}\`;\n`;
+    const expected = `const id = 1;\nexport const where = sql\`id = $\{id}\`;\n`;
+    const options = {
+      parser,
+      plugins: [embed, "prettier-plugin-sql-cst"],
+      embeddedSqlPlugin: "prettier-plugin-sql-cst",
+      embeddedSqlParser: "postgresql",
+    } satisfies Options;
+
+    it.each([undefined, ""])(
+      "preserves the fragment silently with PRETTIER_DEBUG=%j",
+      async (debug) => {
+        vi.stubEnv("PRETTIER_DEBUG", debug);
+        const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+          expect(await format(input, options)).toBe(expected);
+          expect(await format(expected, options)).toBe(expected);
+          expect(errors).not.toHaveBeenCalled();
+        } finally {
+          errors.mockRestore();
+          vi.unstubAllEnvs();
+        }
+      },
+    );
+
+    it.each(["1", "0"])(
+      "propagates the parser error with PRETTIER_DEBUG=%j",
+      async (debug) => {
+        vi.stubEnv("PRETTIER_DEBUG", debug);
+        const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+        try {
+          await expect(format(input, options)).rejects.toThrow(
+            'Syntax Error: Unexpected "id"',
+          );
+          expect(errors).not.toHaveBeenCalled();
+        } finally {
+          errors.mockRestore();
+          vi.unstubAllEnvs();
+        }
+      },
+    );
+  },
+);
 
 it("uses SQLite when the CST SQL parser option is omitted", async () => {
   const embedder = embeddedEmbedders.embeddedSql!;
