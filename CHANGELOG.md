@@ -1,5 +1,11 @@
 # prettier-plugin-embed
 
+## 0.7.1
+
+### Patch Changes
+
+- 798a44d: Preserve template content silently when an embedded formatter cannot parse it, including SQL query fragments. Use Prettier's `PRETTIER_DEBUG` behavior to expose the original formatting error.
+
 ## 0.7.0
 
 ### Minor Changes
