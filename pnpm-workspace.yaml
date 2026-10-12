@@ -12,3 +12,5 @@ publicHoistPattern:
   - sh-syntax
   - sql-formatter
   - sql-parser-cst
+dedupePeers: true
+dedupePeerDependents: true
