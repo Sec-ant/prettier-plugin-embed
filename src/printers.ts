@@ -24,6 +24,12 @@ import {
 const { estree: estreePrinter } = estreePrinters;
 const { embed: builtInEmbed } = estreePrinter;
 
+// Parser options and AST shapes belong to a single formatting context.
+const tagExpressionCaches = new WeakMap<
+  Options,
+  Map<string, Node | undefined>
+>();
+
 // the embed method in plugin printers
 // https://prettier.io/docs/en/plugins.html#optional-embed
 // we override the built-in one with this
@@ -128,6 +134,11 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
 
   // template literal node has a complex expression tag
   if (tag !== undefined) {
+    let tagExpressionCache = tagExpressionCaches.get(options);
+    if (!tagExpressionCache) {
+      tagExpressionCache = new Map();
+      tagExpressionCaches.set(options, tagExpressionCache);
+    }
     const parse = (text: string) =>
       (parsers[options.parser as keyof typeof parsers] as Parser<Node>).parse(
         text,
@@ -140,7 +151,14 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
       let stringFormTag: string | undefined;
 
       for (const tagInOptions of tagsInOptionsGenerator(embeddedLanguage)) {
-        if (compareTagExpressionToTagString(tag, tagInOptions, parse)) {
+        if (
+          compareTagExpressionToTagString(
+            tag,
+            tagInOptions,
+            parse,
+            tagExpressionCache,
+          )
+        ) {
           stringFormTag = tagInOptions;
           break;
         }

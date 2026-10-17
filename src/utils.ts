@@ -88,27 +88,29 @@ const resolveEmbeddedOverrides = async (
   embeddedOverridesString: string,
   sourceFilePath?: string,
 ) => {
+  // Inline JSONC must not trigger config discovery or a speculative file read.
+  try {
+    return JSONC.parse(embeddedOverridesString) as EmbeddedOverride[];
+  } catch {
+    // Not inline JSONC; resolve it as a file path.
+  }
   let extensionName: string;
   try {
     extensionName = (await import("node:path")).extname(
       embeddedOverridesString,
     );
   } catch {
-    // node modules not available, fallback to stringified jsonc
-    try {
-      return JSONC.parse(embeddedOverridesString) as EmbeddedOverride[];
-    } catch {
-      console.error("Failed to parse embeddedOverrides as a json object");
-      return;
-    }
+    console.error("Failed to parse embeddedOverrides as a json object");
+    return;
   }
-  const absolutePathPromise = resolveEmbeddedOverridesFileAbsolutePath(
-    embeddedOverridesString,
-    sourceFilePath,
-  );
+  const resolveAbsolutePath = () =>
+    resolveEmbeddedOverridesFileAbsolutePath(
+      embeddedOverridesString,
+      sourceFilePath,
+    );
   // jsonc file
   if (extensionName === ".json" || extensionName === ".jsonc") {
-    const absolutePath = await absolutePathPromise;
+    const absolutePath = await resolveAbsolutePath();
     const parsedEmbeddedOverrides = await importJsonc(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
@@ -122,7 +124,7 @@ const resolveEmbeddedOverrides = async (
     extensionName === ".cjs" ||
     extensionName === ".js"
   ) {
-    const absolutePath = await absolutePathPromise;
+    const absolutePath = await resolveAbsolutePath();
     const parsedEmbeddedOverrides = await importModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
@@ -136,7 +138,7 @@ const resolveEmbeddedOverrides = async (
     extensionName === ".cts" ||
     extensionName === ".ts"
   ) {
-    const absolutePath = await absolutePathPromise;
+    const absolutePath = await resolveAbsolutePath();
     const parsedEmbeddedOverrides = await importModule(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
@@ -146,20 +148,13 @@ const resolveEmbeddedOverrides = async (
   }
   // no ext, fallback to jsonc
   if (extensionName === "") {
-    const absolutePath = await absolutePathPromise;
+    const absolutePath = await resolveAbsolutePath();
     const parsedEmbeddedOverrides = await importJsonc(absolutePath);
     if (parsedEmbeddedOverrides !== undefined) {
       return parsedEmbeddedOverrides as EmbeddedOverride[];
     }
   }
-  // fallback to stringified jsonc
-  try {
-    return JSONC.parse(embeddedOverridesString) as EmbeddedOverride[];
-  } catch {
-    console.error("Failed to parse embeddedOverrides as a json object");
-  }
-
-  return;
+  console.error("Failed to parse embeddedOverrides as a json object");
 };
 
 const embeddedOverridesCache = new WeakMap<
@@ -287,19 +282,27 @@ export const compareTagExpressionToTagString = (() => {
     tagExpression: Expression,
     tagString: string,
     parse: (text: string) => Node | Promise<Node>,
+    cache?: Map<string, Node | undefined>,
   ) => {
     if (/^\/.*\/[dgimsuvy]*$/.test(tagString)) {
       return matchTagExpressionPattern(tagExpression, tagString);
     }
 
-    let tagStringTopLevelNode: Node;
+    let tagStringTopLevelNode = cache?.get(tagString);
     try {
-      const node = parse(`${tagString}\`\``);
+      const node = cache?.has(tagString)
+        ? tagStringTopLevelNode
+        : parse(`${tagString}\`\``);
       if (node instanceof Promise) {
         throw new TypeError("Async parse function hasn't been supported yet.");
       }
       tagStringTopLevelNode = node;
     } catch {
+      cache?.set(tagString, undefined);
+      return false;
+    }
+    cache?.set(tagString, tagStringTopLevelNode);
+    if (!tagStringTopLevelNode) {
       return false;
     }
 

@@ -36,6 +36,33 @@ function programWithTag(tag: unknown) {
 }
 
 describe("tag expression matching", () => {
+  it("caches candidate ASTs and parse failures within a matching context", () => {
+    const cache = new Map();
+    const parse = vi.fn((text: string) => {
+      if (text === "invalid tag``") throw new Error("invalid tag");
+      return programWithTag(identifier("sql")) as never;
+    });
+    for (let index = 0; index < 3; index++) {
+      expect(
+        compareTagExpressionToTagString(
+          identifier("sql") as never,
+          "sql",
+          parse,
+          cache,
+        ),
+      ).toBe(true);
+      expect(
+        compareTagExpressionToTagString(
+          identifier("sql") as never,
+          "invalid tag",
+          parse,
+          cache,
+        ),
+      ).toBe(false);
+    }
+    expect(parse).toHaveBeenCalledTimes(2);
+  });
+
   it("matches simple and nested call tags while ignoring parser locations", () => {
     expect(
       compareTagExpressionToTagString(
