@@ -1,5 +1,12 @@
 # prettier-plugin-embed
 
+## 0.7.3
+
+### Patch Changes
+
+- 2f68520: Allow the plugin to load with Prettier standalone in browsers by deferring Node-only configuration discovery and XML module resolution until needed. Keep filesystem-based overrides and XML resolution fallbacks available in Node.js.
+- 2f68520: Fix the default indentation of whitespace-sensitive markup templates, including HTML and Jinja, while preserving boundary whitespace and the existing options for exact exterior whitespace and disabling extra indentation.
+
 ## 0.7.2
 
 ### Patch Changes
