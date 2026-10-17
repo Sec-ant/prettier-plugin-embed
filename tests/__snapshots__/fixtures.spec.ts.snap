@@ -2,7 +2,7 @@
 
 exports[`astro > basic.js 1`] = `
 "const tagged = astro\`
----
+  ---
   const title = "Hello";
   ---
 
@@ -13,7 +13,7 @@ exports[`astro > basic.js 1`] = `
 \`;
 
 const commented = /* astro */ \`
----
+  ---
   const title = "Hello";
   ---
 
@@ -27,7 +27,7 @@ const commented = /* astro */ \`
 
 exports[`astro > interpolations.ts 1`] = `
 "const generated: string = astro\`
----
+  ---
   const title = \${getFirstValue({ items: [1, 2], enabled: true })};
   ---
 
@@ -200,7 +200,7 @@ const tagTest = glsl\`
 
 exports[`go-template > basic.js 1`] = `
 "const tagged = goTemplate\`
-<section>
+  <section>
     {{ if .User }}
       <h1>{{ .User.Name }}</h1>
     {{ else }}
@@ -210,7 +210,7 @@ exports[`go-template > basic.js 1`] = `
 \`;
 
 const commented = /* goTemplate */ \`
-<section>
+  <section>
     {{ if .User }}
       <h1>{{ .User.Name }}</h1>
     {{ else }}
@@ -223,9 +223,7 @@ const commented = /* goTemplate */ \`
 
 exports[`go-template > interpolations.ts 1`] = `
 "const generated: string = goTemplate\`
-<section
-    class="\${getFirstValue({ items: [1, 2], enabled: true })}"
-  >
+  <section class="\${getFirstValue({ items: [1, 2], enabled: true })}">
     {{ if .User }}
       <h1>\${getSecondValue(/* label */ { value: input })} {{ .User.Name }}</h1>
     {{ end }}
@@ -259,7 +257,7 @@ const tagTest = graphql\`
 
 exports[`handlebars > basic.js 1`] = `
 "const tagged = handlebars\`
-<section>
+  <section>
     {{#if user}}
       <h1>
         {{ user.name }}
@@ -271,7 +269,7 @@ exports[`handlebars > basic.js 1`] = `
 \`;
 
 const commented = /* handlebars */ \`
-<section>
+  <section>
     {{#if user}}
       <h1>
         {{ user.name }}
@@ -286,9 +284,7 @@ const commented = /* handlebars */ \`
 
 exports[`handlebars > interpolations.ts 1`] = `
 "const generated: string = handlebars\`
-<section
-    class="\${getFirstValue({ items: [1, 2], enabled: true })}"
-  >
+  <section class="\${getFirstValue({ items: [1, 2], enabled: true })}">
     {{#if user}}
       <h1>\${getSecondValue(/* label */ { value: input })} {{ user.name }}</h1>
     {{/if}}
@@ -407,13 +403,13 @@ const tagTest = java\`
 
 exports[`jinja > basic.js 1`] = `
 "const tagged = jinja\`
-<section>
+  <section>
     {% if user %}<h1>{{ user.name }}</h1>{% else %}<p>Guest</p>{% endif %}
   </section>
 \`;
 
 const commented = /* jinja */ \`
-<section>
+  <section>
     {% if user %}<h1>{{ user.name }}</h1>{% else %}<p>Guest</p>{% endif %}
   </section>
 \`;
@@ -422,9 +418,7 @@ const commented = /* jinja */ \`
 
 exports[`jinja > interpolations.ts 1`] = `
 "const generated: string = jinja\`
-<section
-    class="\${getFirstValue({ items: [1, 2], enabled: true })}"
-  >
+  <section class="\${getFirstValue({ items: [1, 2], enabled: true })}">
     {% if user %}
       <h1>\${getSecondValue(/* label */ { value: input })} {{ user.name }}</h1>
     {% endif %}
@@ -470,12 +464,12 @@ const tagTest = jsonata\`
 
 exports[`jte > basic.js 1`] = `
 "const tagged = jte\`
-@param String name
+  @param String name
   <section><h1>\\\${name}</h1></section>
 \`;
 
 const commented = /* jte */ \`
-@param String name
+  @param String name
   <section><h1>\\\${name}</h1></section>
 \`;
 "
@@ -483,7 +477,7 @@ const commented = /* jte */ \`
 
 exports[`jte > interpolations.ts 1`] = `
 "const generated: string = jte\`
-@param String name
+  @param String name
   <section class="\${getFirstValue({ items: [1, 2], enabled: true })}">
     <h1>\${getSecondValue(/* label */ { value: input })} \\\${name}</h1>
   </section>
@@ -512,7 +506,7 @@ const tagTest = latex\`
 
 exports[`liquid > basic.js 1`] = `
 "const tagged = liquid\`
-<section>
+  <section>
     {% if user %}
       <h1>{{ user.name | escape }}</h1>
     {% else %}
@@ -522,7 +516,7 @@ exports[`liquid > basic.js 1`] = `
 \`;
 
 const commented = /* liquid */ \`
-<section>
+  <section>
     {% if user %}
       <h1>{{ user.name | escape }}</h1>
     {% else %}
@@ -535,10 +529,7 @@ const commented = /* liquid */ \`
 
 exports[`liquid > interpolations.ts 1`] = `
 "const generated: string = liquid\`
-<section class="\${getFirstValue({
-       items: [1, 2],
-       enabled: true,
-     })}">
+  <section class="\${getFirstValue({ items: [1, 2], enabled: true })}">
     {% if user %}
       <h1>
         \${getSecondValue(/* label */ { value: input })} {{ user.name | escape }}
@@ -603,14 +594,14 @@ exports[`markdown > preserve-exterior-whitespace.js 1`] = `
 
 exports[`marko > basic.js 1`] = `
 "const tagged = marko\`
-<section>
+  <section>
     <h1>Hello \\\${input.name}</h1>
     <p>World</p>
   </section>
 \`;
 
 const commented = /* marko */ \`
-<section>
+  <section>
     <h1>Hello \\\${input.name}</h1>
     <p>World</p>
   </section>
@@ -620,10 +611,7 @@ const commented = /* marko */ \`
 
 exports[`marko > interpolations.ts 1`] = `
 "const generated: string = marko\`
-<section class="\${getFirstValue({
-    items: [1, 2],
-    enabled: true,
-  })}">
+  <section class="\${getFirstValue({ items: [1, 2], enabled: true })}">
     <h1>\${getSecondValue(/* label */ { value: input })} \\\${input.name}</h1>
   </section>
 \`;
@@ -657,18 +645,18 @@ exports[`motoko > interpolations.ts 1`] = `
 
 exports[`mustache > basic.js 1`] = `
 "const tagged = mustache\`
-<section>{{#user}}<h1>{{ name }}</h1>{{/user}}{{^user}}<p>Guest</p>{{/user}}</section>
+  <section>{{#user}}<h1>{{ name }}</h1>{{/user}}{{^user}}<p>Guest</p>{{/user}}</section>
 \`;
 
 const commented = /* mustache */ \`
-<section>{{#user}}<h1>{{ name }}</h1>{{/user}}{{^user}}<p>Guest</p>{{/user}}</section>
+  <section>{{#user}}<h1>{{ name }}</h1>{{/user}}{{^user}}<p>Guest</p>{{/user}}</section>
 \`;
 "
 `;
 
 exports[`mustache > interpolations.ts 1`] = `
 "const generated: string = mustache\`
-<section class="\${getFirstValue({
+  <section class="\${getFirstValue({
     items: [1, 2],
     enabled: true,
   })}">{{#user}}<h1>\${getSecondValue(
@@ -716,7 +704,7 @@ Multiple    spaces    and    irregular    formatting    kept.
 
 exports[`nunjucks > basic.js 1`] = `
 "const tagged = nunjucks\`
-<section>
+  <section>
     {% if user %}
       <h1>
         {{ user.name }}
@@ -728,7 +716,7 @@ exports[`nunjucks > basic.js 1`] = `
 \`;
 
 const commented = /* nunjucks */ \`
-<section>
+  <section>
     {% if user %}
       <h1>
         {{ user.name }}
@@ -743,9 +731,7 @@ const commented = /* nunjucks */ \`
 
 exports[`nunjucks > interpolations.ts 1`] = `
 "const generated: string = nunjucks\`
-<section
-    class="\${getFirstValue({ items: [1, 2], enabled: true })}"
-  >
+  <section class="\${getFirstValue({ items: [1, 2], enabled: true })}">
     {% if user %}
       <h1>\${getSecondValue(/* label */ { value: input })} {{ user.name }}</h1>
     {% endif %}
@@ -1127,7 +1113,7 @@ const command = transaction.$executeRaw\`
 
 exports[`svelte > basic.js 1`] = `
 "const tagged = svelte\`
-<script>
+  <script>
     let name = "World";
   </script>
 
@@ -1135,7 +1121,7 @@ exports[`svelte > basic.js 1`] = `
 \`;
 
 const commented = /* svelte */ \`
-<script>
+  <script>
     let name = "World";
   </script>
 
@@ -1146,7 +1132,7 @@ const commented = /* svelte */ \`
 
 exports[`svelte > interpolations.ts 1`] = `
 "const generated: string = svelte\`
-<script>
+  <script>
     let name = \${getFirstValue({ items: [1, 2], enabled: true })};
   </script>
 

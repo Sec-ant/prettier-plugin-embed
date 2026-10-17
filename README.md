@@ -992,11 +992,15 @@ Embedded YAML uses the parsers and printers included with Prettier.
 - **Default**: `[]`
 - **Description**: Preserves leading and trailing whitespaces in the formatting results for the specified comments or tags.
 
+This preserves the original exterior whitespace characters, including their indentation. Without this option, whitespace-sensitive markup such as HTML and Jinja preserves whether boundary whitespace exists and allows its indentation to be formatted.
+
 ##### `noEmbeddedMultiLineIndentation`
 
 - **Type**: `string[]`
 - **Default**: `[]`
 - **Description**: Turns off auto indentation in the formatting results for the specified comments or tags when they are formatted to span multi lines.
+
+This removes the extra indentation level added around the embedded content. Indentation within the embedded language is still formatted. For example, `"noEmbeddedMultiLineIndentation": ["html", "jinja"]` disables that extra level for both tags and comments. It can be combined with `preserveEmbeddedExteriorWhitespaces`.
 
 ##### `embeddedOverrides`
 

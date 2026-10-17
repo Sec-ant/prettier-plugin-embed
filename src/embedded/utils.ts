@@ -51,10 +51,9 @@ export function wrapEmbeddedDoc(
   commentOrTag: string,
   leadingWhitespaces: string,
   trailingWhitespaces: string,
-  preserveExteriorWhitespaces = false,
+  preserveBoundaryWhitespace = false,
 ): Doc {
   const preserveExterior =
-    preserveExteriorWhitespaces ||
     options.preserveEmbeddedExteriorWhitespaces?.includes(commentOrTag);
   const noIndent =
     options.noEmbeddedMultiLineIndentation?.includes(commentOrTag);
@@ -66,6 +65,22 @@ export function wrapEmbeddedDoc(
       leadingWhitespaces,
       noIndent ? content : indent([content]),
       trailingWhitespaces,
+      "`",
+    ]);
+  }
+
+  // Whitespace-sensitive markup preserves whether each boundary has whitespace,
+  // while still allowing its indentation to be formatted. Only break around the
+  // whole template when both boundaries already contain whitespace.
+  if (
+    preserveBoundaryWhitespace &&
+    (!leadingWhitespaces || !trailingWhitespaces)
+  ) {
+    return group([
+      "`",
+      leadingWhitespaces ? " " : "",
+      content,
+      trailingWhitespaces ? " " : "",
       "`",
     ]);
   }
