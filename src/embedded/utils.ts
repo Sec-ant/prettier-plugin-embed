@@ -154,6 +154,7 @@ export function printTemplateExpression(
   index: number,
   tabWidth: number,
   preserveIndentation = true,
+  knownIndentSize?: number,
 ) {
   const { node } = path;
   let printed = print();
@@ -166,11 +167,13 @@ export function printTemplateExpression(
   }
 
   // Calculate the indentation based on the position of ${} in the template literal
-  const { indentSize, previousQuasiText } = getTemplateLiteralExpressionIndent(
-    templateLiteral,
-    index,
-    tabWidth,
-  );
+  const { indentSize, previousQuasiText } =
+    knownIndentSize === undefined
+      ? getTemplateLiteralExpressionIndent(templateLiteral, index, tabWidth)
+      : {
+          indentSize: knownIndentSize,
+          previousQuasiText: templateLiteral.quasis[index]!.value.raw,
+        };
 
   // Apply alignment based on the indentation
   let expressionDoc: Doc = printed;
@@ -190,18 +193,24 @@ export function printTemplateExpressions(
 ) {
   const tabWidth = options?.tabWidth ?? 2;
   const templateLiteral = path.node;
-  return path.map(
-    (exprPath, index) =>
-      printTemplateExpression(
-        exprPath,
-        print,
-        templateLiteral,
-        index,
-        tabWidth,
-        preserveIndentation,
-      ),
-    "expressions",
-  );
+  let indentSize = 0;
+  return path.map((exprPath, index) => {
+    if (preserveIndentation) {
+      const text = templateLiteral.quasis[index]!.value.raw;
+      if (text.includes("\n")) {
+        indentSize = getIndentSize(text, tabWidth);
+      }
+    }
+    return printTemplateExpression(
+      exprPath,
+      print,
+      templateLiteral,
+      index,
+      tabWidth,
+      preserveIndentation,
+      indentSize,
+    );
+  }, "expressions");
 }
 
 export function simpleRehydrateDoc(

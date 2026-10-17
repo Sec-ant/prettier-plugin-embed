@@ -91,6 +91,67 @@ describe("embedded template wrapper options", () => {
 });
 
 describe("template expression printing", () => {
+  it("preserves indentation across tabs, earlier quasis and zero-indent newlines", () => {
+    const expression = { type: "Identifier", name: "value" };
+    const template = {
+      quasis: ["prefix", "\n\t ", "tail", "\n", ""].map(quasi),
+      expressions: Array.from({ length: 4 }, () => expression),
+    };
+    const path = {
+      node: template,
+      map(callback: (path: { node: unknown }, index: number) => unknown) {
+        return template.expressions.map((node, index) =>
+          callback({ node }, index),
+        );
+      },
+    };
+    const print = () => ["first", prettier.doc.builders.hardline, "second"];
+    const actual = printTemplateExpressions(path as never, print, {
+      tabWidth: 4,
+    } as never);
+    const expected = template.expressions.map((node, index) =>
+      printTemplateExpression(
+        { node } as never,
+        print,
+        template as never,
+        index,
+        4,
+      ),
+    );
+    expect(actual).toEqual(expected);
+  });
+
+  it("scans single-line interpolation quasis in linear time", () => {
+    let reads = 0;
+    const count = 1000;
+    const template = {
+      quasis: Array.from({ length: count + 1 }, () => ({
+        value: {
+          get raw() {
+            reads++;
+            return ", ";
+          },
+        },
+      })),
+      expressions: Array.from({ length: count }, () => ({
+        type: "Identifier",
+        name: "value",
+      })),
+    };
+    const path = {
+      node: template,
+      map(callback: (path: { node: unknown }, index: number) => unknown) {
+        return template.expressions.map((node, index) =>
+          callback({ node }, index),
+        );
+      },
+    };
+    expect(printTemplateExpressions(path as never, () => "value")).toHaveLength(
+      count,
+    );
+    expect(reads).toBeLessThanOrEqual(count * 2);
+  });
+
   it("aligns expressions to current, earlier, or zero indentation", () => {
     const expression = { type: "Identifier", name: "value" } as never;
     const print = () => "value";

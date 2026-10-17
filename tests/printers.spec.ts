@@ -3,11 +3,40 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import type { Options } from "prettier";
 import prettier from "prettier";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import * as plugin from "../src";
+import { parsers } from "../src/parsers.js";
 import { printers } from "../src/printers.js";
 
 const embed = printers!.estree!.embed!;
+
+it.each(["babel", "typescript", "meriyah"] as const)(
+  "parses each configured complex tag candidate once per format using %s",
+  async (parser) => {
+    const original = parsers[parser].parse;
+    const candidates = new Map<string, number>();
+    const spy = vi
+      .spyOn(parsers[parser], "parse")
+      .mockImplementation((text, options) => {
+        if (text.endsWith("``")) {
+          candidates.set(text, (candidates.get(text) ?? 0) + 1);
+        }
+        return original(text, options);
+      });
+    try {
+      const source =
+        "const a = db.unknown`first`; const b = db.unknown`second`;";
+      const options = { parser, plugins: [plugin] };
+      const first = await prettier.format(source, options);
+      expect(candidates.size).toBeGreaterThan(0);
+      expect([...candidates.values()].every((count) => count === 1)).toBe(true);
+      expect(await prettier.format(source, options)).toBe(first);
+      expect([...candidates.values()].every((count) => count === 2)).toBe(true);
+    } finally {
+      spy.mockRestore();
+    }
+  },
+);
 
 it("falls back to Prettier for untagged template literals", async () => {
   const result = await prettier.format(
