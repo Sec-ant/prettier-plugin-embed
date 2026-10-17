@@ -5,6 +5,8 @@
 
 # Prettier Plugin Embed
 
+[Online playground](https://sec-ant.github.io/prettier-plugin-embed/) · [Run the playground locally](./playground/README.md)
+
 [![npm version](https://img.shields.io/npm/v/prettier-plugin-embed?cacheSeconds=300)](https://www.npmjs.com/package/prettier-plugin-embed/v/latest) [![npm downloads](https://img.shields.io/npm/dm/prettier-plugin-embed?cacheSeconds=300)](https://www.npmjs.com/package/prettier-plugin-embed/v/latest) [![npm license](https://img.shields.io/npm/l/prettier-plugin-embed?cacheSeconds=300)](https://www.npmjs.com/package/prettier-plugin-embed/v/latest) [![All Contributors](https://img.shields.io/github/all-contributors/Sec-ant/prettier-plugin-embed?color=56b3b4)](#contributors)
 
 [![github last commit](https://img.shields.io/github/last-commit/Sec-ant/prettier-plugin-embed?cacheSeconds=300)](https://github.com/Sec-ant/prettier-plugin-embed) [![bundlephobia minzipped](https://img.shields.io/bundlephobia/minzip/prettier-plugin-embed?cacheSeconds=300)](https://bundlephobia.com/package/prettier-plugin-embed@latest) [![](https://img.shields.io/jsdelivr/npm/hm/prettier-plugin-embed?cacheSeconds=300&color=ff5627)](https://www.jsdelivr.com/package/npm/prettier-plugin-embed)
@@ -78,6 +80,14 @@ Projects can also use Yarn's default `pnpFallbackMode: dependencies-only` or pnp
 </details>
 
 ## Usage
+
+### Playground
+
+Try the plugin in the [online playground](https://sec-ant.github.io/prettier-plugin-embed/). Edit JavaScript or TypeScript alongside your `.prettierrc` configuration, including the `plugins` array and embedded-language options. Formatting runs locally in your browser.
+
+To report a formatting issue, keep the original code in Input, enable Compare to inspect the native Prettier output, then use **Copy issue report**. The report includes the input, configuration, output or error, formatter versions, and a shareable playground link. **Share** copies a link containing the current example and configuration.
+
+See the [playground guide](./playground/README.md) for local development, keyboard shortcuts, browser limitations, and GitHub Pages deployment.
 
 ### Getting Started
 
