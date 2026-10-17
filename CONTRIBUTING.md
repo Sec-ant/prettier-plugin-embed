@@ -14,6 +14,14 @@ After building, run `node scripts/test-consumer.mjs --package-manager=pnpm@12` t
 
 Biome owns JavaScript, TypeScript, and JSON formatting. Prettier handles documentation and other configuration formats. Fixture input files preserve the source text needed by their tests.
 
+## Playground development
+
+Run `pnpm playground:dev` to work on the browser playground. Before submitting changes, run `pnpm playground:build` to check its types and production bundle. Use `pnpm playground:preview` to inspect the built page. See the [playground guide](./playground/README.md) for the GitHub Pages base path, browser limitations, and deployment workflow.
+
+The playground formats with the repository's plugin source. Its examples come from the language fixtures, and it records the package and formatter versions used by the build. Include a shared playground link or use **Copy issue report** when reporting formatting problems.
+
+Playground-only code, documentation, and deployment changes do not require a changeset or an npm version bump. Changes to the published plugin's behavior or runtime compatibility require a changeset and can be reviewed separately from the website.
+
 ## Adding a language
 
 Each integration lives in `src/embedded/<language>/`. Its `index.ts` exports the language identifier, options, embedder, and an optional custom parser. The registry discovers these exports during the build. Language and option names must be unique; the contract suite checks this invariant.
