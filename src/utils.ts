@@ -1,10 +1,5 @@
 import type { Expression, Node, Super, TemplateLiteral } from "estree";
-import {
-  type AstPath,
-  type Options,
-  type Printer,
-  resolveConfigFile,
-} from "prettier";
+import type { AstPath, Options, Printer } from "prettier";
 import { builders } from "prettier/doc";
 import JSONC from "tiny-jsonc";
 import {
@@ -76,6 +71,9 @@ async function resolveEmbeddedOverridesFileAbsolutePath(
   if (isAbsolute(embeddedOverridesFilePath)) {
     return embeddedOverridesFilePath;
   }
+  // Keep Node's config resolver out of browser bundles. Standalone has no
+  // filesystem APIs; inline overrides never enter this path.
+  const { resolveConfigFile } = await import(/* @vite-ignore */ "prettier");
   const configFilePath = await resolveConfigFile(filepath);
   const configDir =
     typeof configFilePath === "string"

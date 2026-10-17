@@ -259,3 +259,92 @@ for (const languageDir of languageDirs) {
     }
   });
 }
+
+describe("markup template whitespace", () => {
+  it("matches native HTML alignment and preserves missing boundary whitespace", async () => {
+    const content = "<section><h1>Hello</h1><p>World</p></section>";
+    for (const [leading, trailing] of [
+      ["\n", "\n"],
+      ["\n\t  ", "\n "],
+      ["", ""],
+      [" ", ""],
+      ["", " "],
+    ]) {
+      for (const nested of [false, true]) {
+        const template = `const view = html\`${leading}${content}${trailing}\`;`;
+        const source = nested
+          ? `function render() {\n${template}\n}`
+          : template;
+        for (const htmlWhitespaceSensitivity of ["css", "strict"] as const) {
+          for (const useTabs of [false, true]) {
+            const options = {
+              parser: "typescript",
+              htmlWhitespaceSensitivity,
+              useTabs,
+            };
+            const formatted = await prettier.format(source, {
+              ...options,
+              plugins: [embed],
+            });
+            expect(formatted).toBe(await prettier.format(source, options));
+            expect(
+              await prettier.format(formatted, {
+                ...options,
+                plugins: [embed],
+              }),
+            ).toBe(formatted);
+          }
+        }
+      }
+    }
+  });
+
+  it("keeps the indentation and exact whitespace options for tags and comments", async () => {
+    for (const language of ["html", "jinja"]) {
+      const plugins = [embed, "prettier-plugin-jinja-template"];
+      for (const identifier of [language, `/* ${language} */ `]) {
+        const start = `  const view = ${identifier}\``;
+        const source = [
+          "function render() {",
+          start,
+          "<section><p>Hello</p><p>World</p></section>",
+          "`;",
+          "}",
+        ].join("\n");
+        for (const noIndent of [false, true]) {
+          const options = {
+            parser: "typescript",
+            plugins,
+            noEmbeddedMultiLineIndentation: noIndent ? [language] : [],
+          };
+          const padding = noIndent ? "  " : "    ";
+          const formatted = await prettier.format(source, options);
+          expect(formatted).toBe(
+            [
+              "function render() {",
+              start,
+              `${padding}<section>`,
+              `${padding}  <p>Hello</p>`,
+              `${padding}  <p>World</p>`,
+              `${padding}</section>`,
+              "  `;",
+              "}",
+              "",
+            ].join("\n"),
+          );
+          expect(await prettier.format(formatted, options)).toBe(formatted);
+
+          const exactSource = `${start} \n\t <section><p>Hello</p></section>\n \t\`;`;
+          const exactOptions = {
+            ...options,
+            preserveEmbeddedExteriorWhitespaces: [language],
+          };
+          const exact = await prettier.format(exactSource, exactOptions);
+          expect(exact).toContain("` \n\t <section>");
+          expect(exact).toContain("</section>\n \t`;");
+          expect(await prettier.format(exact, exactOptions)).toBe(exact);
+        }
+      }
+    }
+  });
+});

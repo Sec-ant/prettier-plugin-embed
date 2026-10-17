@@ -1,6 +1,3 @@
-import { createRequire } from "node:module";
-import path from "node:path";
-import { pathToFileURL } from "node:url";
 import type { Options, Parser, ParserOptions, Plugin } from "prettier";
 import { language } from "./language.js";
 
@@ -123,14 +120,23 @@ export async function loadXmlParser(
   try {
     return getModuleParser(await loadDirectly());
   } catch (error) {
-    for (const scope of [
-      moduleUrl,
-      filepath ? path.resolve(filepath) : `${process.cwd()}/package.json`,
-    ]) {
-      try {
-        const entry = createRequire(scope).resolve("@prettier/plugin-xml");
-        return getModuleParser(await import(pathToFileURL(entry).href));
-      } catch {}
+    if (typeof process !== "undefined" && process.versions?.node) {
+      const [{ createRequire }, path, { pathToFileURL }] = await Promise.all([
+        import("node:module"),
+        import("node:path"),
+        import("node:url"),
+      ]);
+      for (const scope of [
+        moduleUrl,
+        filepath ? path.resolve(filepath) : `${process.cwd()}/package.json`,
+      ]) {
+        try {
+          const entry = createRequire(scope).resolve("@prettier/plugin-xml");
+          return getModuleParser(
+            await import(/* @vite-ignore */ pathToFileURL(entry).href),
+          );
+        } catch {}
+      }
     }
     throw new Error(
       'Formatting embedded XML requires the consumer to install and load "@prettier/plugin-xml".',
