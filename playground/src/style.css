@@ -187,10 +187,22 @@ svg {
   font-size: 12px;
 }
 .notice {
-  padding: 9px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 22px;
   background: var(--selection);
   border-bottom: 1px solid var(--line);
   font-size: 12px;
+}
+#notice-message {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+#dismiss-notice {
+  flex-shrink: 0;
+  color: inherit;
 }
 .workspace {
   display: flex;

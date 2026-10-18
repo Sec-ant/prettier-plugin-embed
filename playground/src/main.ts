@@ -27,6 +27,7 @@ const formatShortcut = isLinux
 const shortcutHint = `${formatShortcut} to format`;
 
 const icons = {
+  close: '<path d="m6 6 12 12M6 18 18 6"/>',
   share: '<path d="M12 16V3m-5 5 5-5 5 5M5 13v7h14v-7"/>',
   copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V4H4v12h4"/>',
   theme: '<path d="M20 13A8 8 0 0 1 11 4a8 8 0 1 0 9 9Z"/>',
@@ -46,7 +47,7 @@ app.innerHTML = `
     <a class="icon-button" href="https://github.com/Sec-ant/prettier-plugin-embed" target="_blank" rel="noreferrer" aria-label="View source on GitHub" title="View source on GitHub">${icon("github")}</a>
   </nav>
 </header>
-<div id="notice" class="notice" role="status" hidden></div>
+<div id="notice" class="notice" hidden><span id="notice-message" role="status"></span><button id="dismiss-notice" class="icon-button" aria-label="Dismiss notice" title="Dismiss notice">${icon("close")}</button></div>
 <div class="workspace">
   <aside class="sidebar" id="settings">
     <div class="settings-header"><div class="tabs" role="tablist" aria-label="Configuration view"><button role="tab" id="options-tab" aria-controls="options-panel" aria-selected="true">Options</button><button role="tab" id="json-tab" aria-controls="json-panel" aria-selected="false" tabindex="-1">.prettierrc</button></div><button id="reset" class="text-button" title="Reset formatting options">Reset</button><button id="close-settings" class="text-button" aria-label="Close options">Close</button></div>
@@ -526,8 +527,14 @@ function renderPlugins() {
 }
 function notice(message: string) {
   $("notice").hidden = !message;
-  $("notice").textContent = message;
+  $("notice-message").textContent = message;
 }
+$("dismiss-notice").addEventListener("click", () => {
+  if (last) state.versions = last.versions;
+  persist();
+  notice("");
+  $("format").focus();
+});
 function toast(message: string) {
   clearTimeout(toastTimer);
   $("toast").hidden = false;
