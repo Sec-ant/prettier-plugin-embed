@@ -162,6 +162,21 @@ function getTemplateLiteralExpressionIndent(
   return { indentSize: 0, previousQuasiText };
 }
 
+export function removeTemplateIndentation(
+  trimmedText: string,
+  leadingWhitespaces: string,
+) {
+  const templateIndent = leadingWhitespaces.slice(
+    leadingWhitespaces.lastIndexOf("\n") + 1,
+  );
+  return templateIndent
+    ? trimmedText.replace(
+        new RegExp(`(\\r?\\n)${escapeRegExp(templateIndent)}`, "g"),
+        "$1",
+      )
+    : trimmedText;
+}
+
 export function printTemplateExpression(
   path: AstPath<Expression & { comments?: Comment[] }>,
   print: InternalPrintFun,

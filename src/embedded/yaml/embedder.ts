@@ -1,10 +1,10 @@
 import type { Options } from "prettier";
 import type { Embedder } from "../../types.js";
 import {
-  escapeRegExp,
   preparePlaceholder,
   prepareTemplate,
   printTemplateExpressions,
+  removeTemplateIndentation,
   simpleRehydrateDoc,
   wrapEmbeddedDoc,
 } from "../utils.js";
@@ -28,18 +28,12 @@ export const embedder: Embedder<Options> = async (
 
   const { trimmedText, leadingWhitespaces, trailingWhitespaces } =
     prepareTemplate(node, createPlaceholder);
-  const templateIndent = leadingWhitespaces.slice(
-    leadingWhitespaces.lastIndexOf("\n") + 1,
-  );
 
   const expressionDocs = printTemplateExpressions(path, print);
-
-  const dedentedText = templateIndent
-    ? trimmedText.replace(
-        new RegExp(`(\\r?\\n)${escapeRegExp(templateIndent)}`, "g"),
-        "$1",
-      )
-    : trimmedText;
+  const dedentedText = removeTemplateIndentation(
+    trimmedText,
+    leadingWhitespaces,
+  );
 
   const doc = await textToDoc(dedentedText, {
     ...resolvedOptions,
