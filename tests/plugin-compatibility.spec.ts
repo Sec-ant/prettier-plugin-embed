@@ -12,7 +12,46 @@ const cases: {
   language: string;
   reason: string;
   unsupported?: RegExp;
+  files?: string[];
+  options?: Options;
 }[] = [
+  {
+    alias: "compat-sql-v0-18",
+    language: "sql",
+    reason: "Widely used release before the node-sql-parser v5 upgrade.",
+    files: ["basic.js", "issue-62.ts"],
+  },
+  {
+    alias: "compat-sql-v0-19",
+    language: "sql",
+    reason: "Widely used previous release before ClickHouse support.",
+    files: ["basic.js", "issue-62.ts"],
+  },
+  ...[
+    {
+      alias: "compat-sql-cst-v0-18",
+      reason: "Most downloaded historical CST release; uses parser v0.38.",
+    },
+    {
+      alias: "compat-sql-cst-v0-22",
+      reason: "Widely used previous CST release; uses parser v0.42.",
+    },
+    {
+      alias: "prettier-plugin-sql-cst",
+      reason: "Current CST release, checked against the same older fixtures.",
+    },
+  ].flatMap((entry) =>
+    (["sqlite", "postgresql"] as const).map((parser) => ({
+      ...entry,
+      language: "sql",
+      files: ["basic.js", "issue-62.ts"],
+      options: {
+        embeddedSqlPlugin: "prettier-plugin-sql-cst" as const,
+        embeddedSqlParser: parser,
+        embeddedOverrides: undefined,
+      },
+    })),
+  ),
   {
     alias: "compat-toml-v2",
     language: "toml",
@@ -54,15 +93,22 @@ const cases: {
 beforeAll(() => vi.stubEnv("PRETTIER_DEBUG", "true"));
 afterAll(() => vi.unstubAllEnvs());
 
-for (const { alias, language, reason, unsupported } of cases) {
-  describe(`${alias}: ${reason}`, () => {
+for (const {
+  alias,
+  language,
+  reason,
+  unsupported,
+  files = ["basic.js", "interpolations.ts"],
+  options: caseOptions,
+} of cases) {
+  describe(`${alias}${caseOptions?.embeddedSqlParser ? ` (${caseOptions.embeddedSqlParser})` : ""}: ${reason}`, () => {
     const directory = path.join(import.meta.dirname, "fixtures", language);
     const { plugins: _plugins, ...languageOptions } = JSON.parse(
       readFileSync(path.join(directory, "options.json"), "utf8"),
     );
-    for (const file of ["basic.js", "interpolations.ts"]) {
+    for (const file of files) {
       const filepath = path.join(directory, file);
-      if (file !== "basic.js" && !existsSync(filepath)) continue;
+      if (file === "interpolations.ts" && !existsSync(filepath)) continue;
 
       it(file, async () => {
         const module = await import(/* @vite-ignore */ alias);
@@ -75,6 +121,7 @@ for (const { alias, language, reason, unsupported } of cases) {
           ...languageOptions,
           filepath,
           plugins: [embed, plugin],
+          ...caseOptions,
         };
         if (unsupported) {
           await expect(prettier.format(source, options)).rejects.toThrow(
