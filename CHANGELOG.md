@@ -1,5 +1,19 @@
 # prettier-plugin-embed
 
+## 0.8.0
+
+### Minor Changes
+
+- cc14b4b: Align embedded content to the current document root with `noEmbeddedMultiLineIndentation`, omitting inherited JavaScript indentation across language plugins. Markdown retains its existing root alignment.
+
+  Preserve the original boundary margin, including continuation lines, with `preserveEmbeddedExteriorWhitespaces`. This option takes precedence when both options apply.
+
+### Patch Changes
+
+- cc14b4b: Preserve meaningful indentation in embedded templates, including nested content and multiline strings.
+
+  Preserve YAML block scalar values and keep PHP closing tags inside template literals when preserving exterior whitespace.
+
 ## 0.7.3
 
 ### Patch Changes
