@@ -177,6 +177,21 @@ it.each(
   },
 );
 
+it.each(["  ", "\t "])(
+  "preserves YAML same-line trailing whitespace: %j",
+  async (trailingWhitespace) => {
+    const source = `const x = yaml\`value: 1${trailingWhitespace}\`;\n`;
+    const options = {
+      parser: "typescript",
+      plugins: [embed],
+      preserveEmbeddedExteriorWhitespaces: ["yaml"],
+    };
+    const formatted = await prettier.format(source, options);
+    expect(formatted).toBe(source);
+    expect(await prettier.format(formatted, options)).toBe(formatted);
+  },
+);
+
 it.each(
   ["|", "|+", "|-", ">", ">+", ">-"].flatMap((marker) =>
     [0, 1, 2, 3].flatMap((newlines) =>

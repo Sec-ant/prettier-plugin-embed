@@ -82,6 +82,46 @@ describe("template margins", () => {
       prepareTemplate({ quasis: [quasi(`\n${text}\n`)] } as never, String).text,
     ).toBe(text);
   });
+
+  it.each(["", "  ", "\t "])(
+    "keeps same-line trailing whitespace outside the content: %j",
+    (trailingWhitespaces) => {
+      expect(
+        prepareTemplate(
+          { quasis: [quasi(`value: 1${trailingWhitespaces}`)] } as never,
+          String,
+          true,
+        ),
+      ).toEqual({
+        text: "value: 1",
+        leadingWhitespaces: "",
+        trailingWhitespaces,
+      });
+    },
+  );
+
+  it.each(["\n", "\r\n"])(
+    "keeps multiline trailing whitespace as content and its final boundary: %j",
+    (newline) => {
+      expect(
+        prepareTemplate(
+          {
+            quasis: [
+              quasi(
+                `${newline}  value: |+${newline}    text${newline}  ${newline}  `,
+              ),
+            ],
+          } as never,
+          String,
+          true,
+        ),
+      ).toEqual({
+        text: `value: |+${newline}  text${newline}${newline}`,
+        leadingWhitespaces: `${newline}  `,
+        trailingWhitespaces: `${newline}  `,
+      });
+    },
+  );
 });
 
 describe("embedded template wrapper options", () => {

@@ -58,6 +58,7 @@ jobs:
     concurrency:
       group: playground-pages
       cancel-in-progress: false
+      queue: max
     permissions:
       actions: read
       contents: write

@@ -214,7 +214,7 @@ export function prepareTemplate(
       (marginPattern ? text.replace(marginPattern, "$1") : text);
   }
 
-  if (preserveTrailingWhitespace) {
+  if (preserveTrailingWhitespace && trailingWhitespaces.includes("\n")) {
     // In languages such as YAML, blank lines at EOF can belong to a scalar.
     // Parse them as content; the final line break remains the template boundary.
     text += marginPattern
