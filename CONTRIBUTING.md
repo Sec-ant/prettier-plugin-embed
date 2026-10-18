@@ -50,6 +50,10 @@ Cover plain template content, multiple interpolations, nested JavaScript express
 
 Use packed consumer profiles for package resolution, version boundaries, and runtime differences. Review snapshot changes as formatting behavior changes. Coverage helps locate untested paths; semantic assertions establish what each integration supports.
 
+`tests/plugin-compatibility.spec.ts` keeps a small selection of historical plugin versions at breaking-change boundaries or with substantial usage. Each case records its selection reason. Their `compat-*` development dependency aliases are pinned and excluded from `pnpm update:plugins`, so updating the latest versions preserves this coverage.
+
+These cases reuse basic and interpolation fixtures to check formatting, idempotency, and expression preservation with the current Prettier. Known incompatible versions have explicit rejection assertions. They run within `pnpm test:ci`, reuse installed dependencies, and avoid repeating the package-manager matrix. Run `pnpm test:compat` for a focused check. The consumer suite separately covers selected older Prettier, XML, and SQL combinations. This is representative coverage of the tested combinations, not a guarantee for every historical version.
+
 Document the default identifiers, required plugin, and any language-specific restrictions in the README language reference. Include a changeset for consumer-visible changes.
 
 Describe the impact of changes on consumers. Keep release entries at one list level and place concise examples beneath the change they illustrate. Use active voice, present tense, and backticks for option and API names.

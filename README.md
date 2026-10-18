@@ -952,6 +952,8 @@ If you want to specify different parsers for different comments or tags, check [
 
 Embedded XML uses the parser provided by [`@prettier/plugin-xml`](https://github.com/prettier/plugin-xml#readme), which must be loaded when XML formatting is enabled. Its [options](https://github.com/prettier/plugin-xml#configuration) control the XML formatting behavior.
 
+Use version 3 or later with Prettier 3. Version 2 uses the older Prettier 2 embed API and is incompatible.
+
 #### XQuery
 
 ##### `embeddedXQueryComments`
