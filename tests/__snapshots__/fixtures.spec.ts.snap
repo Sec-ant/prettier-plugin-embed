@@ -592,6 +592,24 @@ exports[`markdown > preserve-exterior-whitespace.js 1`] = `
 "
 `;
 
+exports[`markdown > preserve-semantic-indentation.js 1`] = `
+"const markdown = String.raw;
+function getMd() {
+  return markdown\`
+- Fruit
+  - Apple
+  - Orange
+  - Banana
+- Dairy
+  - Milk
+  - Cheese
+
+    console.log('indented code block')
+  \`;
+}
+"
+`;
+
 exports[`marko > basic.js 1`] = `
 "const tagged = marko\`
   <section>
