@@ -34,11 +34,19 @@ Playground-only code, documentation, and deployment changes do not require a cha
 
 Each integration lives in `src/embedded/<language>/`. Its `index.ts` exports the language identifier, options, embedder, and an optional custom parser. The registry discovers these exports during the build. Language and option names must be unique; the contract suite checks this invariant.
 
-Declare language options as static objects. Use `createEmbedder` for the shared template formatting pipeline, configuring the parser, placeholder syntax, newline handling, and exterior whitespace behavior for the language. Each embedder is created once during plugin initialization.
+Declare language options as static objects. Use `createEmbedder` for the shared template formatting pipeline, configuring the parser, placeholder syntax, and whitespace behavior for the language. Each embedder is created once during plugin initialization.
 
 Adapters with specialized parsing or document layout use the same pipeline utilities. `prepareTemplate` combines template fragments, inserts language-compatible placeholders, and extracts exterior whitespace. `printTemplateExpressions` prints JavaScript expressions, and `simpleRehydrateDoc` restores them while checking that each expression survives formatting. `wrapEmbeddedDoc` applies shared indentation and exterior whitespace options.
 
 The consumer installs and loads the language's Prettier plugin. Add that plugin as a development dependency here for integration tests. Confirm its parser name, Prettier peer range, and any runtime requirements before selecting supported versions.
+
+## Indentation contract
+
+Normalize the exact space/tab prefix shared by all nonempty content lines before trimming template boundaries. A column-zero line makes that margin empty; preserve all remaining content indentation. Input normalization is independent of output options.
+
+Use the shared pipeline to distinguish language layout from literal whitespace and to keep JavaScript interpolations in their host scope. `noEmbeddedMultiLineIndentation` aligns content to the current document root. `preserveEmbeddedExteriorWhitespaces` takes precedence and uses the original boundary margin. Keep grammar-specific whitespace rules in the relevant adapter.
+
+Every formatter adapter needs a basic fixture so it participates in the shared configuration matrix. Cover tags, comments, tabs, both indentation options, and repeated formatting. Verify meaningful content or parsed values as well as idempotency; stable output alone does not establish correctness. Keep upstream reproductions and language-specific regressions in tests.
 
 ## Tests for an integration
 
@@ -56,4 +64,13 @@ These cases reuse basic and interpolation fixtures to check formatting, idempote
 
 Document the default identifiers, required plugin, and any language-specific restrictions in the README language reference. Include a changeset for consumer-visible changes.
 
-Describe the impact of changes on consumers. Keep release entries at one list level and place concise examples beneath the change they illustrate. Use active voice, present tense, and backticks for option and API names.
+## Changeset style
+
+Follow [xyflow's changeset style guide](https://github.com/xyflow/xyflow/blob/main/CONTRIBUTING.md#changeset-style-guide):
+
+- Describe the effect on package users, starting with a concrete action in the present tense, such as `Fix`, `Preserve`, or `Support`.
+- Keep sentences concise. Omit personal pronouns, redundant verbs, and commit-message prefixes such as `fix(scope):`.
+- Use one changeset per independently meaningful user-facing change. Keep related details together; split unrelated changes or different release types.
+- Start with a plain summary sentence: Changesets adds the outer changelog bullet and indents the remaining lines. Use paragraphs for details and at most one nested list when needed, with examples only when they clarify usage or migration.
+- Format option and API names with backticks.
+- Explain behavior changes and required migration steps. Keep implementation details, test reports, and development history out of release notes.

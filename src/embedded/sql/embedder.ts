@@ -1,6 +1,4 @@
-import dedent from "dedent";
-import type { Options } from "prettier";
-import type { builders } from "prettier/doc";
+import type { Doc, Options } from "prettier";
 import type { Embedder } from "../../types.js";
 import {
   preparePlaceholder,
@@ -10,6 +8,8 @@ import {
   wrapEmbeddedDoc,
 } from "../utils.js";
 import { language } from "./language.js";
+
+const EXPRESSION_LINE_BREAK_PATTERN = /\n[\t ]*$/;
 
 export const embedder: Embedder<Options> = async (
   textToDoc,
@@ -29,8 +29,10 @@ export const embedder: Embedder<Options> = async (
 
   const { createPlaceholder, placeholderRegex } = preparePlaceholder();
 
-  const { trimmedText, leadingWhitespaces, trailingWhitespaces } =
-    prepareTemplate(node, createPlaceholder);
+  const { text, leadingWhitespaces, trailingWhitespaces } = prepareTemplate(
+    node,
+    createPlaceholder,
+  );
 
   const expressionDocs = printTemplateExpressions(
     path,
@@ -38,34 +40,29 @@ export const embedder: Embedder<Options> = async (
     resolvedOptions,
     false,
   );
-  let contentDoc: builders.Doc[] | builders.DocCommand;
+  let contentDoc: Doc;
 
   if (plugin === "prettier-plugin-sql-cst") {
-    const doc = await textToDoc(trimmedText, {
+    const doc = await textToDoc(text, {
       ...resolvedOptions,
       parser: resolvedOptions.embeddedSqlParser ?? "sqlite",
     });
     contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
   } else {
-    const lineBreakBeforeExpressions = new Set(
-      node.quasis
-        .slice(0, -1)
-        .flatMap((quasi, index) =>
-          /\n[\t ]*$/.test(quasi.value.raw) ? [index] : [],
-        ),
-    );
-    const doc = await textToDoc(dedent(trimmedText), {
+    const lineBreakBeforeExpressions = new Set<number>();
+    for (let index = 0; index < node.expressions.length; index++) {
+      if (EXPRESSION_LINE_BREAK_PATTERN.test(node.quasis[index]!.value.raw)) {
+        lineBreakBeforeExpressions.add(index);
+      }
+    }
+    const doc = await textToDoc(text, {
       ...resolvedOptions,
       parser: "sql",
     });
-    contentDoc = simpleRehydrateDoc(
-      doc,
-      placeholderRegex,
-      expressionDocs,
-      "hardline",
+    contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs, {
       lineBreakBeforeExpressions,
-      resolvedOptions.tabWidth ?? 2,
-    );
+      interpolationTabWidth: resolvedOptions.tabWidth ?? 2,
+    });
   }
 
   return wrapEmbeddedDoc(

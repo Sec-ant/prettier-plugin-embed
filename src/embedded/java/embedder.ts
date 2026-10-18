@@ -3,7 +3,6 @@ import { language } from "./language.js";
 
 export const embedder = createEmbedder({
   parser: "java",
-  newlineHandling: "hardline",
 });
 
 declare module "../types.js" {

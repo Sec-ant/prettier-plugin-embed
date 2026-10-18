@@ -3,7 +3,6 @@ import { language } from "./language.js";
 
 export const embedder = createEmbedder({
   parser: "prisma-parse",
-  newlineHandling: "hardline",
 });
 
 declare module "../types.js" {

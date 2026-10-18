@@ -3,7 +3,6 @@ import { language } from "./language.js";
 
 export const embedder = createEmbedder({
   parser: "powershell",
-  newlineHandling: "hardline",
 });
 
 declare module "../types.js" {

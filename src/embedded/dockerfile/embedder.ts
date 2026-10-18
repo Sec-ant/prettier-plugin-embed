@@ -3,7 +3,6 @@ import { language } from "./language.js";
 
 export const embedder = createEmbedder({
   parser: "dockerfile",
-  newlineHandling: "hardline",
 });
 
 declare module "../types.js" {

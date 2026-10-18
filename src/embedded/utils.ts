@@ -17,14 +17,158 @@ const {
   addAlignmentToDoc,
   align,
   hardline,
+  dedentToRoot,
+  markAsRoot,
+  literalline,
+  trim,
+  label,
 } = builders;
-const { mapDoc, replaceEndOfLine } = utils;
+const { mapDoc, replaceEndOfLine, traverseDoc, willBreak } = utils;
+const EXPRESSION_LABEL = Symbol("embedded-expression");
+const EXPRESSIONS_LABEL = Symbol("embedded-expressions");
+const LINE_INDENTATION_PATTERN = /^[\t ]*/;
+const CONTENT_INDENTATION_PATTERN = /^[\t ]*(?=\S)/gm;
+const FINAL_LINE_BREAK_PATTERN = /\r?\n[\t ]*$/;
+const EXPRESSION_LINE_BREAK_PATTERN = /\n[\t ]*$/;
+const TEMPLATE_ESCAPE_PATTERN = /([\\`]|\${)/g;
+const CLOSING_SCRIPT_PATTERN = /<\/(?=script\b)/gi;
+const REGEX_ESCAPE_PATTERN = /[-[\]{}()*+?.,\\^$|#\s]/g;
+
+type Indentation = {
+  doc: Extract<Doc, { type: "indent" | "align" | "indent-if-break" }> & {
+    contents: Doc;
+  };
+  parent?: Indentation;
+};
+type Root = { indentation?: Indentation; parent?: Root };
+type IndentationContext = { indentation?: Indentation; root?: Root };
+
+function usesLiteralRoot(doc: Doc): boolean {
+  if (typeof doc === "string") return false;
+  let usesRoot = false;
+  traverseDoc(
+    doc,
+    (part) => {
+      if (usesRoot) return false;
+      if (part && typeof part === "object" && !Array.isArray(part)) {
+        usesRoot = Boolean(
+          (part.type === "line" && part.literal) ||
+            (part.type === "align" && part.n === Number.NEGATIVE_INFINITY),
+        );
+      }
+    },
+    undefined,
+    true,
+  );
+  return usesRoot;
+}
+
+// A template's literal root must not leak into its JavaScript expressions.
+// Pop the language roots and replay only their layout commands. This restores
+// the host root while retaining the expression's current column and group IDs.
+function isolateExpressionRoots(doc: Doc): Doc {
+  if (
+    !doc ||
+    typeof doc !== "object" ||
+    Array.isArray(doc) ||
+    doc.type !== "label" ||
+    doc.label !== EXPRESSIONS_LABEL
+  )
+    return doc;
+  const cache = new WeakMap<IndentationContext, Map<object, Doc>>();
+  function visit(doc: Doc, context: IndentationContext): Doc {
+    if (typeof doc !== "object" || !doc) return doc;
+    let docs = cache.get(context);
+    if (!docs) {
+      docs = new Map();
+      cache.set(context, docs);
+    }
+    const cached = docs.get(doc);
+    if (cached !== undefined) return cached;
+    const result = visitObject(doc, context);
+    docs.set(doc, result);
+    return result;
+  }
+  function visitObject(
+    doc: Exclude<Doc, string>,
+    context: IndentationContext,
+  ): Doc {
+    if (Array.isArray(doc)) return doc.map((part) => visit(part, context));
+    if (doc.type === "label" && doc.label === EXPRESSION_LABEL) {
+      let expression = doc.contents;
+      let depth = 0;
+      let base: Indentation | undefined;
+      for (let root = context.root; root; root = root.parent) {
+        depth++;
+        base = root.indentation;
+      }
+      if (depth === 0) return expression;
+      for (
+        let command = context.indentation;
+        command && command !== base;
+        command = command.parent
+      ) {
+        expression = { ...command.doc, contents: expression } as Doc;
+      }
+      while (depth-- > 0) expression = dedentToRoot(expression);
+      return expression;
+    }
+    if (doc.type === "fill")
+      return { ...doc, parts: doc.parts.map((part) => visit(part, context)) };
+    if (doc.type === "if-break")
+      return {
+        ...doc,
+        breakContents: visit(doc.breakContents, context),
+        flatContents: visit(doc.flatContents, context),
+      };
+    if (doc.type === "group" && doc.expandedStates) {
+      const expandedStates = doc.expandedStates.map((part) =>
+        visit(part, context),
+      );
+      return { ...doc, contents: expandedStates[0]!, expandedStates };
+    }
+    if (doc.type === "indent-if-break") {
+      // Prettier's public type omits this command's runtime contents field.
+      const conditional = doc as typeof doc & { contents: Doc };
+      return {
+        ...conditional,
+        contents: visit(conditional.contents, {
+          ...context,
+          indentation: { doc: conditional, parent: context.indentation },
+        }),
+      } as Doc;
+    }
+    if ("contents" in doc) {
+      let next = context;
+      if (doc.type === "align" && typeof doc.n === "object") {
+        next = {
+          ...context,
+          root: { indentation: context.indentation, parent: context.root },
+        };
+      } else if (doc.type === "align" && doc.n === Number.NEGATIVE_INFINITY) {
+        next = {
+          indentation: context.root?.indentation,
+          root: context.root?.parent,
+        };
+      } else if (doc.type === "align" || doc.type === "indent") {
+        next = {
+          ...context,
+          indentation: { doc, parent: context.indentation },
+        };
+      }
+      return { ...doc, contents: visit(doc.contents, next) };
+    }
+    return doc;
+  }
+  return visit(doc.contents, { root: {} });
+}
 
 export function prepareTemplate(
   node: TemplateLiteral,
   createPlaceholder: (index: number) => string,
+  preserveTrailingWhitespace = false,
 ) {
-  const text = node.quasis
+  const templateText = node.quasis
     .map((quasi, index, { length }) =>
       index === length - 1
         ? quasi.value.cooked
@@ -32,14 +176,59 @@ export function prepareTemplate(
     )
     .join("");
 
-  const leadingWhitespaces = text.match(/^\s+/)?.[0] ?? "";
-  const trailingWhitespaces = text.match(/\s+$/)?.[0] ?? "";
+  const start = templateText.length - templateText.trimStart().length;
+  const end = Math.max(start, templateText.trimEnd().length);
+  let leadingWhitespaces = templateText.slice(0, start);
+  let trailingWhitespaces = templateText.slice(end);
+  let text = templateText.slice(start, end);
 
-  const trimmedText = text.slice(
-    leadingWhitespaces.length,
-    -trailingWhitespaces.length || undefined,
-  );
-  return { trimmedText, leadingWhitespaces, trailingWhitespaces };
+  // Find a shared template margin before trimming the first content line.
+  // A column-zero line rules out a margin. Compare characters rather than
+  // columns so mixed tabs and spaces never consume content indentation.
+  const indents = templateText.matchAll(CONTENT_INDENTATION_PATTERN);
+  let margin = indents.next().value?.[0] ?? "";
+  while (margin) {
+    const indentation = indents.next().value?.[0];
+    if (indentation === undefined) break;
+    let length = 0;
+    while (length < margin.length && margin[length] === indentation[length]) {
+      length++;
+    }
+    margin = margin.slice(0, length);
+  }
+  const marginPattern = margin
+    ? new RegExp(`(\\r?\\n)${margin}`, "g")
+    : undefined;
+
+  if (text) {
+    const firstIndent = leadingWhitespaces.includes("\n")
+      ? leadingWhitespaces.slice(leadingWhitespaces.lastIndexOf("\n") + 1)
+      : "";
+    const contentIndent = firstIndent.slice(margin.length);
+    leadingWhitespaces = leadingWhitespaces.slice(
+      0,
+      leadingWhitespaces.length - contentIndent.length,
+    );
+    text =
+      contentIndent +
+      (marginPattern ? text.replace(marginPattern, "$1") : text);
+  }
+
+  if (preserveTrailingWhitespace) {
+    // In languages such as YAML, blank lines at EOF can belong to a scalar.
+    // Parse them as content; the final line break remains the template boundary.
+    text += marginPattern
+      ? trailingWhitespaces.replace(marginPattern, "$1")
+      : trailingWhitespaces;
+    trailingWhitespaces =
+      FINAL_LINE_BREAK_PATTERN.exec(trailingWhitespaces)?.[0] ?? "";
+  }
+
+  return {
+    text,
+    leadingWhitespaces,
+    trailingWhitespaces,
+  };
 }
 
 export function wrapEmbeddedDoc(
@@ -57,30 +246,34 @@ export function wrapEmbeddedDoc(
     options.preserveEmbeddedExteriorWhitespaces?.includes(commentOrTag);
   const noIndent =
     options.noEmbeddedMultiLineIndentation?.includes(commentOrTag);
-  const content = group(contentDoc);
-
-  if (preserveExterior) {
-    return group([
-      "`",
-      leadingWhitespaces,
-      noIndent ? content : indent([content]),
-      trailingWhitespaces,
-      "`",
-    ]);
-  }
-
   // Whitespace-sensitive markup preserves whether each boundary has whitespace,
   // while still allowing its indentation to be formatted. Only break around the
   // whole template when both boundaries already contain whitespace.
   if (
+    !preserveExterior &&
     preserveBoundaryWhitespace &&
     (!leadingWhitespaces || !trailingWhitespaces)
   ) {
     return group([
       "`",
       leadingWhitespaces ? " " : "",
-      content,
+      noIndent ? dedentToRoot(group(contentDoc)) : group(contentDoc),
       trailingWhitespaces ? " " : "",
+      "`",
+    ]);
+  }
+
+  const content = markAsRoot(group(isolateExpressionRoots(contentDoc)));
+  if (preserveExterior) {
+    const hasLeadingNewline = leadingWhitespaces.includes("\n");
+    const indentation = leadingWhitespaces.slice(
+      leadingWhitespaces.lastIndexOf("\n") + 1,
+    );
+    return group([
+      "`",
+      replaceEndOfLine(leadingWhitespaces),
+      dedentToRoot(align(hasLeadingNewline ? indentation : "", content)),
+      replaceEndOfLine(trailingWhitespaces),
       "`",
     ]);
   }
@@ -88,14 +281,17 @@ export function wrapEmbeddedDoc(
   const leadingLineBreak = leadingWhitespaces.length ? line : softline;
   const trailingLineBreak = trailingWhitespaces.length ? line : softline;
 
-  return group([
-    "`",
-    noIndent
-      ? [leadingLineBreak, content]
-      : indent([leadingLineBreak, content]),
-    trailingLineBreak,
-    "`",
-  ]);
+  return group(
+    [
+      "`",
+      noIndent
+        ? dedentToRoot([leadingLineBreak, content])
+        : indent([leadingLineBreak, content]),
+      trailingLineBreak,
+      "`",
+    ],
+    { shouldBreak: willBreak(contentDoc) },
+  );
 }
 
 /**
@@ -125,7 +321,7 @@ function getIndentSize(value: string, tabWidth: number): number {
   const lastNewlineIndex = value.lastIndexOf("\n");
   // Get all the leading whitespaces after the last newline
   const lastLine = value.slice(lastNewlineIndex + 1);
-  const leadingWhitespace = /^[\t ]*/.exec(lastLine)![0];
+  const leadingWhitespace = LINE_INDENTATION_PATTERN.exec(lastLine)![0];
   return getAlignmentSize(leadingWhitespace, tabWidth);
 }
 
@@ -232,17 +428,22 @@ export function simpleRehydrateDoc(
   doc: Doc,
   placeholderRegex: RegExp,
   expressionDocs: Doc[],
-  /**
-   * How to handle newlines in the formatted content:
-   * - false: keep newlines as-is (default)
-   * - "hardline": replace newlines with hardline (adds indentation)
-   * - "literalline": replace newlines with literalline via replaceEndOfLine (preserves original indentation)
-   */
-  newlineHandling: false | "hardline" | "literalline" = false,
-  lineBreakBeforeExpressions?: ReadonlySet<number>,
-  interpolationTabWidth?: number,
-  escapeClosingScript = false,
+  {
+    lineBreakBeforeExpressions,
+    interpolationTabWidth,
+    escapeClosingScript = false,
+  }: {
+    lineBreakBeforeExpressions?: ReadonlySet<number>;
+    interpolationTabWidth?: number;
+    escapeClosingScript?: boolean;
+  } = {},
 ) {
+  let hasRootExpressions = false;
+  const expressions = expressionDocs.map((doc) => {
+    if (!usesLiteralRoot(doc)) return doc;
+    hasRootExpressions = true;
+    return label(EXPRESSION_LABEL, doc);
+  });
   const restoredExpressions = expressionDocs.length
     ? new Set<number>()
     : undefined;
@@ -250,56 +451,54 @@ export function simpleRehydrateDoc(
     if (typeof doc !== "string") {
       return doc;
     }
-    const parts: Doc[] = [];
+    if (!expressionDocs.length)
+      return literalTextToDoc(doc, escapeClosingScript);
     const components = doc.split(placeholderRegex);
+    if (components.length === 1)
+      return literalTextToDoc(doc, escapeClosingScript);
+    const parts: Doc[] = [];
     let lineIndentation = "";
     for (let i = 0; i < components.length; i++) {
-      let component = components[i]!;
+      const component = components[i]!;
       if (i % 2 === 0) {
-        if (i === 0 || component.includes("\n")) {
+        if (
+          interpolationTabWidth !== undefined &&
+          (i === 0 || component.includes("\n"))
+        ) {
           const lastLine = component.slice(component.lastIndexOf("\n") + 1);
-          lineIndentation = /^[\t ]*/.exec(lastLine)![0];
+          lineIndentation = LINE_INDENTATION_PATTERN.exec(lastLine)![0];
         }
         if (!component) {
           continue;
         }
-        component = component.replaceAll(/([\\`]|\${)/g, "\\$1");
-        if (escapeClosingScript) {
-          component = component.replaceAll(/<\/(?=script\b)/gi, "<\\/");
-        }
-        if (newlineHandling === "literalline") {
-          // Use replaceEndOfLine, which emits literalline and preserves literal indentation.
-          // This is useful for languages like CSS where the formatter already
-          // produces correctly indented output (e.g., in multi-line comments)
-          parts.push(replaceEndOfLine(component));
-        } else if (newlineHandling === "hardline") {
-          // Use hardline (adds indentation based on current indent level)
-          // This is useful for languages like SQL where the formatter produces
-          // output starting from column 0 and needs re-indentation
-          for (const c of component.split(/(\n)/)) {
-            c === "\n" ? parts.push(hardline) : parts.push(c);
-          }
-        } else {
-          parts.push(component);
-        }
+        const literal = literalTextToDoc(component, escapeClosingScript);
+        if (Array.isArray(literal)) {
+          for (const part of literal) parts.push(part);
+        } else parts.push(literal);
       } else {
         const placeholderIndex = Number(component);
         restoredExpressions?.add(placeholderIndex);
         const formattedTextBeforeExpression = components[i - 1]!;
         if (
           lineBreakBeforeExpressions?.has(placeholderIndex) &&
-          !/\n[\t ]*$/.test(formattedTextBeforeExpression)
+          !EXPRESSION_LINE_BREAK_PATTERN.test(formattedTextBeforeExpression)
         ) {
           const previousPart = parts.at(-1);
           if (typeof previousPart === "string") {
-            parts[parts.length - 1] = previousPart.replace(/[\t ]+$/, "");
+            let end = previousPart.length;
+            while (
+              previousPart[end - 1] === " " ||
+              previousPart[end - 1] === "\t"
+            )
+              end--;
+            parts[parts.length - 1] = previousPart.slice(0, end);
           }
           parts.push(hardline);
           if (interpolationTabWidth !== undefined) {
             parts.push(lineIndentation);
           }
         }
-        const expressionDoc = expressionDocs[placeholderIndex]!;
+        const expressionDoc = expressions[placeholderIndex]!;
         parts.push(
           interpolationTabWidth === undefined
             ? expressionDoc
@@ -317,7 +516,22 @@ export function simpleRehydrateDoc(
       "The embedded formatter changed an expression placeholder.",
     );
   }
-  return contentDoc;
+  return hasRootExpressions ? label(EXPRESSIONS_LABEL, contentDoc) : contentDoc;
+}
+
+function literalTextToDoc(text: string, escapeClosingScript: boolean): Doc {
+  text = text.replace(TEMPLATE_ESCAPE_PATTERN, "\\$1");
+  if (escapeClosingScript) text = text.replace(CLOSING_SCRIPT_PATTERN, "<\\/");
+  if (!text.includes("\n")) return text;
+  // Literal lines inherit the template margin, not the language's AST indent.
+  const lines = text.split("\n");
+  const parts: Doc[] = [lines[0]!];
+  for (let i = 1; i < lines.length; i++) {
+    // Trim generated margin on empty lines, preserving whitespace in the input.
+    if (i > 1 && lines[i - 1] === "") parts.push(trim);
+    parts.push(literalline, lines[i]!);
+  }
+  return parts;
 }
 
 export function insertLanguage(
@@ -346,23 +560,17 @@ export function insertLanguage(
   languages.splice(low, 0, language);
 }
 
-export const randomUUID = (() => {
-  const dict = [...Array(26).keys()]
-    .map((key) => String.fromCharCode(key + 97))
-    .concat([...Array(10).keys()].map((key) => `${key}`));
-  return () => {
-    const uuidLength = 16;
-    let id = "";
-    for (let i = 0; i < uuidLength; ++i) {
-      id +=
-        dict[
-          Number.parseInt((Math.random() * dict.length).toFixed(0), 10) %
-            dict.length
-        ];
-    }
-    return id;
-  };
-})();
+const PLACEHOLDER_CHARACTERS = "abcdefghijklmnopqrstuvwxyz0123456789";
+export function randomUUID() {
+  let id = "";
+  for (let i = 0; i < 16; i++) {
+    id +=
+      PLACEHOLDER_CHARACTERS[
+        Math.floor(Math.random() * PLACEHOLDER_CHARACTERS.length)
+      ];
+  }
+  return id;
+}
 
 export function preparePlaceholder(leading = "p", trailing = "") {
   const uuid1 = randomUUID();
@@ -383,7 +591,7 @@ export function preparePlaceholder(leading = "p", trailing = "") {
 }
 
 export function escapeRegExp(text: string) {
-  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+  return text.replace(REGEX_ESCAPE_PATTERN, "\\$&");
 }
 
 export function makeIdentifiersOptionName<T extends string>(language: T) {

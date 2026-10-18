@@ -28,15 +28,17 @@ export const embedder: Embedder<Options> = async (
 
   const { createPlaceholder, placeholderRegex } = preparePlaceholder();
 
-  const { trimmedText, leadingWhitespaces, trailingWhitespaces } =
-    prepareTemplate(node, createPlaceholder);
+  const { text, leadingWhitespaces, trailingWhitespaces } = prepareTemplate(
+    node,
+    createPlaceholder,
+  );
 
   const expressionDocs = printTemplateExpressions(path, print);
 
   const doc: Doc[] = [];
   let sliceIndex: number | undefined = 0;
   while (sliceIndex !== undefined) {
-    const textFragment = trimmedText.slice(sliceIndex);
+    const textFragment = text.slice(sliceIndex);
     if (textFragment.length === 0) {
       break;
     }
