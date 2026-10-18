@@ -24,6 +24,11 @@ export function browserCompatibility(): Plugin {
     },
     resolveId(id, importer) {
       if (
+        id === "@tombi-toml/lib" &&
+        importer?.includes("prettier-plugin-toml/")
+      )
+        return "\0playground-toml-runtime";
+      if (
         id === "@reteps/dockerfmt" &&
         importer?.includes("prettier-plugin-sh/")
       )
@@ -33,6 +38,18 @@ export function browserCompatibility(): Plugin {
       }
     },
     async load(id) {
+      if (id === "\0playground-toml-runtime") {
+        const entry = await this.resolve("@tombi-toml/wasm-lib");
+        if (!entry) throw new Error("Could not resolve TOML WASM package.");
+        const wasm = path.join(path.dirname(entry.id), "tombi_wasm_bg.wasm");
+        return `import init, {format as formatToml} from ${JSON.stringify(entry.id)};
+import wasmUrl from ${JSON.stringify(`${wasm}?url`)};
+let ready;
+export async function format(...args) {
+  await (ready ??= init({module_or_path: wasmUrl}));
+  return formatToml(...args);
+}`;
+      }
       if (id === "\0playground-docker-runtime") {
         const plugin = createRequire(import.meta.url).resolve(
           "prettier-plugin-sh",
@@ -120,17 +137,6 @@ export const processor = getProcessor(() => fetch(wasmUrl).then(r => {
         id.endsWith("/lib/discover.js")
       ) {
         return "export async function discoverTombiConfig() { return undefined; }";
-      }
-      if (id.includes("prettier-plugin-toml/") && id.endsWith("/lib/wasm.js")) {
-        const entry = await this.resolve("@tombi-toml/wasm-lib", id);
-        if (!entry) throw new Error("Could not resolve TOML WASM package.");
-        const wasm = path.join(path.dirname(entry.id), "tombi_wasm_bg.wasm");
-        return `import wasmUrl from ${JSON.stringify(`${wasm}?url`)};
-export async function loadWasm() {
-  const response = await fetch(wasmUrl);
-  if (!response.ok) throw new Error('Could not load TOML WASM: ' + response.status);
-  return response.arrayBuffer();
-}`;
       }
       if (
         id.includes("@prettier/plugin-pug/") &&

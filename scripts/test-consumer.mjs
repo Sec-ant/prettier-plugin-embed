@@ -130,6 +130,7 @@ try {
       sql: "latest",
       packageManager: "pnpm@12",
       pnpmConfig: "nodeLinker: isolated\n",
+      extraPlugins: ["prettier-plugin-toml"],
     },
     {
       prettier: "latest",
@@ -284,6 +285,12 @@ try {
         'const script = sh`for i in 1 2 3;do echo "$i";done`;\n',
       );
     }
+    if (extraPlugins.includes("prettier-plugin-toml")) {
+      writeFileSync(
+        path.join(consumerDirectory, "sample.toml.js"),
+        'const config = toml`[package]\nname="myapp"\nversion="1.0.0"`;\n',
+      );
+    }
     writeFileSync(
       path.join(consumerDirectory, "api-smoke.mjs"),
       `import assert from "node:assert/strict";
@@ -387,7 +394,7 @@ console.log("API JS/TS smoke passed with Prettier " + prettier.version);
     }
     if (extraPlugins.length > 0) {
       for (const plugin of extraPlugins) {
-        const language = plugin === "prettier-plugin-nginx" ? "nginx" : "sh";
+        const language = plugin.slice("prettier-plugin-".length);
         const sampleFile = `sample.${language}.js`;
         const original = readFileSync(
           path.join(consumerDirectory, sampleFile),
@@ -409,6 +416,10 @@ console.log("API JS/TS smoke passed with Prettier " + prettier.version);
           original,
           `${language} content was formatted`,
         );
+        if (language === "toml") {
+          assert.match(formatted, /name = "myapp"/);
+          assert.match(formatted, /version = "1\.0\.0"/);
+        }
         runPrettier(
           consumerDirectory,
           sampleFile,

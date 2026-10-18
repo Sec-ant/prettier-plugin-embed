@@ -10,6 +10,7 @@ on:
         "package.json",
         "pnpm-lock.yaml",
         "tests/fixtures/**",
+        "scripts/test-playground.mjs",
         ".github/workflows/playground.yml",
         ".github/actions/setup/**",
       ]
@@ -21,6 +22,7 @@ on:
         "package.json",
         "pnpm-lock.yaml",
         "tests/fixtures/**",
+        "scripts/test-playground.mjs",
         ".github/workflows/playground.yml",
         ".github/actions/setup/**",
       ]
@@ -45,6 +47,8 @@ jobs:
         run: pnpm playground:build
         env:
           PLAYGROUND_BASE: /${{ github.event.repository.name }}/
+      - name: Test playground worker
+        run: pnpm test:playground
       - name: Upload GitHub Pages artifact
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4

@@ -910,6 +910,8 @@ Supply the `svelte` compiler alongside the formatter plugin, using versions comp
 
 Formatting embedded TOML language requires the [`prettier-plugin-toml`](https://github.com/un-ts/prettier/tree/master/packages/toml#readme) plugin to be loaded as well. And [options](https://github.com/un-ts/prettier/blob/master/packages/toml/src/options.ts) supported by `prettier-plugin-toml` can therefore be used to further control the formatting behavior.
 
+`prettier-plugin-toml` 4 requires Node.js 20 or later and its platform-specific optional native dependency. Keep optional dependencies enabled when installing it. Use version 3 for Node.js 18.
+
 #### TS (TypeScript)
 
 ##### `embeddedTsComments`

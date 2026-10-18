@@ -220,8 +220,8 @@ importers:
         specifier: ^21.2.3
         version: 21.2.3
       '@htnabe/prettier-plugin-go-template':
-        specifier: ^0.0.3
-        version: 0.0.3(prettier@3.9.10)
+        specifier: ^0.0.5
+        version: 0.0.5(prettier@3.9.10)
       '@htnabe/prettier-plugin-hugo-post':
         specifier: ^0.0.2
         version: 0.0.2(prettier@3.9.10)
@@ -252,6 +252,9 @@ importers:
       '@stedi/prettier-plugin-jsonata':
         specifier: ^2.1.8
         version: 2.1.8(jsonata@2.0.6)
+      '@tombi-toml/wasm-lib':
+        specifier: ^1.8.7
+        version: 1.8.7
       '@types/node':
         specifier: ^26.6.5
         version: 26.6.5
@@ -343,14 +346,14 @@ importers:
         specifier: ^0.20.0
         version: 0.20.0(prettier@3.9.10)
       prettier-plugin-sql-cst:
-        specifier: ^0.23.0
-        version: 0.23.0
+        specifier: ^0.23.1
+        version: 0.23.1
       prettier-plugin-svelte:
         specifier: ^4.1.1
         version: 4.1.1(prettier@3.9.10)(svelte@5.57.2)
       prettier-plugin-toml:
-        specifier: ^3.0.2
-        version: 3.0.2(prettier@3.9.10)
+        specifier: ^4.0.0
+        version: 4.0.0(prettier@3.9.10)
       prettier-plugin-xquery:
         specifier: ^1.7.0
         version: 1.7.0
@@ -808,9 +811,6 @@ packages:
   '@cucumber/messages@32.3.1':
     resolution: {integrity: sha512-yNQq1KoXRYaEKrWMFmpUQX7TdeQuU9jeGgJAZ3dArTsC/T4NpJ6DnqaJIIgwPnz/wtQIQTNX7/h0rOuF5xY4qQ==}
 
-  '@dual-bundle/import-meta-resolve@4.2.1':
-    resolution: {integrity: sha512-id+7YRUgoUX6CgV0DtuhirQWodeeA7Lf4i2x71JS/vtA5pRb/hIGWlw+G6MeXvsM+MXrz0VAydTGElX1rAfgPg==}
-
   '@emnapi/core@1.11.3':
     resolution: {integrity: sha512-zLpS5asjEb7lq8jYLq37N6XKaE41DIexlY1rF/z4/tIl3wo13Sqm28fRyfIsKZD+NZ8mM5RoKkpW/rBcuoSZSg==}
 
@@ -976,9 +976,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@htnabe/prettier-plugin-go-template@0.0.3':
-    resolution: {integrity: sha512-nUNQZtvL0rrJskS8aGRoLmsVaFRAGSONq6Y0ppZ8Y7KmTCceH2DgxspViJuYc6LCU+XblKyKWVVSTLjfyhLB/A==}
-    engines: {node: ^20.19.0 || >=22.12.0}
+  '@htnabe/prettier-plugin-go-template@0.0.5':
+    resolution: {integrity: sha512-GcvL5pm8WFthaUJMxnsxh6sryjzpho3iBuIum2Fryf9Td0Y3HYD+wAYKfnvwykHtDT61dRwSvkfoSqBBmLk8GQ==}
+    engines: {node: '>=26.0.0'}
     peerDependencies:
       prettier: ^3.0.0
 
@@ -1267,6 +1267,7 @@ packages:
 
   '@stedi/prettier-plugin-jsonata@2.1.8':
     resolution: {integrity: sha512-mk3uvWGDD0I+mtjS5XraVgd+8wa9QAmW+ub161WzA9DBlx9/8pY6yJbo3lZwjJXQtI/CK5liYA9EXBONWin7Og==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     peerDependencies:
       jsonata: ^1.7.0 || ^2.0.0
     bundledDependencies:
@@ -1283,8 +1284,64 @@ packages:
   '@taplo/lib@0.5.0':
     resolution: {integrity: sha512-+xIqpQXJco3T+VGaTTwmhxLa51qpkQxCjRwezjFZgr+l21ExlywJFcDfTrNmL6lG6tqb0h8GyJKO3UPGPtSCWg==}
 
-  '@tombi-toml/wasm-lib@1.7.3':
-    resolution: {integrity: sha512-5q2gg7zIHJNkeP6yz5n9rKq84diNU4UzzE12TDcqg5BWiuLLFfdeoFnP9B71qiS2dNNONsCnHzV5XUSoWAgUhg==}
+  '@tombi-toml/lib-darwin-arm64@1.8.7':
+    resolution: {integrity: sha512-/xevJm/okKzkpHxnkxijRbkfyu9EHnIhrs9J0gcQYEa/Rt569VBKa/SZYY1YjvxLf1w6IxpUnBi2fmRsj9wNHA==}
+    engines: {node: '>=20.0.0'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@tombi-toml/lib-darwin-x64@1.8.7':
+    resolution: {integrity: sha512-YGoaDou/a8PL17lmdoeP6pJzI95t6m5r+8WBGaeh5NDfbcVvEcorrfvk4R/x1beY/LRB9xm0S7BUYcTzUqeCdw==}
+    engines: {node: '>=20.0.0'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@tombi-toml/lib-linux-arm64-musl@1.8.7':
+    resolution: {integrity: sha512-Xh644o98wqwwyqdyi8eh3z932194mtIEbdSrqX9tOXM5OjwXKGlgi8v0HMD56bcMVl+AOhjT3Jiq9ARmkismUQ==}
+    engines: {node: '>=20.0.0'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [musl]
+
+  '@tombi-toml/lib-linux-arm64@1.8.7':
+    resolution: {integrity: sha512-jylp2XGl04TDaw5agWoIebJuUITiCox+CCM6lp1apcfdn4s2EI0izWwDWk0vfOmnGqFutZnEtzIc7iPq5PzwsQ==}
+    engines: {node: '>=20.0.0'}
+    cpu: [arm64]
+    os: [linux]
+    libc: [glibc]
+
+  '@tombi-toml/lib-linux-x64-musl@1.8.7':
+    resolution: {integrity: sha512-qCGCTnvQDFTl8osi+2H9XL7UplVRB87QynEojO8NKTyxId1imdh6zGZL5Kp1nWFwxMopQSFLTI73MgNlQhEoQA==}
+    engines: {node: '>=20.0.0'}
+    cpu: [x64]
+    os: [linux]
+    libc: [musl]
+
+  '@tombi-toml/lib-linux-x64@1.8.7':
+    resolution: {integrity: sha512-05fyRWH2XSdVw5G2sokiTd7S/l4WhzDALSUNrZPYw0pga3GHQ8a5RhfY7C2WKCOKL5LYn8k2yHTdS6wyQziHLw==}
+    engines: {node: '>=20.0.0'}
+    cpu: [x64]
+    os: [linux]
+    libc: [glibc]
+
+  '@tombi-toml/lib-win32-arm64@1.8.7':
+    resolution: {integrity: sha512-0o8b71xe/HZ3b7Kxt5BQqPQyWXnLl+prJRSocuwQ0VX1zrCsyPpAaZgOYacshu9H0f2p9daGKSo8+GD4ra+vnw==}
+    engines: {node: '>=20.0.0'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@tombi-toml/lib-win32-x64@1.8.7':
+    resolution: {integrity: sha512-6YX5dUS34zgapTy9vyLErqjS9wlhF/780m2gl9q5nJQGitzByMT4sqEsr9v6blOAfAeTlYU3cHyZq7qbBHixzA==}
+    engines: {node: '>=20.0.0'}
+    cpu: [x64]
+    os: [win32]
+
+  '@tombi-toml/lib@1.8.7':
+    resolution: {integrity: sha512-rVTSFYJHjE4uU/HbrOtgoeiTvzjM0mzVNp8XHK0TIobHkXL4BM26b82lkAH+UNEXWBj8ua7i9x+Cvs4u4lVBZg==}
+    engines: {node: '>=20.0.0'}
+
+  '@tombi-toml/wasm-lib@1.8.7':
+    resolution: {integrity: sha512-dPntTOInmt2qzRZyT33yaoCB+E9ox2Qb6KIi+2eAUwTTrxFDANXzd9MaZmCX4eiuJ/ghTONA96vUuQjb5gwWNA==}
 
   '@tybys/wasm-util@0.10.4':
     resolution: {integrity: sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A==}
@@ -2436,8 +2493,8 @@ packages:
     peerDependencies:
       prettier: '>=3.0.0'
 
-  prettier-plugin-sql-cst@0.23.0:
-    resolution: {integrity: sha512-e0ttJhTzk2a+M4QTbpgKP8XqZuSFeOoVpP8OLSift4ea+UdejPP0y0rD2QgiQdZjeD6EHOPJVEdodkJIQ8HlyQ==}
+  prettier-plugin-sql-cst@0.23.1:
+    resolution: {integrity: sha512-oO+MitOY0dSccDip8huZ3nnSDnrJttxZSKiGPjykcIqgauqDZU4DKgzbln67OuVuEDsbu7X/Ja5sPu30u78iAQ==}
 
   prettier-plugin-sql@0.20.0:
     resolution: {integrity: sha512-7GRuduJIbWd10bFfYdFuymZdcVF37ZCukiuVi2a4c5ccqjAxHQtKbK7zSKyqGrFjCOBLQVVz4BStKWV7YvxAFA==}
@@ -2458,9 +2515,9 @@ packages:
     peerDependencies:
       prettier: ^3.0.3
 
-  prettier-plugin-toml@3.0.2:
-    resolution: {integrity: sha512-1t1FOSGaXNy7xN6ffE7ND71VqsnbUtanGEKAD1hTwFDrGIH1cwZ0KH6lMThDVItjdV/UUJWqD3f1+16AHG3eUQ==}
-    engines: {node: '>=18.0.0'}
+  prettier-plugin-toml@4.0.0:
+    resolution: {integrity: sha512-kx4a0gdNKH40/NOj/gSkiRKqXmOq8hXb6fNWW6Txd3T0fyq+Wq8ly0qtjNoGGiLUPhvS/3PIRVyVJpzHw6RNwA==}
+    engines: {node: '>=20.0.0'}
     peerDependencies:
       prettier: ^3.0.3
 
@@ -2584,8 +2641,8 @@ packages:
     resolution: {integrity: sha512-3A/N+v+mA5/PDU+FlO4uTFE0L/Mmg63c/Ny161Qv2b1Mxp9IX8War+LLmq17LA/Kgu4KXAR7iutK2JaHWJMMtw==}
     hasBin: true
 
-  sql-parser-cst@0.42.2:
-    resolution: {integrity: sha512-Yo3DBJnGrmdr56PnURrUCgb8+jKl56Iv7SNIHrpbgNZfSA1kI71bDyQNSAHbPIHjgdbvkVE/fGP5tOXBCoeNxA==}
+  sql-parser-cst@0.42.3:
+    resolution: {integrity: sha512-Dr3+toSySqXBgJBpfHPrsZg38Ie5VOczkcD/JAEZplCoAwnzdTRkLax41K2TyQMXpZCbBcj8iaE7nyKHfQBfwQ==}
 
   std-env@4.3.0:
     resolution: {integrity: sha512-OtU/EgQ1kIm5KwqQpBC6ZEMXrZRui11w8zgfTWp8cdO9B8OaPsbA8bTHO2P+HNo1VlUTGMVBwPhydu6poeXiag==}
@@ -3433,8 +3490,6 @@ snapshots:
       class-transformer: 0.5.1
       reflect-metadata: 0.2.2
 
-  '@dual-bundle/import-meta-resolve@4.2.1': {}
-
   '@emnapi/core@1.11.3':
     dependencies:
       '@emnapi/wasi-threads': 1.2.3
@@ -3529,7 +3584,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@htnabe/prettier-plugin-go-template@0.0.3(prettier@3.9.10)':
+  '@htnabe/prettier-plugin-go-template@0.0.5(prettier@3.9.10)':
     dependencies:
       prettier: 3.9.10
       ulid: 3.0.2
@@ -3791,7 +3846,42 @@ snapshots:
     dependencies:
       '@taplo/core': 0.2.0
 
-  '@tombi-toml/wasm-lib@1.7.3': {}
+  '@tombi-toml/lib-darwin-arm64@1.8.7':
+    optional: true
+
+  '@tombi-toml/lib-darwin-x64@1.8.7':
+    optional: true
+
+  '@tombi-toml/lib-linux-arm64-musl@1.8.7':
+    optional: true
+
+  '@tombi-toml/lib-linux-arm64@1.8.7':
+    optional: true
+
+  '@tombi-toml/lib-linux-x64-musl@1.8.7':
+    optional: true
+
+  '@tombi-toml/lib-linux-x64@1.8.7':
+    optional: true
+
+  '@tombi-toml/lib-win32-arm64@1.8.7':
+    optional: true
+
+  '@tombi-toml/lib-win32-x64@1.8.7':
+    optional: true
+
+  '@tombi-toml/lib@1.8.7':
+    optionalDependencies:
+      '@tombi-toml/lib-darwin-arm64': 1.8.7
+      '@tombi-toml/lib-darwin-x64': 1.8.7
+      '@tombi-toml/lib-linux-arm64': 1.8.7
+      '@tombi-toml/lib-linux-arm64-musl': 1.8.7
+      '@tombi-toml/lib-linux-x64': 1.8.7
+      '@tombi-toml/lib-linux-x64-musl': 1.8.7
+      '@tombi-toml/lib-win32-arm64': 1.8.7
+      '@tombi-toml/lib-win32-x64': 1.8.7
+
+  '@tombi-toml/wasm-lib@1.8.7': {}
 
   '@tybys/wasm-util@0.10.4':
     dependencies:
@@ -4932,10 +5022,10 @@ snapshots:
       prettier: 3.9.10
       semver: 7.8.5
 
-  prettier-plugin-sql-cst@0.23.0:
+  prettier-plugin-sql-cst@0.23.1:
     dependencies:
       prettier: 3.9.10
-      sql-parser-cst: 0.42.2
+      sql-parser-cst: 0.42.3
 
   prettier-plugin-sql@0.20.0(prettier@3.9.10):
     dependencies:
@@ -4955,10 +5045,9 @@ snapshots:
       '@taplo/lib': 0.5.0
       prettier: 3.9.10
 
-  prettier-plugin-toml@3.0.2(prettier@3.9.10):
+  prettier-plugin-toml@4.0.0(prettier@3.9.10):
     dependencies:
-      '@dual-bundle/import-meta-resolve': 4.2.1
-      '@tombi-toml/wasm-lib': 1.7.3
+      '@tombi-toml/lib': 1.8.7
       prettier: 3.9.10
       smol-toml: 1.9.1
 
@@ -5075,7 +5164,7 @@ snapshots:
       argparse: 2.0.1
       nearley: 2.20.1
 
-  sql-parser-cst@0.42.2: {}
+  sql-parser-cst@0.42.3: {}
 
   std-env@4.3.0: {}
 

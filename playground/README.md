@@ -96,6 +96,9 @@ build adapters in `browser-compat.ts` supply WASM URLs, isolate Go runtime shims
 replace configuration-file discovery, and adapt a lexer assertion. They retain the
 installed language formatter implementations.
 
+Language plugins that use native Node.js bindings need a compatible browser
+formatting runtime. `pnpm update:plugins` updates the plugins and this runtime.
+
 The installed Astro formatter uses a native compiler or a threaded WASI runtime
 requiring cross-origin isolation. Ruby starts a host Ruby process. The installed
 Prisma package reads its WASM using Node filesystem APIs. These integrations are

@@ -3,6 +3,17 @@ minimumReleaseAgeExclude:
   - prettier-plugin-sql-cst@0.23.0
   - prettier@3.9.10
   - sql-parser-cst@0.42.2
+  - prettier-plugin-toml@4.0.0
+  - "@tombi-toml/lib@1.8.7"
+  - "@tombi-toml/lib-darwin-arm64@1.8.7"
+  - "@tombi-toml/lib-darwin-x64@1.8.7"
+  - "@tombi-toml/lib-linux-arm64@1.8.7"
+  - "@tombi-toml/lib-linux-arm64-musl@1.8.7"
+  - "@tombi-toml/lib-linux-x64@1.8.7"
+  - "@tombi-toml/lib-linux-x64-musl@1.8.7"
+  - "@tombi-toml/lib-win32-arm64@1.8.7"
+  - "@tombi-toml/lib-win32-x64@1.8.7"
+  - "@tombi-toml/wasm-lib@1.8.7"
 allowBuilds:
   "@biomejs/biome": true
   esbuild: true

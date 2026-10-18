@@ -1,6 +1,6 @@
 # Contributing
 
-Install the package manager version declared in `package.json`, then run `pnpm install`. The Ruby fixtures require Ruby and the `syntax_tree` gem, as configured in the test workflow.
+Use the Node.js version in `.node-version` for repository development and CI; the current language plugins require Node.js 26. Install the package manager version declared in `package.json`, then run `pnpm install`. The Ruby fixtures require Ruby and the `syntax_tree` gem, as configured in the test workflow.
 
 ## Development checks
 
@@ -13,6 +13,14 @@ Install the package manager version declared in `package.json`, then run `pnpm i
 After building, run `node scripts/test-consumer.mjs --package-manager=pnpm@12` to focus on one package manager's profiles. The consumer suite copies executable fixtures from `tests/consumer/fixtures/` into installed consumer projects. It checks override edits within one process, consumer-preloaded hooks, and TypeScript loading with older and current tsx versions. Its pnpm 12 profile uses the package manager's runtime provisioning to check Node.js 18.19.
 
 Biome owns JavaScript, TypeScript, and JSON formatting. Prettier handles documentation and other configuration formats. Fixture input files preserve the source text needed by their tests.
+
+## Checking the latest language plugins
+
+Run `pnpm update:plugins` to update Prettier, all installed language plugins (including scoped packages), and the browser formatting runtime to their latest stable releases, including new major versions. This explicitly opts into newly published releases for this invocation by setting pnpm's `minimumReleaseAge` to zero. It updates `package.json` and `pnpm-lock.yaml`; unrelated development tools and production dependencies keep their existing ranges.
+
+The command then runs `pnpm test:plugins`: unit tests and language fixtures with coverage, the build and packed consumer suite, and the playground type check, production build, and worker smoke test. The Ruby, Corepack, npm, and Bun prerequisites above apply. Tests stop the command on the first failure and leave the dependency changes available for investigation. Snapshots are never updated automatically; review any output changes before accepting them.
+
+Run `pnpm test:plugins` to repeat those checks without updating dependencies. Review `git diff -- package.json pnpm-lock.yaml` after an update. After building, `pnpm test:playground` exercises TOML formatting, options, idempotency, and errors in the emitted browser worker using Node's Web APIs. It does not cover browser UI behavior.
 
 ## Playground development
 
