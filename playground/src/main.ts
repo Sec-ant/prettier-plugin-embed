@@ -76,7 +76,6 @@ const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T;
 let state = initialState();
 let startupNotice = "";
-let dismissedNotice = "";
 try {
   state = location.hash ? decodeState(location.hash) : (savedState() ?? state);
 } catch (error) {
@@ -527,12 +526,13 @@ function renderPlugins() {
   if (!rows.length) $("plugins").textContent = "No matching languages.";
 }
 function notice(message: string) {
-  $("notice").hidden = !message || message === dismissedNotice;
+  $("notice").hidden = !message;
   $("notice-message").textContent = message;
 }
 $("dismiss-notice").addEventListener("click", () => {
-  dismissedNotice = $("notice-message").textContent ?? "";
-  $("notice").hidden = true;
+  if (last) state.versions = last.versions;
+  persist();
+  notice("");
   $("format").focus();
 });
 function toast(message: string) {
