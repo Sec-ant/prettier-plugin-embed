@@ -111,13 +111,26 @@ upstream error so it can be reproduced and reported.
 
 ## Deployment
 
-`.github/workflows/playground.yml` builds pull requests and deploys `main` to
-GitHub Pages using an uploaded artifact. The deployment job uses the `github-pages`
-environment and only requests `pages: write` and `id-token: write` permissions.
+`.github/workflows/playground.yml` builds pull requests and deploys `main` and
+same-repository PR previews to GitHub Pages. PR previews live at
+`pr-preview/pr-<number>/`, update on new commits, and are removed when the PR
+closes. The deployment link appears in the PR's environment checks. Fork PRs
+build and test the playground without publishing a preview.
 
-The repository's Pages publishing source must be **GitHub Actions**. After that,
-merging to `main` or running the workflow on `main` publishes the site. Forks use
-their own repository name for the base path.
+The repository's Pages publishing source must be **GitHub Actions**. In the
+`github-pages` environment's deployment branch rules, allow `refs/pull/*/merge`
+and every supported PR target branch, including `main`. Merged PR cleanup runs
+from the target branch rather than the PR merge ref, so that branch must also be
+allowed to prevent stale previews. Merging to `main` or running the workflow on
+`main` publishes the site. Forks use their own repository name for the base path.
+
+The generated `playground-pages` branch stores the current production site and
+active previews in one snapshot, without retaining build history. Deployment jobs
+run serially and upload the complete snapshot so updating one preview preserves
+production and other previews. Builds have read-only repository access; publishing
+runs separately with artifact-read, contents-write and Pages deployment permissions.
+Run the workflow on `main` once to initialize a new deployment. An existing Pages
+artifact can also initialize the snapshot automatically.
 
 The page is served directly from the repository's Pages URL. State is stored in
 the URL fragment, so shared examples do not need additional routes or server

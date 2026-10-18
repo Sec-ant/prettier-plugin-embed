@@ -3,7 +3,6 @@ import { language } from "./language.js";
 
 export const embedder = createEmbedder({
   parser: "pug",
-  newlineHandling: "hardline",
 });
 
 declare module "../types.js" {

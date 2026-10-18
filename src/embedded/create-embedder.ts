@@ -1,4 +1,3 @@
-import dedent from "dedent";
 import type { Doc, Options } from "prettier";
 import type { Embedder } from "../types.js";
 import {
@@ -14,8 +13,7 @@ interface EmbedderConfiguration {
   parserOption?: string;
   parserOptions?: Partial<Options>;
   markup?: boolean;
-  newlineHandling?: false | "hardline" | "literalline";
-  dedentContent?: boolean;
+  preserveTrailingWhitespace?: boolean;
   placeholderPrefix?: string;
   transformDoc?: (doc: Doc) => Doc;
 }
@@ -25,8 +23,7 @@ export function createEmbedder({
   parserOption,
   parserOptions,
   markup = false,
-  newlineHandling = false,
-  dedentContent = false,
+  preserveTrailingWhitespace = false,
   placeholderPrefix = "p",
   transformDoc,
 }: EmbedderConfiguration): Embedder {
@@ -40,8 +37,11 @@ export function createEmbedder({
     const resolvedOptions: Options = { ...options, ...embeddedOverrideOptions };
     const { createPlaceholder, placeholderRegex } =
       preparePlaceholder(placeholderPrefix);
-    const { trimmedText, leadingWhitespaces, trailingWhitespaces } =
-      prepareTemplate(path.node, createPlaceholder);
+    const { text, leadingWhitespaces, trailingWhitespaces } = prepareTemplate(
+      path.node,
+      createPlaceholder,
+      preserveTrailingWhitespace,
+    );
     const expressionDocs = printTemplateExpressions(
       path,
       print,
@@ -51,23 +51,20 @@ export function createEmbedder({
     const configuredParser = parserOption
       ? (resolvedOptions[parserOption] as string | undefined)
       : undefined;
-    const doc = await textToDoc(
-      dedentContent ? dedent(trimmedText) : trimmedText,
-      {
-        ...resolvedOptions,
-        ...parserOptions,
-        parser: configuredParser ?? parser,
-      },
-    );
+    const doc = await textToDoc(text, {
+      ...resolvedOptions,
+      ...parserOptions,
+      parser: configuredParser ?? parser,
+    });
 
     const contentDoc = simpleRehydrateDoc(
       transformDoc ? transformDoc(doc) : doc,
       placeholderRegex,
       expressionDocs,
-      newlineHandling,
-      undefined,
-      resolvedOptions.tabWidth,
-      Boolean(resolvedOptions.__embeddedInHtml),
+      {
+        interpolationTabWidth: resolvedOptions.tabWidth,
+        escapeClosingScript: Boolean(resolvedOptions.__embeddedInHtml),
+      },
     );
     return wrapEmbeddedDoc(
       contentDoc,

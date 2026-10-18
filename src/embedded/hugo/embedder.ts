@@ -3,8 +3,6 @@ import { language } from "./language.js";
 
 export const embedder = createEmbedder({
   parser: "hugo-post",
-  newlineHandling: "hardline",
-  dedentContent: true,
 });
 
 declare module "../types.js" {

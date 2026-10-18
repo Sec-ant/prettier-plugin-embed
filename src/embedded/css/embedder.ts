@@ -5,7 +5,6 @@ export const embedder = createEmbedder({
   parser: "scss",
   parserOption: "embeddedCssParser",
   placeholderPrefix: "@prettier-placeholder",
-  newlineHandling: "literalline",
 });
 
 declare module "../types.js" {

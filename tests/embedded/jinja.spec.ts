@@ -4,6 +4,21 @@ import prettier from "prettier";
 import { expect, it } from "vitest";
 import * as embed from "../../src";
 
+it("identifies the upstream source-dependent wrapping limitation", async () => {
+  const source =
+    "<section>{% if user %}<h1>{{user.name}}</h1>{% else %}<p>Guest</p>{% endif %}</section>";
+  const options = {
+    parser: "jinja-template",
+    plugins: ["prettier-plugin-jinja-template"],
+    printWidth: 72,
+    useTabs: true,
+    tabWidth: 4,
+  };
+  const first = await prettier.format(source, options);
+  // This comparison deliberately uses only the upstream plugin, not embed.
+  expect(await prettier.format(first, options)).not.toBe(first);
+});
+
 it.each(["babel-ts", "typescript"])(
   "formats multiline Jinja blocks with wrapping and tabs using %s",
   async (parser) => {

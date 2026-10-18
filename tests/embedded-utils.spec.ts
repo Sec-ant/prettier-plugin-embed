@@ -1,4 +1,4 @@
-import prettier from "prettier";
+import prettier, { type Doc } from "prettier";
 import { describe, expect, it } from "vitest";
 import {
   escapeRegExp,
@@ -9,6 +9,7 @@ import {
   makePluginOptionName,
   makeTagsOptionName,
   preparePlaceholder,
+  prepareTemplate,
   printTemplateExpression,
   printTemplateExpressions,
   randomUUID,
@@ -27,6 +28,102 @@ function quasi(raw: string) {
   return { value: { raw, cooked: raw }, tail: false };
 }
 
+describe("template margins", () => {
+  it.each([
+    ["\n- parent\n  - child\n\n    code\n", "- parent\n  - child\n\n    code"],
+    [
+      "\n  # Heading\n\nParagraph\n\n    code\n",
+      "  # Heading\n\nParagraph\n\n    code",
+    ],
+    [
+      "\n    first()\n\nParagraph\n\n    second()\n",
+      "    first()\n\nParagraph\n\n    second()",
+    ],
+    [
+      "\n    - parent\n      - child\n\n        code\n",
+      "- parent\n  - child\n\n    code",
+    ],
+    ["\n \talpha\n  beta\n", "\talpha\n beta"],
+    ["\r\n    alpha\r\n      beta\r\n", "alpha\r\n  beta"],
+    ["  \n\t ", ""],
+    ["", ""],
+  ])("keeps content indentation in %j", (input, expected) => {
+    const prepared = prepareTemplate(
+      { quasis: [quasi(input)], expressions: [] } as never,
+      () => "placeholder",
+    );
+    expect(prepared.text).toBe(expected);
+  });
+
+  it("separates first-line content indentation from exterior whitespace", () => {
+    expect(
+      prepareTemplate(
+        {
+          quasis: [quasi("\n    code\n\nParagraph\n  ")],
+          expressions: [],
+        } as never,
+        () => "placeholder",
+      ),
+    ).toEqual({
+      text: "    code\n\nParagraph",
+      leadingWhitespaces: "\n",
+      trailingWhitespaces: "\n  ",
+    });
+    const { leadingWhitespaces, trailingWhitespaces } = prepareTemplate(
+      { quasis: [quasi(" \n\t ")], expressions: [] } as never,
+      () => "placeholder",
+    );
+    expect(leadingWhitespaces + trailingWhitespaces).toBe(" \n\t ");
+  });
+
+  it("preserves long interior whitespace runs", () => {
+    const text = `first\n${" ".repeat(50_000)}last`;
+    expect(
+      prepareTemplate({ quasis: [quasi(`\n${text}\n`)] } as never, String).text,
+    ).toBe(text);
+  });
+
+  it.each(["", "  ", "\t "])(
+    "keeps same-line trailing whitespace outside the content: %j",
+    (trailingWhitespaces) => {
+      expect(
+        prepareTemplate(
+          { quasis: [quasi(`value: 1${trailingWhitespaces}`)] } as never,
+          String,
+          true,
+        ),
+      ).toEqual({
+        text: "value: 1",
+        leadingWhitespaces: "",
+        trailingWhitespaces,
+      });
+    },
+  );
+
+  it.each(["\n", "\r\n"])(
+    "keeps multiline trailing whitespace as content and its final boundary: %j",
+    (newline) => {
+      expect(
+        prepareTemplate(
+          {
+            quasis: [
+              quasi(
+                `${newline}  value: |+${newline}    text${newline}  ${newline}  `,
+              ),
+            ],
+          } as never,
+          String,
+          true,
+        ),
+      ).toEqual({
+        text: `value: |+${newline}  text${newline}${newline}`,
+        leadingWhitespaces: `${newline}  `,
+        trailingWhitespaces: `${newline}  `,
+      });
+    },
+  );
+});
+
 describe("embedded template wrapper options", () => {
   it("preserves exterior whitespace and honors indentation settings", () => {
     const content = ["alpha", prettier.doc.builders.hardline, "beta"];
@@ -41,7 +138,7 @@ describe("embedded template wrapper options", () => {
           " ",
         ),
       ),
-    ).toBe("` alpha\n  beta `");
+    ).toBe("` alpha\nbeta `");
 
     expect(
       render(
@@ -274,6 +371,80 @@ describe("template expression printing", () => {
 });
 
 describe("rehydrating embedded documents", () => {
+  const {
+    align,
+    conditionalGroup,
+    dedentToRoot,
+    fill,
+    group,
+    hardline,
+    ifBreak,
+    indent,
+    indentIfBreak,
+    line,
+    literalline,
+    markAsRoot,
+  } = prettier.doc.builders;
+
+  function wrapExpression(doc: Doc, expression: Doc) {
+    return render(
+      wrapEmbeddedDoc(
+        simpleRehydrateDoc(doc, /placeholder(\d+)end/g, [expression]),
+        {},
+        "html",
+        "\n",
+        "\n",
+      ),
+    );
+  }
+
+  it("isolates literal roots through every supported layout command", () => {
+    const placeholder = "placeholder0end";
+    const expression = [
+      "${String.raw`one",
+      literalline,
+      "  two",
+      literalline,
+      "`}",
+    ];
+    const groupId = Symbol("conditional-indent");
+    const shared = group([placeholder, hardline]);
+    const layouts = [
+      fill([placeholder, line, "suffix"]),
+      ifBreak(placeholder, placeholder),
+      conditionalGroup([placeholder, ["prefix", hardline, placeholder]]),
+      group(indentIfBreak([hardline, placeholder], { groupId }), {
+        id: groupId,
+        shouldBreak: true,
+      }),
+      markAsRoot(align(3, indent(markAsRoot(placeholder)))),
+      dedentToRoot(placeholder),
+      markAsRoot(dedentToRoot(placeholder)),
+      [shared, shared, indent(shared)],
+    ];
+    for (const layout of layouts) {
+      const output = wrapExpression(layout, expression);
+      expect(output).toContain("`one\n  two\n`}");
+      expect(output).not.toContain("\n    two");
+    }
+  });
+
+  it("inspects root-sensitive conditional alternatives before taking the fast path", () => {
+    const expression = conditionalGroup([
+      "a".repeat(200),
+      ["first", literalline, "second"],
+    ]);
+    expect(wrapExpression("placeholder0end", expression)).toContain(
+      "first\nsecond",
+    );
+    expect(
+      wrapExpression(
+        "placeholder0end",
+        dedentToRoot(["${", hardline, "value}"]),
+      ),
+    ).toContain("${" + "\nvalue}");
+  });
+
   it("detects expressions discarded by a language formatter", () => {
     expect(() =>
       simpleRehydrateDoc("plain text", /pabc(\d+)xyz/g, [interpolation]),
@@ -285,10 +456,7 @@ describe("rehydrating embedded documents", () => {
       "<script>value</SCRIPT>",
       /never-match/g,
       [],
-      false,
-      undefined,
-      undefined,
-      true,
+      { escapeClosingScript: true },
     );
     expect(render(doc)).toBe("<script>value<\\/SCRIPT>");
   });
@@ -302,18 +470,12 @@ describe("rehydrating embedded documents", () => {
     expect(render(doc)).toBe(`raw ${interpolation} \\\\ `);
   });
 
-  it("supports hardline and literal-line newline handling", () => {
-    const hardlineDoc = simpleRehydrateDoc(
-      "first\nsecond",
-      /never-match/g,
-      [],
-      "hardline",
-    );
+  it("preserves literal newlines and their indentation", () => {
+    const hardlineDoc = simpleRehydrateDoc("first\nsecond", /never-match/g, []);
     const literalLineDoc = simpleRehydrateDoc(
       "first\n  second",
       /never-match/g,
       [],
-      "literalline",
     );
 
     expect(render(hardlineDoc)).toBe("first\nsecond");
@@ -325,23 +487,26 @@ describe("rehydrating embedded documents", () => {
       "pabc0xyz",
       /pabc(\d+)xyz/g,
       [interpolation],
-      false,
-      new Set([0]),
+      { lineBreakBeforeExpressions: new Set([0]) },
     );
 
     expect(render(doc)).toBe(`\n${interpolation}`);
   });
 
-  it("moves configured line breaks after existing text", () => {
+  it.each([
+    ["before   ", "before"],
+    ["before\t ", "before"],
+    ["before\u00a0\t ", "before\u00a0"],
+    ["\t ", ""],
+  ])("moves configured line breaks after %j", (text, expected) => {
     const doc = simpleRehydrateDoc(
-      "before   pabc0xyz",
+      `${text}pabc0xyz`,
       /pabc(\d+)xyz/g,
       [interpolation],
-      false,
-      new Set([0]),
+      { lineBreakBeforeExpressions: new Set([0]) },
     );
 
-    expect(render(doc)).toBe(`before\n${interpolation}`);
+    expect(render(doc)).toBe(`${expected}\n${interpolation}`);
   });
 });
 

@@ -26,6 +26,20 @@ const languageOptions: Options = {
   printWidth: 80,
   tabWidth: 2,
 };
+
+it("requires a basic fixture for every registered language", () => {
+  const languageDirectories = Object.keys(
+    import.meta.glob("../src/embedded/*/index.ts"),
+  )
+    .map((file) => file.split("/").at(-2))
+    .sort();
+  const fixtureDirectories = Object.keys(
+    import.meta.glob("./fixtures/*/basic.js", { query: "?raw" }),
+  )
+    .map((file) => file.split("/").at(-2))
+    .sort();
+  expect(fixtureDirectories).toEqual(languageDirectories);
+});
 const configurableParsers = new Set([
   "embeddedCss",
   "embeddedEs",

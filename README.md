@@ -1008,13 +1008,21 @@ Embedded YAML uses the parsers and printers included with Prettier.
 
 This preserves the original exterior whitespace characters, including their indentation. Without this option, whitespace-sensitive markup such as HTML and Jinja preserves whether boundary whitespace exists and allows its indentation to be formatted.
 
+Preserved multiline boundary indentation also sets the margin for subsequent content lines. No extra template indentation is added, including when this option is combined with `noEmbeddedMultiLineIndentation`. If content starts on the same line as the opening backtick, its preserved margin is zero. Content indentation, such as the four spaces of a Markdown code block, belongs to the content rather than to exterior whitespace.
+
 ##### `noEmbeddedMultiLineIndentation`
 
 - **Type**: `string[]`
 - **Default**: `[]`
 - **Description**: Turns off auto indentation in the formatting results for the specified comments or tags when they are formatted to span multi lines.
 
-This removes the extra indentation level added around the embedded content. Indentation within the embedded language is still formatted. For example, `"noEmbeddedMultiLineIndentation": ["html", "jinja"]` disables that extra level for both tags and comments. It can be combined with `preserveEmbeddedExteriorWhitespaces`.
+This prints embedded content from the current document root without inheriting the surrounding JavaScript or TypeScript indentation. Indentation within the embedded language is still formatted. For example, `"noEmbeddedMultiLineIndentation": ["html", "jinja"]` disables automatic template indentation for both tags and comments. It can be combined with `preserveEmbeddedExteriorWhitespaces`, which takes precedence and uses the original boundary margin.
+
+Markdown retains its root-aligned behavior, so headings inside deeply nested JavaScript do not become indented code blocks. Other languages now follow the same rule. This option affects output layout only; it does not change how the embedded source is parsed or remove its lists, code blocks, or other meaningful indentation. YAML content uses spaces for its internal indentation even when the host uses tabs.
+
+Before parsing, the plugin removes only the exact whitespace prefix shared by every nonempty content line. A column-zero content line makes that prefix empty. This template margin is determined before trimming boundary whitespace, and tabs and spaces are compared literally. The remaining indentation is passed to the language formatter. This convention applies equally to tags and comments and to both indentation options. It treats a common prefix as template framing; Markdown consisting entirely of indented code can use a fenced code block to make its intent explicit.
+
+The plugin formats template source and does not insert a runtime dedent operation. For raw whitespace-sensitive values, author content without a common source margin and enable `noEmbeddedMultiLineIndentation` to keep automatic host indentation out of the string value.
 
 ##### `embeddedOverrides`
 

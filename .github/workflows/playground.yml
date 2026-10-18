@@ -15,28 +15,19 @@ on:
         ".github/actions/setup/**",
       ]
   pull_request:
-    paths:
-      [
-        "playground/**",
-        "src/**",
-        "package.json",
-        "pnpm-lock.yaml",
-        "tests/fixtures/**",
-        "scripts/test-playground.mjs",
-        ".github/workflows/playground.yml",
-        ".github/actions/setup/**",
-      ]
+    types: [opened, synchronize, reopened, closed]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: playground-${{ github.ref }}
+  group: playground-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -46,27 +37,118 @@ jobs:
       - name: Build playground
         run: pnpm playground:build
         env:
-          PLAYGROUND_BASE: /${{ github.event.repository.name }}/
+          PLAYGROUND_BASE: /${{ github.event.repository.name }}/${{ github.event_name == 'pull_request' && format('pr-preview/pr-{0}/', github.event.number) || '' }}
       - name: Test playground worker
         run: pnpm test:playground
-      - name: Upload GitHub Pages artifact
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+      - name: Upload playground build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
+          name: playground
           path: playground/dist
+          retention-days: 7
 
   deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: >-
+      !cancelled() &&
+      (needs.build.result == 'success' || github.event.action == 'closed') &&
+      ((github.event_name != 'pull_request' && github.ref == 'refs/heads/main') ||
+       (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository))
     needs: build
     runs-on: ubuntu-latest
+    concurrency:
+      group: playground-pages
+      cancel-in-progress: false
+      queue: max
     permissions:
+      actions: read
+      contents: write
       pages: write
       id-token: write
+    env:
+      PREVIEW_PATH: ${{ github.event_name == 'pull_request' && format('pr-preview/pr-{0}/', github.event.number) || '' }}
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}${{ github.event.action != 'closed' && env.PREVIEW_PATH || '' }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Find initial production snapshot
+        if: github.event_name == 'pull_request'
+        id: seed
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            try {
+              await github.rest.repos.getBranch({ ...context.repo, branch: 'playground-pages' });
+              return;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            const { data: { workflow_runs: runs } } = await github.rest.actions.listWorkflowRuns({
+              ...context.repo, workflow_id: 'playground.yml',
+              branch: context.payload.repository.default_branch,
+              event: 'push', status: 'success', per_page: 1,
+            });
+            if (runs[0]) {
+              const { data: { artifacts } } = await github.rest.actions.listWorkflowRunArtifacts({
+                ...context.repo, run_id: runs[0].id,
+              });
+              if (artifacts.some(artifact => artifact.name === 'github-pages' && !artifact.expired)) {
+                core.setOutput('run_id', runs[0].id);
+                return;
+              }
+            }
+            throw new Error('Run Playground on main once to initialize the production snapshot before deploying previews.');
+      - name: Download initial production snapshot
+        if: steps.seed.outputs.run_id
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: github-pages
+          path: playground-seed
+          run-id: ${{ steps.seed.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Extract initial production snapshot
+        if: steps.seed.outputs.run_id
+        run: |
+          tar -xf playground-seed/artifact.tar -C playground-seed
+          rm playground-seed/artifact.tar
+      - name: Initialize production snapshot
+        if: steps.seed.outputs.run_id
+        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          branch: playground-pages
+          folder: playground-seed
+          single-commit: true
+      - name: Download playground build
+        if: github.event.action != 'closed'
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: playground
+          path: playground-build
+      - name: Prepare preview removal
+        if: github.event.action == 'closed'
+        run: mkdir playground-build
+      - name: Update Pages snapshot
+        uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          branch: playground-pages
+          folder: playground-build
+          target-folder: ${{ env.PREVIEW_PATH }}
+          clean-exclude: pr-preview
+          single-commit: true
+      - name: Checkout complete Pages snapshot
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: playground-pages
+          path: playground-site
+          persist-credentials: false
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - name: Upload complete Pages artifact
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: playground-site
       - name: Deploy playground
         id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

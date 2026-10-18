@@ -585,6 +585,24 @@ function getMd() {
 "
 `;
 
+exports[`markdown > no-embedded-indent-semantic-whitespace.js 1`] = `
+"const markdown = String.raw;
+function getMd() {
+  return markdown\`
+- Fruit
+  - Apple
+  - Orange
+  - Banana
+- Dairy
+  - Milk
+  - Cheese
+
+    console.log('indented code block')
+  \`;
+}
+"
+`;
+
 exports[`markdown > preserve-exterior-whitespace.js 1`] = `
 "const document = md\`
 # heading
@@ -881,17 +899,19 @@ exports[`ruby > basic.js 1`] = `
 "// Ruby - Tag \`ruby\` test (with formatting issues)
 const tagTest = ruby\`
   def greet(name)
-  puts "Hello, #{name}"
-end
-class User
-  attr_accessor :name
-end
+    puts "Hello, #{name}"
+  end
+  class User
+    attr_accessor :name
+  end
 \`;
 
 // Ruby - Comment \`/* ruby */\` test (with formatting issues)
-const tagTest2 = /* ruby */ \` def add(a, b)
-  a + b
-end \`;
+const tagTest2 = /* ruby */ \`
+  def add(a, b)
+    a + b
+  end
+\`;
 "
 `;
 
@@ -997,7 +1017,7 @@ exports[`sql > issue-45.js 1`] = `
 sql\`
   SELECT
     $$a
-  b$$::text AS val
+    b$$::text AS val
 \`;
 "
 `;
@@ -1236,17 +1256,21 @@ const tagTest = yaml\`
 \`;
 
 // YAML - Comment \`/* yaml */\` test (with formatting issues)
-const commentTest = /* yaml */ \` server:
+const commentTest = /* yaml */ \`
+  server:
     host: localhost
-    port: 3000 \`;
+    port: 3000
+\`;
 "
 `;
 
 exports[`yaml > nested.js 1`] = `
-"const config = yaml\` services:
+"const config = yaml\`
+  services:
     api:
       ports:
         - 3000
-        - 3001 \`;
+        - 3001
+\`;
 "
 `;

@@ -25,12 +25,14 @@ export const embedder: Embedder<Options> = async (
 
   const { createPlaceholder, placeholderRegex } = preparePlaceholder();
 
-  const { trimmedText, leadingWhitespaces, trailingWhitespaces } =
-    prepareTemplate(node, createPlaceholder);
+  const { text, leadingWhitespaces, trailingWhitespaces } = prepareTemplate(
+    node,
+    createPlaceholder,
+  );
 
   const expressionDocs = printTemplateExpressions(path, print);
 
-  const doc = await textToDoc(trimmedText, {
+  const doc = await textToDoc(text, {
     ...resolvedOptions,
     parser: resolvedOptions.embeddedJsonParser ?? "json",
   });
