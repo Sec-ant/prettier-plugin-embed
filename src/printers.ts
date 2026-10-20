@@ -183,9 +183,9 @@ const embed: Printer["embed"] = (path: AstPath<Node>, options: Options) => {
 };
 
 // extends estree printer to parse embedded lanaguges in js/ts files
-export const printers: Plugin["printers"] = {
+export const printers = {
   estree: {
     ...estreePrinter,
     embed,
   },
-};
+} satisfies Plugin["printers"];
