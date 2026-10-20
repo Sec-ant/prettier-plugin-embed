@@ -1,6 +1,6 @@
 # Contributing
 
-Use the Node.js version in `.node-version` for repository development and CI; the current language plugins require Node.js 26. Install the package manager version declared in `package.json`, then run `pnpm install`. The Ruby fixtures require Ruby and the `syntax_tree` gem, as configured in the test workflow.
+Use the Node.js version in `.node-version` for repository development and CI; the current language plugins require Node.js 26. On a new machine, install the pnpm command with `npx get-pnpm`, then run `pnpm install`; pnpm uses the version pinned in this repository's `package.json`. The Ruby fixtures require Ruby and the `syntax_tree` gem, as configured in the test workflow.
 
 ## Development checks
 
