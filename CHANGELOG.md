@@ -1,5 +1,11 @@
 # prettier-plugin-embed
 
+## 0.8.1
+
+### Patch Changes
+
+- 42ed572: Preserve the `estree` printer key in the published type.
+
 ## 0.8.0
 
 ### Minor Changes
