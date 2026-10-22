@@ -1,5 +1,11 @@
 # prettier-plugin-embed
 
+## 0.8.2
+
+### Patch Changes
+
+- eaaadd6: Automatically select SQL CST when it is the only loaded SQL formatter, while preserving explicit plugin choices and preferring `prettier-plugin-sql` when both are loaded.
+
 ## 0.8.1
 
 ### Patch Changes
