@@ -69,9 +69,8 @@ export const options = {
   [EMBEDDED_LANGUAGE_PLUGIN]: {
     category: "Embed",
     type: "choice",
-    default: "prettier-plugin-sql",
     description:
-      "The plugin used to format the embedded SQL language. This option requires the `prettier-plugin-sql` plugin or the `prettier-plugin-sql-cst` plugin.",
+      "The plugin used to format embedded SQL. When omitted, selects a loaded SQL formatter, preferring `prettier-plugin-sql` when both are available.",
     choices: SQL_PLUGINS.map((plugin) => ({
       value: plugin,
       description: `Use the "${plugin}" plugin.`,

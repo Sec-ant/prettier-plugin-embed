@@ -863,7 +863,7 @@ Choose `"slang"` or `"antlr"` with current formatter versions. Formatter version
 ##### `embeddedSqlPlugin`
 
 - **Type**: [`"prettier-plugin-sql" | "prettier-plugin-sql-cst"`](./src/embedded/sql/options.ts)
-- **Default**: [`"prettier-plugin-sql"`](./src/embedded/sql/options.ts)
+- **Default**: Automatically selects a loaded SQL formatter, preferring `prettier-plugin-sql` when both are loaded.
 - **Description**: The plugin used to format the embedded SQL language. This option requires the [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) plugin or the [`prettier-plugin-sql-cst`](https://github.com/nene/prettier-plugin-sql-cst#readme) plugin.
 
 ##### `embeddedSqlParser`
@@ -871,6 +871,23 @@ Choose `"slang"` or `"antlr"` with current formatter versions. Formatter version
 - **Type**: [`"sqlite" | "bigquery" | "mysql" | "mariadb" | "postgresql"` ](./src/embedded/sql/options.ts)
 - **Default**: [`"sqlite"`](./src/embedded/sql/options.ts)
 - **Description**: Specify the embedded SQL language parser. This option is only needed with the `prettier-plugin-sql-cst` plugin.
+
+##### SQL formatter selection
+
+The first matching row applies; `never` means invalid configuration. `plugins` lists only SQL formatters, regardless of order.
+
+| `plugins`                                                                       | `embeddedSqlPlugin`         | `embeddedSqlParser`                                                                   | `embeddedSqlPlugin` (resolved) | `parser` (embedded)                                  |
+| ------------------------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------- |
+| `["prettier-plugin-sql"] \| ["prettier-plugin-sql", "prettier-plugin-sql-cst"]` | `undefined`                 | `undefined \| null \| "sqlite" \| "bigquery" \| "mysql" \| "mariadb" \| "postgresql"` | `"prettier-plugin-sql"`        | `"sql"`                                              |
+| `["prettier-plugin-sql-cst"]`                                                   | `undefined`                 | `undefined \| null \| "sqlite"`                                                       | `"prettier-plugin-sql-cst"`    | `"sqlite"`                                           |
+| `["prettier-plugin-sql-cst"]`                                                   | `undefined`                 | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"`                                  | `"prettier-plugin-sql-cst"`    | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"` |
+| `[]`                                                                            | `undefined`                 | `undefined \| null \| "sqlite" \| "bigquery" \| "mysql" \| "mariadb" \| "postgresql"` | `"prettier-plugin-sql"`        | `"sql"`                                              |
+| `any`                                                                           | `"prettier-plugin-sql"`     | `undefined \| null \| "sqlite" \| "bigquery" \| "mysql" \| "mariadb" \| "postgresql"` | `"prettier-plugin-sql"`        | `"sql"`                                              |
+| `any`                                                                           | `"prettier-plugin-sql-cst"` | `undefined \| null \| "sqlite"`                                                       | `"prettier-plugin-sql-cst"`    | `"sqlite"`                                           |
+| `any`                                                                           | `"prettier-plugin-sql-cst"` | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"`                                  | `"prettier-plugin-sql-cst"`    | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"` |
+| `any`                                                                           | `any`                       | `any`                                                                                 | `never`                        | `never`                                              |
+
+Invalid top-level options are rejected before formatting. A missing selected parser preserves the template content by default; a non-empty `PRETTIER_DEBUG` exposes the error. Explicit plugin choices never fall back to another formatter.
 
 Formatting embedded SQL language requires the [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) plugin or the [`prettier-plugin-sql-cst`](https://github.com/nene/prettier-plugin-sql-cst#readme) plugin to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql`, or [options](https://github.com/nene/prettier-plugin-sql-cst?tab=readme-ov-file#configuration) supported by `prettier-plugin-sql-cst` can therefore be used to further control the formatting behavior.
 

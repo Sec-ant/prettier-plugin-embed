@@ -4,6 +4,45 @@ import { describe, expect, it, vi } from "vitest";
 import { embeddedEmbedders } from "../../src/embedded/index.js";
 import * as embed from "../../src/index.js";
 
+const sql = "prettier-plugin-sql";
+const cst = "prettier-plugin-sql-cst";
+
+it.each<[string[], Options, NonNullable<Options["embeddedSqlPlugin"]>]>([
+  [[cst], {}, cst],
+  [[sql, cst], {}, sql],
+  [[cst, sql], {}, sql],
+  [[sql, cst], { embeddedSqlPlugin: cst }, cst],
+  [
+    [sql, cst],
+    {
+      embeddedOverrides: JSON.stringify([
+        { tags: ["sql"], options: { embeddedSqlPlugin: cst } },
+      ]),
+    },
+    cst,
+  ],
+])(
+  "selects %s with %j using %s",
+  async (plugins, overrides, expectedPlugin) => {
+    const input = "export const q = sql`select a,b from t where c=1`;\n";
+    const options = {
+      parser: "babel",
+      plugins: [embed, ...plugins],
+      ...overrides,
+    };
+    const formatted = await format(input, options);
+    expect(formatted).not.toBe(input);
+    expect(formatted).toBe(
+      await format(input, {
+        parser: "babel",
+        plugins: [embed, expectedPlugin],
+        embeddedSqlPlugin: expectedPlugin,
+      }),
+    );
+    expect(await format(formatted, options)).toBe(formatted);
+  },
+);
+
 describe.each(["babel", "babel-ts", "typescript"])(
   "SQL fragment errors with %s",
   (parser) => {

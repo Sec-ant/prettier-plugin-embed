@@ -23,7 +23,20 @@ export const embedder: Embedder<Options> = async (
     ...embeddedOverrideOptions,
   };
 
-  const plugin = resolvedOptions.embeddedSqlPlugin ?? "prettier-plugin-sql";
+  const hasParser = (parser: string) =>
+    resolvedOptions.plugins?.some(
+      (plugin) =>
+        typeof plugin === "object" &&
+        plugin !== null &&
+        "parsers" in plugin &&
+        plugin.parsers?.[parser],
+    );
+  const plugin =
+    resolvedOptions.embeddedSqlPlugin ??
+    (!hasParser("sql") &&
+    hasParser(resolvedOptions.embeddedSqlParser ?? "sqlite")
+      ? "prettier-plugin-sql-cst"
+      : "prettier-plugin-sql");
 
   const { node } = path;
 
