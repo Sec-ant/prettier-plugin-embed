@@ -1,4 +1,4 @@
-import type { Options, Parser, SupportOption } from "prettier";
+import type { Options, Parser, Printer, SupportOption } from "prettier";
 import type { LiteralUnion } from "../type-utils.js";
 import type { Embedder } from "../types.js";
 import type { Satisfies } from "./utils.js";
@@ -7,6 +7,9 @@ type EmbeddedLanguageNamingConvention = `embedded${Capitalize<string>}`;
 
 export interface EmbeddedParsers
   extends Record<EmbeddedLanguageNamingConvention, Parser | undefined> {}
+
+export interface EmbeddedPrinters
+  extends Record<EmbeddedLanguageNamingConvention, Printer | undefined> {}
 
 export interface EmbeddedEmbedders
   extends Record<

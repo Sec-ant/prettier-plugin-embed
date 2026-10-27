@@ -893,6 +893,8 @@ Formatting embedded SQL language requires the [`prettier-plugin-sql`](https://gi
 
 Note that `prettier-plugin-sql` supports many different SQL dialects which are specified by the [`language`, `database` or `dialect` option](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options). And `prettier-plugin-sql-cst` also supports various parsers as shown above. If you want to specify different dialects or parsers for different comments or tags, check [`embeddedOverrides`](#embeddedoverrides-1).
 
+With `prettier-plugin-sql-cst`, a template that isn't a whole statement, such as a condition, a column list, a clause or a join, is parsed after a synthetic `SELECT` prefix, and only the template's own part is printed, without a final semicolon. A template that doesn't parse either way is left as is.
+
 #### Svelte
 
 ##### `embeddedSvelteComments`
