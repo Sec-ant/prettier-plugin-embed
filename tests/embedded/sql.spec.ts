@@ -116,6 +116,7 @@ const users = sql\`select * from users where $\{active}\`;
     parser: "babel",
     plugins: [embed, "prettier-plugin-sql-cst"],
     embeddedSqlParser: "postgresql",
+    embeddedSqlFormatFragments: true,
   } satisfies Options;
   const formatted = await format(input, options);
   expect(formatted).toBe(`const active = sql\`id = $\{id} AND NOT deleted\`;
@@ -143,6 +144,7 @@ sql\`or a<1\`;
       parser: "babel",
       plugins: [embed, "prettier-plugin-sql-cst"],
       embeddedSqlParser,
+      embeddedSqlFormatFragments: true,
     } satisfies Options;
     expect(await format(input, options)).toBe(`sql\`a = 1 AND NOT b\`;
 sql\`a, b, c\`;
@@ -168,6 +170,7 @@ it("keeps comments in SQL fragments", async () => {
     await format(input, {
       parser: "babel",
       plugins: [embed, "prettier-plugin-sql-cst"],
+      embeddedSqlFormatFragments: true,
     }),
   ).toBe(input);
 });
@@ -177,6 +180,7 @@ it("only changes whitespace and case in SQL fragments", async () => {
     await format("sql`id int,name text`;\nsql`a<>b`;\n", {
       parser: "babel",
       plugins: [embed, "prettier-plugin-sql-cst"],
+      embeddedSqlFormatFragments: true,
     }),
   ).toBe("sql`id int, name text`;\nsql`a <> b`;\n");
 });
@@ -187,6 +191,7 @@ it("leaves SQL fragments as typed when the prefix can't be left out", async () =
     await format(input, {
       parser: "babel",
       plugins: [embed, "prettier-plugin-sql-cst"],
+      embeddedSqlFormatFragments: true,
     }),
   ).toBe(input);
 });

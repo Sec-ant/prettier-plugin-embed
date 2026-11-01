@@ -36,6 +36,9 @@ export const parser: Parser<SqlNode> = {
     try {
       return await sqlParser.parse(text, options);
     } catch (error) {
+      if (!(options as unknown as Options).embeddedSqlFormatFragments) {
+        throw error;
+      }
       // A template that isn't a whole statement may parse after a prefix,
       // whose nodes the printer then leaves out. That parse is a guess, so
       // keywords are never added or removed: `id int` may be a column
@@ -48,7 +51,10 @@ export const parser: Parser<SqlNode> = {
             sqlFinalSemicolon: false,
           });
           const [statement, ...rest] = ast.statements!;
-          if (statement?.type === "select_stmt" && !rest.length) {
+          if (
+            statement?.type === "select_stmt" &&
+            rest.every(({ type }) => type === "empty")
+          ) {
             statement.clauses = statement.clauses!.filter(
               ({ range }) => range![1] > prefix.length,
             );
@@ -61,8 +67,9 @@ export const parser: Parser<SqlNode> = {
     }
   },
   astFormat: language,
-  locStart: (node) => node.range![0],
-  locEnd: (node) => node.range![1],
+  // Canonicalization can add nodes without source ranges.
+  locStart: (node) => node.range?.[0] as number,
+  locEnd: (node) => node.range?.[1] as number,
 };
 
 declare module "../types.js" {

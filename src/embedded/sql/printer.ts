@@ -57,10 +57,12 @@ export const printer: Printer<SqlNode> = {
       }
       switch (node.type) {
         case "select_clause":
-          if (!node.modifiers!.length) {
-            return print("columns");
-          }
-          break;
+          return group(
+            join(" ", [
+              ...path.map(() => print(), "modifiers"),
+              print("columns"),
+            ]),
+          );
         case "from_clause":
           return print("expr");
         case "list_expr":
