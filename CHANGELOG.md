@@ -1,5 +1,14 @@
 # prettier-plugin-embed
 
+## 0.8.2
+
+### Patch Changes
+
+- eaaadd6: Automatically select SQL CST when it is the only loaded SQL formatter, while preserving explicit plugin choices and preferring `prettier-plugin-sql` when both are loaded.
+- 00c8640: Add `embeddedSqlFormatFragments` to opt into formatting SQL fragments with `prettier-plugin-sql-cst`. The option defaults to `false`, preserving existing formatting behavior and avoiding fragment recovery attempts unless enabled.
+
+  Support conditions, column lists, SELECT modifiers, clauses, and joins. Preserve trailing list commas and explicit trailing semicolons without adding new semicolons.
+
 ## 0.8.1
 
 ### Patch Changes
