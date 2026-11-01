@@ -18,7 +18,11 @@ const attachCommentToTemplate = (
     comment.precedingNode &&
     comment.precedingNode.range![1] <= prefixLength
   ) {
-    util.addLeadingComment(comment.followingNode, comment);
+    const addComment =
+      prefixLength > 0 && comment.followingNode.type === "empty"
+        ? util.addTrailingComment
+        : util.addLeadingComment;
+    addComment(comment.followingNode, comment);
     return true;
   }
   return false;
@@ -67,14 +71,15 @@ export const printer: Printer<SqlNode> = {
           return print("expr");
         case "list_expr":
           if (isFromPrefix(node.items![0]!)) {
+            const items = path
+              .map((_, index) => (index ? group(print()) : ""), "items")
+              .slice(1);
+            const trailing =
+              node.items!.at(-1)!.type === "empty" ? items.pop() : undefined;
             return [
-              ", ",
-              join(
-                [",", line],
-                path
-                  .map((_, index) => (index ? group(print()) : ""), "items")
-                  .slice(1),
-              ),
+              ",",
+              items.length ? [" ", join([",", line], items)] : "",
+              trailing === undefined ? "" : [items.length ? "," : "", trailing],
             ];
           }
           break;

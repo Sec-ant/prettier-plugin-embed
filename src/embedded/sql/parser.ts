@@ -13,6 +13,7 @@ export interface SqlNode {
   prefixLength?: number;
   specification?: SqlNode;
   statements?: SqlNode[];
+  trailing?: SqlNode[];
 }
 
 // Tried in order, each completes a kind of fragment in every dialect:
@@ -59,12 +60,21 @@ export const parser: Parser<SqlNode> = {
             const columns = statement.clauses!.find(
               ({ type }) => type === "select_clause",
             )?.columns;
-            // A stripped trailing empty column leaves its comma in the list's range.
+            const lastColumn = columns?.items?.at(-1);
+            // Restore the trailing empty column that sql-cst strips during parsing.
             if (
               columns &&
-              columns.range![1] > columns.items!.at(-1)!.range![1]
+              lastColumn &&
+              columns.range![1] > lastColumn.range![1]
             ) {
-              continue;
+              // Keep comments after the comma attached after the empty column.
+              const end =
+                (prefix + text).indexOf(
+                  ",",
+                  lastColumn.trailing?.at(-1)?.range?.[1] ??
+                    lastColumn.range![1],
+                ) + 1;
+              columns.items!.push({ type: "empty", range: [end, end] });
             }
             statement.clauses = statement.clauses!.filter(
               ({ range }) => range![1] > prefix.length,

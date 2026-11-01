@@ -115,24 +115,39 @@ describe("explicit fragment semicolons", () => {
 
 describe("trailing fragment commas", () => {
   it.each(dialects)(
-    "preserves fragments whose trailing empty column was removed with %s",
+    "formats fragments while preserving trailing commas with %s",
     async (embeddedSqlParser) => {
-      vi.stubEnv("PRETTIER_DEBUG", undefined);
       const settings = { ...fragmentOptions, embeddedSqlParser };
-      for (const fragment of [
-        "id,",
-        "id,name,",
-        "distinct id,",
-        ",id,",
-        "id, -- trailing comment",
-        "id, /* trailing comment */",
-        "id /* preceding comment */,",
-        "id,;",
-        "id, from users",
+      for (const [fragment, expected] of [
+        ["id,", "id,"],
+        ["id,name,", "id, name,"],
+        ["distinct id,", "DISTINCT id,"],
+        [",id,", ", id,"],
+        [",", ","],
+        [", /* empty column */", ", /* empty column */"],
+        ["/* before */,", ", /* before */"],
+        ["-- before\n,", "\n  , -- before\n"],
+        ["/* before */, /* after */", ", /* before */ /* after */"],
+        ["id, -- trailing comment", "\n  id, -- trailing comment\n"],
+        ["id, /* trailing comment */", "id, /* trailing comment */"],
+        ["id /* preceding comment */,", "id /* preceding comment */,"],
+        ["id /* before, */, /* after, */", "id /* before, */, /* after, */"],
+        ["lower(id) /* before, */,", "lower(id) /* before, */,"],
+        [
+          "id /* before, */, /* after1, */ /* after2 */",
+          "id /* before, */, /* after1, */ /* after2 */",
+        ],
+        [",id, /* after */", ", id, /* after */"],
+        [",id, -- after", "\n  , id, -- after\n"],
+        [",-- before\nid, -- after", "\n  , -- before\n  id, -- after\n"],
+        ["id,${column},", "id, ${column},"],
+        ["id,;", "id,;"],
+        ["id, /* comment */;", "id, /* comment */;"],
+        ["id, from users", "id, FROM users"],
       ]) {
         const input = `sql\`${fragment}\`;\n`;
         const output = await format(input, settings);
-        expect(output).toBe(input);
+        expect(output).toBe(`sql\`${expected}\`;\n`);
         expect(await format(output, settings)).toBe(output);
       }
     },
@@ -152,12 +167,16 @@ describe("trailing fragment commas", () => {
   });
 
   it.each(["compat-sql-cst-v0-18", "compat-sql-cst-v0-22"])(
-    "preserves trailing commas without disabling normal recovery with %s",
+    "formats trailing commas and their comments with %s",
     async (plugin) => {
-      vi.stubEnv("PRETTIER_DEBUG", undefined);
       const settings = { ...fragmentOptions, plugins: [embed, plugin] };
-      const output = await format("sql`id,name`;sql`id,`;", settings);
-      expect(output).toBe("sql`id, name`;\nsql`id,`;\n");
+      const output = await format(
+        "sql`id,name,`;sql`,id,`;sql`id /* before, */, /* after, */`;",
+        settings,
+      );
+      expect(output).toBe(
+        "sql`id, name,`;\nsql`, id,`;\nsql`id /* before, */, /* after, */`;\n",
+      );
       expect(await format(output, settings)).toBe(output);
     },
   );
@@ -168,6 +187,39 @@ describe("trailing fragment commas", () => {
     expect(output).toBe("sql`SELECT id;`;\n");
     expect(await format(output, fragmentOptions)).toBe(output);
   });
+
+  it.each([
+    { printWidth: 20 },
+    { tabWidth: 4 },
+    { useTabs: true, tabWidth: 4 },
+    { noEmbeddedMultiLineIndentation: ["sql"] },
+    { preserveEmbeddedExteriorWhitespaces: ["sql"] },
+  ])(
+    "keeps trailing commas and interpolations stable with %j",
+    async (layout) => {
+      const input = [
+        "function query() {",
+        "const prefix = sql`id,${column}, /* fields */`;",
+        "const continued = sql`,name,${other}, -- fields",
+        "`;",
+        "return [prefix, continued];",
+        "}",
+      ].join("\n");
+      const settings = { ...fragmentOptions, ...layout };
+      const output = await format(input, settings);
+      expect(
+        (await contents(output)).map((text) =>
+          text.replace(/\s+/g, " ").trim(),
+        ),
+      ).toEqual([
+        "id, <expression>, /* fields */",
+        ", name, <expression>, -- fields",
+      ]);
+      expect(output.split("${column}")).toHaveLength(2);
+      expect(output.split("${other}")).toHaveLength(2);
+      expect(await format(output, settings)).toBe(output);
+    },
+  );
 });
 
 describe("SELECT modifiers in fragments", () => {
@@ -224,10 +276,11 @@ describe("fragment formatting opt-in", () => {
     async (embeddedSqlFormatFragments) => {
       vi.stubEnv("PRETTIER_DEBUG", undefined);
       const settings = { ...options, embeddedSqlFormatFragments };
-      const input = "sql`id=1`;sql`distinct id,name`;sql`select 1`;";
+      const input =
+        "sql`id=1`;sql`distinct id,name`;sql`id,name,`;sql`select 1`;";
       const output = await format(input, settings);
       expect(output).toBe(
-        "sql`id=1`;\nsql`distinct id,name`;\nsql`SELECT 1;`;\n",
+        "sql`id=1`;\nsql`distinct id,name`;\nsql`id,name,`;\nsql`SELECT 1;`;\n",
       );
       expect(await format(output, settings)).toBe(output);
     },
