@@ -113,6 +113,63 @@ describe("explicit fragment semicolons", () => {
   });
 });
 
+describe("trailing fragment commas", () => {
+  it.each(dialects)(
+    "preserves fragments whose trailing empty column was removed with %s",
+    async (embeddedSqlParser) => {
+      vi.stubEnv("PRETTIER_DEBUG", undefined);
+      const settings = { ...fragmentOptions, embeddedSqlParser };
+      for (const fragment of [
+        "id,",
+        "id,name,",
+        "distinct id,",
+        ",id,",
+        "id, -- trailing comment",
+        "id, /* trailing comment */",
+        "id /* preceding comment */,",
+        "id,;",
+        "id, from users",
+      ]) {
+        const input = `sql\`${fragment}\`;\n`;
+        const output = await format(input, settings);
+        expect(output).toBe(input);
+        expect(await format(output, settings)).toBe(output);
+      }
+    },
+  );
+
+  it("does not mistake commas in literals or comments for a missing column", async () => {
+    for (const [fragment, expected] of [
+      ["','", "','"],
+      ["concat('a,','b')", "concat('a,', 'b')"],
+      ["id=1 /* comma, */", "id = 1 /* comma, */"],
+      ["id,name /* comma, */", "id, name /* comma, */"],
+    ]) {
+      const output = await format(`sql\`${fragment}\`;`, fragmentOptions);
+      expect(output).toBe(`sql\`${expected}\`;\n`);
+      expect(await format(output, fragmentOptions)).toBe(output);
+    }
+  });
+
+  it.each(["compat-sql-cst-v0-18", "compat-sql-cst-v0-22"])(
+    "preserves trailing commas without disabling normal recovery with %s",
+    async (plugin) => {
+      vi.stubEnv("PRETTIER_DEBUG", undefined);
+      const settings = { ...fragmentOptions, plugins: [embed, plugin] };
+      const output = await format("sql`id,name`;sql`id,`;", settings);
+      expect(output).toBe("sql`id, name`;\nsql`id,`;\n");
+      expect(await format(output, settings)).toBe(output);
+    },
+  );
+
+  it("retains native trailing-comma normalization for complete statements", async () => {
+    const input = "sql`select id,`;";
+    const output = await format(input, fragmentOptions);
+    expect(output).toBe("sql`SELECT id;`;\n");
+    expect(await format(output, fragmentOptions)).toBe(output);
+  });
+});
+
 describe("SELECT modifiers in fragments", () => {
   it.each(dialects)(
     "formats DISTINCT and ALL with %s",

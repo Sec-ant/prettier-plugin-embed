@@ -5,6 +5,7 @@ export interface SqlNode {
   type: string;
   range?: [number, number];
   clauses?: SqlNode[];
+  columns?: SqlNode;
   items?: SqlNode[];
   left?: SqlNode;
   modifiers?: SqlNode[];
@@ -55,6 +56,16 @@ export const parser: Parser<SqlNode> = {
             statement?.type === "select_stmt" &&
             rest.every(({ type }) => type === "empty")
           ) {
+            const columns = statement.clauses!.find(
+              ({ type }) => type === "select_clause",
+            )?.columns;
+            // A stripped trailing empty column leaves its comma in the list's range.
+            if (
+              columns &&
+              columns.range![1] > columns.items!.at(-1)!.range![1]
+            ) {
+              continue;
+            }
             statement.clauses = statement.clauses!.filter(
               ({ range }) => range![1] > prefix.length,
             );
