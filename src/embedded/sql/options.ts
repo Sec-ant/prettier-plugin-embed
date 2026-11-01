@@ -87,6 +87,13 @@ export const options = {
       description: `Use the "${parser}" parser.`,
     })),
   } satisfies ChoiceSupportOption<SqlCstParser>,
+  embeddedSqlFormatFragments: {
+    category: "Embed",
+    type: "boolean",
+    default: false,
+    description:
+      "Format SQL fragments with `prettier-plugin-sql-cst` by retrying failed parses with temporary SQL context.",
+  },
 } as const satisfies SupportOptions;
 
 type Options = typeof options;
@@ -104,5 +111,6 @@ declare module "../types.js" {
     [EMBEDDED_LANGUAGE_TAGS]?: Tags;
     [EMBEDDED_LANGUAGE_PLUGIN]?: SqlPlugin;
     [EMBEDDED_LANGUAGE_PARSER]?: SqlCstParser;
+    embeddedSqlFormatFragments?: boolean;
   }
 }

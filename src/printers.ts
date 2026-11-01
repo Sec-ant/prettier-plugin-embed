@@ -8,7 +8,7 @@ import type {
   Printer,
 } from "prettier";
 import { printers as estreePrinters } from "prettier/plugins/estree.mjs";
-import { embeddedLanguages } from "./embedded/index.js";
+import { embeddedLanguages, embeddedPrinters } from "./embedded/index.js";
 import { parsers } from "./parsers.js";
 import {
   assumeAs,
@@ -188,4 +188,5 @@ export const printers = {
     ...estreePrinter,
     embed,
   },
+  ...embeddedPrinters,
 } satisfies Plugin["printers"];

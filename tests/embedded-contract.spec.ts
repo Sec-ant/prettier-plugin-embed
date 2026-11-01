@@ -134,9 +134,11 @@ for (const language of embeddedLanguages.filter(
           expect(formatted.match(/expression/g)).toHaveLength(1);
           expect(parsedOptions).toHaveLength(1);
           if (customParser) {
-            expect(parsedOptions[0]).toMatchObject({
-              parser: customParser,
-            });
+            expect(parsedOptions[0]).toMatchObject(
+              language === "embeddedSql"
+                ? { parser: language, [parserOption]: customParser }
+                : { parser: customParser },
+            );
           } else {
             expect(typeof parsedOptions[0]?.parser).toBe("string");
           }

@@ -7,6 +7,7 @@ export type {
   EmbeddedLanguage,
   EmbeddedOptions,
   EmbeddedParsers,
+  EmbeddedPrinters,
   EmbeddedTag,
   PluginEmbedOptions,
 } from "./types.js";

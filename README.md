@@ -872,26 +872,41 @@ Choose `"slang"` or `"antlr"` with current formatter versions. Formatter version
 - **Default**: [`"sqlite"`](./src/embedded/sql/options.ts)
 - **Description**: Specify the embedded SQL language parser. This option is only needed with the `prettier-plugin-sql-cst` plugin.
 
+##### `embeddedSqlFormatFragments`
+
+- **Type**: `boolean`
+- **Default**: `false`
+- **Description**: Enable formatting SQL fragments with `prettier-plugin-sql-cst`. When disabled, only templates that parse as complete statements are formatted. When enabled, failed parses are retried with temporary SQL context. This uses heuristics and adds parsing work for fragments. The option can also be set per tag or comment through [`embeddedOverrides`](#embeddedoverrides-1). It does not affect the native fragment formatting provided by `prettier-plugin-sql`.
+
+```json
+{
+  "plugins": ["prettier-plugin-embed", "prettier-plugin-sql-cst"],
+  "embeddedSqlFormatFragments": true
+}
+```
+
 ##### SQL formatter selection
 
 The first matching row applies; `never` means invalid configuration. `plugins` lists only SQL formatters, regardless of order.
 
-| `plugins`                                                                       | `embeddedSqlPlugin`         | `embeddedSqlParser`                                                                   | `embeddedSqlPlugin` (resolved) | `parser` (embedded)                                  |
-| ------------------------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------- | ------------------------------ | ---------------------------------------------------- |
-| `["prettier-plugin-sql"] \| ["prettier-plugin-sql", "prettier-plugin-sql-cst"]` | `undefined`                 | `undefined \| null \| "sqlite" \| "bigquery" \| "mysql" \| "mariadb" \| "postgresql"` | `"prettier-plugin-sql"`        | `"sql"`                                              |
-| `["prettier-plugin-sql-cst"]`                                                   | `undefined`                 | `undefined \| null \| "sqlite"`                                                       | `"prettier-plugin-sql-cst"`    | `"sqlite"`                                           |
-| `["prettier-plugin-sql-cst"]`                                                   | `undefined`                 | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"`                                  | `"prettier-plugin-sql-cst"`    | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"` |
-| `[]`                                                                            | `undefined`                 | `undefined \| null \| "sqlite" \| "bigquery" \| "mysql" \| "mariadb" \| "postgresql"` | `"prettier-plugin-sql"`        | `"sql"`                                              |
-| `any`                                                                           | `"prettier-plugin-sql"`     | `undefined \| null \| "sqlite" \| "bigquery" \| "mysql" \| "mariadb" \| "postgresql"` | `"prettier-plugin-sql"`        | `"sql"`                                              |
-| `any`                                                                           | `"prettier-plugin-sql-cst"` | `undefined \| null \| "sqlite"`                                                       | `"prettier-plugin-sql-cst"`    | `"sqlite"`                                           |
-| `any`                                                                           | `"prettier-plugin-sql-cst"` | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"`                                  | `"prettier-plugin-sql-cst"`    | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"` |
-| `any`                                                                           | `any`                       | `any`                                                                                 | `never`                        | `never`                                              |
+| `plugins`                                                                       | `embeddedSqlPlugin`         | `embeddedSqlParser`                                                                   | `embeddedSqlPlugin` (resolved) | `parser` (embedded) |
+| ------------------------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------------------- | ------------------------------ | ------------------- |
+| `["prettier-plugin-sql"] \| ["prettier-plugin-sql", "prettier-plugin-sql-cst"]` | `undefined`                 | `undefined \| null \| "sqlite" \| "bigquery" \| "mysql" \| "mariadb" \| "postgresql"` | `"prettier-plugin-sql"`        | `"sql"`             |
+| `["prettier-plugin-sql-cst"]`                                                   | `undefined`                 | `undefined \| null \| "sqlite"`                                                       | `"prettier-plugin-sql-cst"`    | `"embeddedSql"`     |
+| `["prettier-plugin-sql-cst"]`                                                   | `undefined`                 | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"`                                  | `"prettier-plugin-sql-cst"`    | `"embeddedSql"`     |
+| `[]`                                                                            | `undefined`                 | `undefined \| null \| "sqlite" \| "bigquery" \| "mysql" \| "mariadb" \| "postgresql"` | `"prettier-plugin-sql"`        | `"sql"`             |
+| `any`                                                                           | `"prettier-plugin-sql"`     | `undefined \| null \| "sqlite" \| "bigquery" \| "mysql" \| "mariadb" \| "postgresql"` | `"prettier-plugin-sql"`        | `"sql"`             |
+| `any`                                                                           | `"prettier-plugin-sql-cst"` | `undefined \| null \| "sqlite"`                                                       | `"prettier-plugin-sql-cst"`    | `"embeddedSql"`     |
+| `any`                                                                           | `"prettier-plugin-sql-cst"` | `"bigquery" \| "mysql" \| "mariadb" \| "postgresql"`                                  | `"prettier-plugin-sql-cst"`    | `"embeddedSql"`     |
+| `any`                                                                           | `any`                       | `any`                                                                                 | `never`                        | `never`             |
 
 Invalid top-level options are rejected before formatting. A missing selected parser preserves the template content by default; a non-empty `PRETTIER_DEBUG` exposes the error. Explicit plugin choices never fall back to another formatter.
 
 Formatting embedded SQL language requires the [`prettier-plugin-sql`](https://github.com/un-ts/prettier/tree/master/packages/sql#readme) plugin or the [`prettier-plugin-sql-cst`](https://github.com/nene/prettier-plugin-sql-cst#readme) plugin to be loaded as well. And [options](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options) supported by `prettier-plugin-sql`, or [options](https://github.com/nene/prettier-plugin-sql-cst?tab=readme-ov-file#configuration) supported by `prettier-plugin-sql-cst` can therefore be used to further control the formatting behavior.
 
 Note that `prettier-plugin-sql` supports many different SQL dialects which are specified by the [`language`, `database` or `dialect` option](https://github.com/un-ts/prettier/tree/master/packages/sql#parser-options). And `prettier-plugin-sql-cst` also supports various parsers as shown above. If you want to specify different dialects or parsers for different comments or tags, check [`embeddedOverrides`](#embeddedoverrides-1).
+
+With `prettier-plugin-sql-cst` and [`embeddedSqlFormatFragments: true`](#embeddedsqlformatfragments), a template that isn't a whole statement, such as a condition, a column list (including `DISTINCT`, `ALL`, or PostgreSQL's `DISTINCT ON`), a clause or a join, is parsed after a synthetic `SELECT` prefix, and only the template's own part is printed. Trailing list commas and explicit trailing semicolons are preserved; new semicolons are not added. A template that doesn't parse either way is left as is.
 
 #### Svelte
 
@@ -1177,9 +1192,11 @@ Bug fixes, new language support and tests are welcome. Please have a look at the
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://upleveled.io"><img src="https://avatars.githubusercontent.com/u/1935696?v=4?s=100" width="100px;" alt="Karl Horky"/><br /><sub><b>Karl Horky</b></sub></a><br /><a href="#code-karlhorky" title="Code">💻</a> <a href="#doc-karlhorky" title="Documentation">📖</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://math-atlas.vercel.app"><img src="https://avatars.githubusercontent.com/u/64682375?v=4?s=100" width="100px;" alt="Kelvin Soh"/><br /><sub><b>Kelvin Soh</b></sub></a><br /><a href="#code-kelvinsjk" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://www.1stg.me"><img src="https://avatars.githubusercontent.com/u/8336744?v=4?s=100" width="100px;" alt="JounQin"/><br /><sub><b>JounQin</b></sub></a><br /><a href="#code-JounQin" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Sec-ant"><img src="https://avatars.githubusercontent.com/u/10386119?v=4&size=100" width="100px" height="100px" alt="Ze-Zheng Wu"/><br /><sub><b>Ze-Zheng Wu</b></sub></a><br /><a href="https://github.com/Sec-ant/prettier-plugin-embed/commits?author=Sec-ant" title="Code">💻</a> <a href="https://github.com/Sec-ant/prettier-plugin-embed/commits?author=Sec-ant" title="Documentation">📖</a> <a href="#maintenance-Sec-ant" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://upleveled.io"><img src="https://avatars.githubusercontent.com/u/1935696?v=4&size=100" width="100px" height="100px" alt="Karl Horky"/><br /><sub><b>Karl Horky</b></sub></a><br /><a href="https://github.com/Sec-ant/prettier-plugin-embed/commits?author=karlhorky" title="Code">💻</a> <a href="https://github.com/Sec-ant/prettier-plugin-embed/commits?author=karlhorky" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://math-atlas.vercel.app"><img src="https://avatars.githubusercontent.com/u/64682375?v=4&size=100" width="100px" height="100px" alt="Kelvin Soh"/><br /><sub><b>Kelvin Soh</b></sub></a><br /><a href="https://github.com/Sec-ant/prettier-plugin-embed/commits?author=kelvinsjk" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.1stg.me"><img src="https://avatars.githubusercontent.com/u/8336744?v=4&size=100" width="100px" height="100px" alt="JounQin"/><br /><sub><b>JounQin</b></sub></a><br /><a href="https://github.com/Sec-ant/prettier-plugin-embed/commits?author=JounQin" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/abrahamguo"><img src="https://avatars.githubusercontent.com/u/7842684?v=4&size=100" width="100px" height="100px" alt="Abraham Guo"/><br /><sub><b>Abraham Guo</b></sub></a><br /><a href="https://github.com/Sec-ant/prettier-plugin-embed/commits?author=abrahamguo" title="Code">💻</a> <a href="https://github.com/Sec-ant/prettier-plugin-embed/commits?author=abrahamguo" title="Documentation">📖</a> <a href="https://github.com/Sec-ant/prettier-plugin-embed/commits?author=abrahamguo" title="Tests">⚠️</a></td>
     </tr>
   </tbody>
 </table>

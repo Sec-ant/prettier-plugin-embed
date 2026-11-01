@@ -58,7 +58,7 @@ export const embedder: Embedder<Options> = async (
   if (plugin === "prettier-plugin-sql-cst") {
     const doc = await textToDoc(text, {
       ...resolvedOptions,
-      parser: resolvedOptions.embeddedSqlParser ?? "sqlite",
+      parser: language,
     });
     contentDoc = simpleRehydrateDoc(doc, placeholderRegex, expressionDocs);
   } else {

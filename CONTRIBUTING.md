@@ -64,6 +64,12 @@ These cases reuse basic and interpolation fixtures to check formatting, idempote
 
 Document the default identifiers, required plugin, and any language-specific restrictions in the README language reference. Include a changeset for consumer-visible changes.
 
+## Updating contributors
+
+Use [All Contributors](https://allcontributors.org/) to credit contributions in `.all-contributorsrc` and the README. Add or update a contributor with `pnpm dlx all-contributors-cli@7.0.0 add <username> code,doc`, choosing the relevant [contribution types](https://allcontributors.org/en/reference/emoji-key/).
+
+The README follows the order in `.all-contributorsrc`. After editing the configuration directly, run `pnpm dlx all-contributors-cli@7.0.0 generate` to update the table.
+
 ## Changeset style
 
 Follow [xyflow's changeset style guide](https://github.com/xyflow/xyflow/blob/main/CONTRIBUTING.md#changeset-style-guide):

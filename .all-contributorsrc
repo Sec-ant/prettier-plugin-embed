@@ -9,6 +9,17 @@
   "contributorsPerLine": 7,
   "contributors": [
     {
+      "login": "Sec-ant",
+      "name": "Ze-Zheng Wu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10386119?v=4",
+      "profile": "https://github.com/Sec-ant",
+      "contributions": [
+        "code",
+        "doc",
+        "maintenance"
+      ]
+    },
+    {
       "login": "karlhorky",
       "name": "Karl Horky",
       "avatar_url": "https://avatars.githubusercontent.com/u/1935696?v=4",
@@ -34,6 +45,17 @@
       "profile": "https://www.1stg.me",
       "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "abrahamguo",
+      "name": "Abraham Guo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7842684?v=4",
+      "profile": "https://github.com/abrahamguo",
+      "contributions": [
+        "code",
+        "doc",
+        "test"
       ]
     }
   ]
