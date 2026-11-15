@@ -1,0 +1,1 @@
+import{n as e,r as t,t as n}from"./acorn-CSoPG66n.js";e();export{n as default,t as parsers};
