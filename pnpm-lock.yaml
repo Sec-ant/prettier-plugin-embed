@@ -217,8 +217,8 @@ importers:
         specifier: ^21.2.3
         version: 21.2.3
       '@htnabe/prettier-plugin-go-template':
-        specifier: ^0.0.5
-        version: 0.0.5(prettier@3.9.10)
+        specifier: ^0.0.6
+        version: 0.0.6(prettier@3.9.10)
       '@htnabe/prettier-plugin-hugo-post':
         specifier: ^0.0.2
         version: 0.0.2(prettier@3.9.10)
@@ -955,8 +955,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@htnabe/prettier-plugin-go-template@0.0.5':
-    resolution: {integrity: sha512-GcvL5pm8WFthaUJMxnsxh6sryjzpho3iBuIum2Fryf9Td0Y3HYD+wAYKfnvwykHtDT61dRwSvkfoSqBBmLk8GQ==}
+  '@htnabe/prettier-plugin-go-template@0.0.6':
+    resolution: {integrity: sha512-7KztS3XyabgCSs396ai3IE+gf4AOEkwW5QRajDQqJQVXM3vXbd0uWHzH1IOZ/Vw8CLI1FAUPeqLZQB87ba3O/Q==}
     engines: {node: '>=26.0.0'}
     peerDependencies:
       prettier: ^3.0.0
@@ -3458,7 +3458,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@htnabe/prettier-plugin-go-template@0.0.5(prettier@3.9.10)':
+  '@htnabe/prettier-plugin-go-template@0.0.6(prettier@3.9.10)':
     dependencies:
       prettier: 3.9.10
       ulid: 3.0.2
